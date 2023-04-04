@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "987732586335",
+    "project_id": "pollar-d108e",
+    "storage_bucket": "pollar-d108e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987732586335:android:fca1251439e74ae7d450ea",
+        "android_client_info": {
+          "package_name": "com.example.pollar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "987732586335-gpmod3pncgkfjuuvs41sjafh50n6rtnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBF7QxhzScdZeuj31b7SpKc7s_PuGmfUEQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "987732586335-01846shhj6q4bqi63b6njak6n5s4bp6v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "987732586335-3g9ei5bov8rknk3ab6dlvgqmh25ksmmh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.pollar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
