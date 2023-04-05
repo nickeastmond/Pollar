@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
+import 'firebase_user_signup.dart';
 import '../polls_theme.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -261,7 +261,12 @@ class SignUpPageState extends State<SignUpPage> {
                                 child: const Text(
                                   "Sign Up",
                                 ),
-                                onPressed: () async {}),
+                                onPressed: () async {
+                                  FirebaseSignup.firebaseUserSignup(
+                                              emailController.text,
+                                              passwordController.text
+                                            );
+                                }),
                           ),
                           const Spacer(),
                         ],

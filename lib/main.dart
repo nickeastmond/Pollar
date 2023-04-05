@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pollar/services/shared_preferences_service.dart';
 import 'package:pollar/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 void main() async {
   //DO NOT EDIT
@@ -9,6 +11,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  ///
+
+  //Initilize shared_preferences Singleton Class
+  SharedPreferencesService.getInstance().then((service) {
+    var preferences = service!.preferences;
+  // Use preferences to read/write values from anywhere in app
+  });
+  
   
   runApp(const PollsApp());
 }
