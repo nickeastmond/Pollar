@@ -8,17 +8,15 @@ import '../services/PollarUser/create_user_db.dart';
 class FirebaseSignup {
     // If you are listening to changes in authentication state, 
     // a new event will be sent to your listeners if succesful.
-    static Future<void> firebaseUserSignup(String emailAddress, String password) async {
+    static Future<void> firebaseUserSignup(String emailAddress, String password, Map<String, dynamic>? customData) async {
       PollarUser pollarUser;
       try {
         final UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailAddress,
           password: password,
         );
-
         User? user = credential.user;
-        
-        pollarUser = PollarUser(user);
+        pollarUser = PollarUser(user, customData);
         print("Created Pollar user");
         addUserToFirestore(pollarUser);
       } on FirebaseAuthException catch (e) {

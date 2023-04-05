@@ -262,9 +262,18 @@ class SignUpPageState extends State<SignUpPage> {
                                   "Sign Up",
                                 ),
                                 onPressed: () async {
+                                  // @Nick add whatever you want to this custom data, it will be stored
+                                  // In firebase.
+                                  //Ex: customData["username"] = usernameController.text
+                              
+
+                                  var customData = <String, dynamic>{};
+                                  customData["username"] = "fat";
+                        
                                   FirebaseSignup.firebaseUserSignup(
                                               emailController.text,
-                                              passwordController.text
+                                              passwordController.text,
+                                              customData
                                             );
                                 }),
                           ),
