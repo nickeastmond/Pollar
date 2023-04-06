@@ -89,7 +89,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.email],
@@ -122,6 +122,11 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  validator: (email) =>
+                                    email != null
+                                      ? null
+                                      : 'Please enter an email',
                                 ),
                               ),
                             ),
@@ -147,7 +152,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.password],
@@ -180,6 +185,11 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  validator: (password) =>
+                                    password != null
+                                      ? null
+                                      : 'Please enter an email',
                                 ),
                               ),
                             ),
