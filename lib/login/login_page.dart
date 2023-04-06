@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pollar/login/firebase_user_login.dart';
 import 'package:pollar/login/signup_page.dart';
 import '../polls_theme.dart';
 import 'custom_page_route.dart';
@@ -210,7 +211,12 @@ class LoginPageState extends State<LoginPage> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400),
                               ),
-                              onPressed: () async {}),
+                              onPressed: () async {
+                                FirebaseLogin.firebaseUserLogin(
+                                              emailController.text,
+                                              passwordController.text
+                                            );
+                              }),
                         ),
                         const Spacer(),
                       ],
