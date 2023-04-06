@@ -8,6 +8,8 @@ import '../services/auth.dart';
 import 'firebase_user_signup.dart';
 import '../polls_theme.dart';
 
+import 'package:email_validator/email_validator.dart';
+
 class SignUpPage extends StatefulWidget {
   const SignUpPage({
     super.key,
@@ -23,6 +25,7 @@ class SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   int tabSelected = 0; // initially tab selected is poll feed
+  bool signUpCriteriaMet = true;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +61,7 @@ class SignUpPageState extends State<SignUpPage> {
                         children: [
                           const Center(
                             child: Icon(
-                              Icons.bar_chart_rounded,
+                              Icons.bar_chart,
                               color: Colors.white,
                               size: 50,
                             ),
@@ -66,6 +69,10 @@ class SignUpPageState extends State<SignUpPage> {
                           const Center(
                             child: Text(
                               "Sign Up",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w300),
                             ),
                           ),
                           const SizedBox(
@@ -74,7 +81,7 @@ class SignUpPageState extends State<SignUpPage> {
                           Container(
                             height: 55,
                             width: 400,
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 30),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: [
@@ -85,11 +92,14 @@ class SignUpPageState extends State<SignUpPage> {
                                       blurStyle: BlurStyle.normal,
                                       offset: Offset.fromDirection(pi / 2, 4))
                                 ],
-                                borderRadius: BorderRadius.circular(30)),
+                                borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                padding: const EdgeInsets.only(
+                                  left: 12,
+                                  right: 12,
+                                ),
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.email],
@@ -122,6 +132,18 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  // still need to check if email is legit/exists
+                                  validator: (email) {
+                                    if (email == null ||
+                                        !EmailValidator.validate(email)) {
+                                      signUpCriteriaMet = false;
+                                      return 'Please enter a valid email';
+                                    }
+                                    signUpCriteriaMet = true;
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -132,7 +154,7 @@ class SignUpPageState extends State<SignUpPage> {
                           Container(
                             height: 55,
                             width: 400,
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 30),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: [
@@ -143,11 +165,11 @@ class SignUpPageState extends State<SignUpPage> {
                                       blurStyle: BlurStyle.normal,
                                       offset: Offset.fromDirection(pi / 2, 4))
                                 ],
-                                borderRadius: BorderRadius.circular(30)),
+                                borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                padding: const EdgeInsets.only(left: 12, right: 12),
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.password],
@@ -180,6 +202,18 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  // For now, pass requirement is need to contain at least 6 chars
+                                  validator: (password) {
+                                    if (password != null &&
+                                        password.length < 6) {
+                                      signUpCriteriaMet = false;
+                                      return 'Password must be at least 6 characters long';
+                                    }
+                                    signUpCriteriaMet = true;
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -188,7 +222,7 @@ class SignUpPageState extends State<SignUpPage> {
                           Container(
                             height: 55,
                             width: 400,
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 30),
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 boxShadow: [
@@ -199,11 +233,11 @@ class SignUpPageState extends State<SignUpPage> {
                                       blurStyle: BlurStyle.normal,
                                       offset: Offset.fromDirection(pi / 2, 4))
                                 ],
-                                borderRadius: BorderRadius.circular(30)),
+                                borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                padding: const EdgeInsets.only(left: 12, right: 12),
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.password],
@@ -236,6 +270,17 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  validator: (confirmPassword) {
+                                    if (confirmPassword !=
+                                        passwordController.text) {
+                                      signUpCriteriaMet = false;
+                                      return 'Passwords do not match';
+                                    }
+                                    signUpCriteriaMet = true;
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -246,7 +291,7 @@ class SignUpPageState extends State<SignUpPage> {
                           Container(
                             height: 55,
                             width: 450,
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 30),
                             decoration: BoxDecoration(
                                 boxShadow: [
                                   BoxShadow(
@@ -257,21 +302,43 @@ class SignUpPageState extends State<SignUpPage> {
                                       offset: Offset.fromDirection(pi / 2, 4))
                                 ],
                                 color: theme.secondaryHeaderColor,
-                                borderRadius: BorderRadius.circular(30)),
+                                borderRadius: BorderRadius.circular(0)),
                             child: TextButton(
                                 child: const Text(
                                   "Sign Up",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 onPressed: () async {
-                                  if (passwordController.text == confirmPasswordController.text){
-                                  FirebaseSignup.firebaseUserSignup(
-                                              emailController.text,
-                                              passwordController.text,
-                                            ).then((_) {
-                                              if (PollarAuth.isUserSignedIn()) {
-                                                Navigator.pop(context);
-                                              }
-                                            }); // pop the current route off the stack);
+                                  String error = '';
+                                  if (passwordController.text ==
+                                      confirmPasswordController.text) {
+                                    error =
+                                        await FirebaseSignup.firebaseUserSignup(
+                                      emailController.text,
+                                      passwordController.text,
+                                    );
+                                    if (context.mounted &&
+                                        PollarAuth.isUserSignedIn()) {
+                                      Navigator.pop(context);
+                                    }
+                                  } else {
+                                    error = 'Passwords do not match';
+                                  }
+                                  var snackBar = SnackBar(
+                                    duration: const Duration(seconds: 3),
+                                    backgroundColor: Colors.red,
+                                    content: Text(
+                                      error,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  );
+                                  if (context.mounted && error.isNotEmpty) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
                                   }
                                 }),
                           ),
