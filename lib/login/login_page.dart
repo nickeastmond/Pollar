@@ -1,7 +1,6 @@
 //  Created by Nicholas Eastmond on 10/5/22.
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -208,14 +207,29 @@ class LoginPageState extends State<LoginPage> {
                                 "Sign In",
                                 style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 17,
                                     fontWeight: FontWeight.w400),
                               ),
                               onPressed: () async {
-                                FirebaseLogin.firebaseUserLogin(
-                                              emailController.text,
-                                              passwordController.text
-                                            );
+                                String error =
+                                    await FirebaseLogin.firebaseUserLogin(
+                                        emailController.text,
+                                        passwordController.text);
+                                debugPrint(error);
+
+                                var snackBar = SnackBar(
+                                  duration: const Duration(seconds: 3),
+                                  backgroundColor: Colors.red,
+                                  content: Text(
+                                    error,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                );
+                                if (context.mounted && error.isNotEmpty) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+                                }
                               }),
                         ),
                         const Spacer(),
