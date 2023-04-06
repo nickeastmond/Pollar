@@ -8,6 +8,8 @@ import '../services/auth.dart';
 import 'firebase_user_signup.dart';
 import '../polls_theme.dart';
 
+import 'package:email_validator/email_validator.dart';
+
 class SignUpPage extends StatefulWidget {
   const SignUpPage({
     super.key,
@@ -23,6 +25,7 @@ class SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   int tabSelected = 0; // initially tab selected is poll feed
+  bool signUpCriteriaMet = true;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +92,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.email],
@@ -122,6 +125,16 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  // still need to check if email is legit/exists
+                                  validator: (email) {
+                                    if (email == null || !EmailValidator.validate(email)) {
+                                      signUpCriteriaMet = false;
+                                      return 'Please enter a valid email';
+                                    }
+                                      signUpCriteriaMet = true;
+                                      return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -147,7 +160,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.password],
@@ -180,6 +193,16 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  // For now, pass requirement is need to contain at least 6 chars
+                                  validator: (password) {
+                                    if (password != null && password.length < 6) {
+                                      signUpCriteriaMet = false;
+                                      return 'Password must be at least 6 characters long';
+                                    }
+                                    signUpCriteriaMet = true;
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
@@ -203,7 +226,7 @@ class SignUpPageState extends State<SignUpPage> {
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 12),
-                                child: TextField(
+                                child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
                                   autofillHints: const [AutofillHints.password],
@@ -236,6 +259,15 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  validator: (confirmPassword) {
+                                    if (confirmPassword != passwordController.text) {
+                                      signUpCriteriaMet = false;
+                                      return 'Passwords do not match';
+                                    }
+                                      signUpCriteriaMet = true;
+                                      return null;
+                                  },
                                 ),
                               ),
                             ),
