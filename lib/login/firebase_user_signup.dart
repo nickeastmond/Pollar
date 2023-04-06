@@ -1,24 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
+import 'package:pollar/model/user/database/create_user_db.dart';
 
-import '../model/pollar_user_model.dart';
-import '../services/PollarUser/create_user_db.dart';
+import '../model/user/pollar_user_model.dart';
+
 
 
 class FirebaseSignup {
     // If you are listening to changes in authentication state, 
     // a new event will be sent to your listeners if succesful.
-    static Future<void> firebaseUserSignup(String emailAddress, String password, Map<String, dynamic>? customData) async {
+    static Future<void> firebaseUserSignup(String emailAddress, String password) async {
       PollarUser pollarUser;
       try {
         final UserCredential credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailAddress,
           password: password,
         );
-        User? user = credential.user;
-        pollarUser = PollarUser(user, customData);
         print("Created Pollar user");
-        addUserToFirestore(pollarUser);
+        PollarUser user = PollarUser.asBasic(credential.user!.uid,emailAddress);
+        addUserToFirestore(user);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           print('The password provided is too weak.');

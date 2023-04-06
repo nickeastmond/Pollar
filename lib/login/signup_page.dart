@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../services/auth.dart';
 import 'firebase_user_signup.dart';
 import '../polls_theme.dart';
 
@@ -262,19 +263,16 @@ class SignUpPageState extends State<SignUpPage> {
                                   "Sign Up",
                                 ),
                                 onPressed: () async {
-                                  // @Nick add whatever you want to this custom data, it will be stored
-                                  // In firebase.
-                                  //Ex: customData["username"] = usernameController.text
-                              
-
-                                  var customData = <String, dynamic>{};
-                                  customData["username"] = "fat";
-                        
+                                  if (passwordController.text == confirmPasswordController.text){
                                   FirebaseSignup.firebaseUserSignup(
                                               emailController.text,
                                               passwordController.text,
-                                              customData
-                                            );
+                                            ).then((_) {
+                                              if (PollarAuth.isUserSignedIn()) {
+                                                Navigator.pop(context);
+                                              }
+                                            }); // pop the current route off the stack);
+                                  }
                                 }),
                           ),
                           const Spacer(),
