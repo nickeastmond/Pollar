@@ -95,7 +95,10 @@ class SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
+                                padding: const EdgeInsets.only(
+                                  left: 12,
+                                  right: 12,
+                                ),
                                 child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
@@ -129,15 +132,17 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
-                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   // still need to check if email is legit/exists
                                   validator: (email) {
-                                    if (email == null || !EmailValidator.validate(email)) {
+                                    if (email == null ||
+                                        !EmailValidator.validate(email)) {
                                       signUpCriteriaMet = false;
                                       return 'Please enter a valid email';
                                     }
-                                      signUpCriteriaMet = true;
-                                      return null;
+                                    signUpCriteriaMet = true;
+                                    return null;
                                   },
                                 ),
                               ),
@@ -163,7 +168,7 @@ class SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
+                                padding: const EdgeInsets.only(left: 12, right: 12),
                                 child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
@@ -197,10 +202,12 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
-                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   // For now, pass requirement is need to contain at least 6 chars
                                   validator: (password) {
-                                    if (password != null && password.length < 6) {
+                                    if (password != null &&
+                                        password.length < 6) {
                                       signUpCriteriaMet = false;
                                       return 'Password must be at least 6 characters long';
                                     }
@@ -229,7 +236,7 @@ class SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12),
+                                padding: const EdgeInsets.only(left: 12, right: 12),
                                 child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
@@ -263,15 +270,17 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
-                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   validator: (confirmPassword) {
                                     // For now, pass requirement is need to contain at least 6 chars
-                                    if (confirmPassword != passwordController.text) {
+                                    if (confirmPassword !=
+                                        passwordController.text) {
                                       signUpCriteriaMet = false;
                                       return 'Passwords do not match';
                                     }
-                                      signUpCriteriaMet = true;
-                                      return null;
+                                    signUpCriteriaMet = true;
+                                    return null;
                                   },
                                 ),
                               ),
@@ -335,8 +344,18 @@ class SignUpPageState extends State<SignUpPage> {
                                       fontSize: 17,
                                       fontWeight: FontWeight.w400),
                                 ),
-
-                                ),
+                                onPressed: () async {
+                                  if (passwordController.text == confirmPasswordController.text){
+                                  FirebaseSignup.firebaseUserSignup(
+                                              emailController.text,
+                                              passwordController.text,
+                                            ).then((_) {
+                                              if (PollarAuth.isUserSignedIn()) {
+                                                Navigator.pop(context);
+                                              }
+                                            }); // pop the current route off the stack);
+                                  }
+                                }),
                           ),
                           const Spacer(),
                         ],
