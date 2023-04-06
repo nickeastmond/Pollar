@@ -95,10 +95,7 @@ class SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 12,
-                                  right: 12,
-                                ),
+                                padding: const EdgeInsets.only(left: 12),
                                 child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
@@ -132,18 +129,11 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  // still need to check if email is legit/exists
-                                  validator: (email) {
-                                    if (email == null ||
-                                        !EmailValidator.validate(email)) {
-                                      signUpCriteriaMet = false;
-                                      return 'Please enter a valid email';
-                                    }
-                                    signUpCriteriaMet = true;
-                                    return null;
-                                  },
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  validator: (email) =>
+                                    email != null
+                                      ? null
+                                      : 'Please enter an email',
                                 ),
                               ),
                             ),
@@ -168,7 +158,7 @@ class SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(0)),
                             child: Center(
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 12, right: 12),
+                                padding: const EdgeInsets.only(left: 12),
                                 child: TextFormField(
                                   textInputAction: TextInputAction.next,
                                   keyboardType: TextInputType.emailAddress,
@@ -202,18 +192,11 @@ class SignUpPageState extends State<SignUpPage> {
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.never,
                                   ),
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  // For now, pass requirement is need to contain at least 6 chars
-                                  validator: (password) {
-                                    if (password != null &&
-                                        password.length < 6) {
-                                      signUpCriteriaMet = false;
-                                      return 'Password must be at least 6 characters long';
-                                    }
-                                    signUpCriteriaMet = true;
-                                    return null;
-                                  },
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  validator: (password) =>
+                                    password != null
+                                      ? null
+                                      : 'Please enter an email',
                                 ),
                               ),
                             ),
