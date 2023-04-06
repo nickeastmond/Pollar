@@ -344,18 +344,8 @@ class SignUpPageState extends State<SignUpPage> {
                                       fontSize: 17,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                onPressed: () async {
-                                  if (passwordController.text == confirmPasswordController.text){
-                                  FirebaseSignup.firebaseUserSignup(
-                                              emailController.text,
-                                              passwordController.text,
-                                            ).then((_) {
-                                              if (PollarAuth.isUserSignedIn()) {
-                                                Navigator.pop(context);
-                                              }
-                                            }); // pop the current route off the stack);
-                                  }
-                                }),
+
+                                ),
                           ),
                           const Spacer(),
                         ],
