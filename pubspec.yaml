@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^4.5.0
   firebase_analytics: ^10.2.0
   firebase_auth: ^4.4.0
+  geolocator: ^9.0.2
   email_validator: ^2.1.17
 
 dev_dependencies:
