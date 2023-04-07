@@ -23,13 +23,46 @@ Future<bool> getLocation() async {
       desiredAccuracy: LocationAccuracy.high,
     );
 
-_saveLocationToFirestore() async {
-  Position _currentPosition;
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-    if (_currentPosition != null) {
-      await firestore.collection('User').add({
-        'position': GeoPoint(
-            _currentPosition.latitude, _currentPosition.longitude)
-      });
+    PositionAdapter.saveToSharedPreferences("location", position);
+    final prefs = await SharedPreferences.getInstance();
+    print("Geolocation is: ");
+    print(prefs.getString("location") ?? "");
+    return true;
+    }
+    catch (e) {
+        return false;
     }
   }
+
+
+void checkLocationEnabled(BuildContext context) async {
+  bool locationEnabled = await getLocation();
+  if (!locationEnabled && context.mounted) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Enable Location Services"),
+          content: const Text("Please enable location services to use this app."),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                
+                
+              SystemNavigator.pop();
+            }
+              
+            ),
+            TextButton(
+              child: const Text("Settings"),
+              onPressed: () async {
+                bool result = await Geolocator.openLocationSettings();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

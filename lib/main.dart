@@ -13,7 +13,6 @@ import 'firebase_options.dart';
     // Permission is already granted
     return true;
   } else {
-    print('no! trying to request permission!');
     // Permission is not granted, request it
     bool granted = await requestPermission();
     if (granted) {
@@ -30,11 +29,9 @@ Future<bool> requestPermission() async {
   print("Location status is: ${status}");
   if (status.isGranted) {
     // Permission granted
-    print('granted');
     return true;
   } else {
     // Permission not granted
-    print('no!');
     return false;
   }
 }
