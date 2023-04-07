@@ -5,6 +5,39 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
+Future<bool> checkPermission() async {
+  final status = await Permission.locationWhenInUse.status;
+  if (status.isGranted) {
+    // Permission is already granted
+    print('granted');
+    return true;
+  } else {
+    print('no!');
+    // Permission is not granted, request it
+    bool granted = await requestPermission();
+    if (granted) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+}
+
+Future<bool> requestPermission() async {
+  final status = await Permission.locationWhenInUse.request();
+  print("Location status is: ${status}");
+  if (status.isGranted) {
+    // Permission granted
+    return true;
+  } else {
+    // Permission not granted
+    return false;
+  }
+}
+
+
+
 void main() async {
   //DO NOT EDIT
   WidgetsFlutterBinding.ensureInitialized();
