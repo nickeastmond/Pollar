@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pollar/login/firebase_user_login.dart';
 import 'package:pollar/login/signup_page.dart';
+import 'package:pollar/navigation/navigation_page.dart';
+
 import '../polls_theme.dart';
 import 'custom_page_route.dart';
 
@@ -229,6 +231,8 @@ class LoginPageState extends State<LoginPage> {
                                 if (context.mounted && error.isNotEmpty) {
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
+                                } else if (context.mounted) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NavigationPage()));
                                 }
                               }),
                         ),
