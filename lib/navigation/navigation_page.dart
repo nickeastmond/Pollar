@@ -1,8 +1,11 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../polls_theme.dart';
+import '../services/location.dart';
+
+
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -18,6 +21,19 @@ class NavigationPageState extends State<NavigationPage> {
   static double elevation = 2.5;
 
   int tabSelected = 0; // initially tab selected is poll feed
+
+   @override
+   initState() {
+    super.initState();
+    checkLocationEnabled(context);
+    
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +100,7 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
+            
             Container(
               color: Colors.blue,
             ),
