@@ -1,6 +1,7 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
 import 'package:flutter/material.dart';
+import 'package:pollar/login/login_page.dart';
 
 import '../polls_theme.dart';
 
@@ -75,6 +76,18 @@ class NavigationPageState extends State<NavigationPage> {
                   size: iconSize,
                 ),
                 label: 'Profile Page',
+              ),
+
+              // TEMP
+              BottomNavigationBarItem(
+                icon: IconButton(
+                  icon: const Icon(Icons.exit_to_app),
+                  iconSize: iconSize,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                  }
+                  ),
+                label: 'Temporary Sign Out Page',
               ),
             ],
           ),
