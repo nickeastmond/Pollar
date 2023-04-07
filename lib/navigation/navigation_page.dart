@@ -105,7 +105,7 @@ class NavigationPageState extends State<NavigationPage> {
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
                   }
                   ),
-                label: 'Temporary Sign Out Page',
+                label: 'Temporary Sign Out Button',
               ),
             ],
           ),
@@ -119,9 +119,27 @@ class NavigationPageState extends State<NavigationPage> {
             Container(
               color: Colors.blue,
             ),
+
+            // ProfilePage()
             Container(
               color: Colors.red,
-            )
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+              child: 
+              Column(
+                children: [
+                  // emoji
+                  SizedBox(
+                    height: 100,
+                    child: Image.asset(
+                      'assets/sample_emoji.png',
+                      alignment: Alignment.topCenter,
+                    ),
+                  ),
+                  // account details
+                ],
+              ),
+            ),
           ],
         ),
       ),
