@@ -7,11 +7,10 @@ import 'navigation/navigation_page.dart';
 class Wrapper extends StatelessWidget {
   const Wrapper({super.key});
 
-  
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         print(snapshot.connectionState);
