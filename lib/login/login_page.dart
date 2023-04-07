@@ -231,6 +231,8 @@ class LoginPageState extends State<LoginPage> {
                                 if (context.mounted && error.isNotEmpty) {
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
+                                } else if (context.mounted) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NavigationPage()));
                                 }
                               }),
                         ),
