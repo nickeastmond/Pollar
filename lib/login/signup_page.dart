@@ -273,7 +273,6 @@ class SignUpPageState extends State<SignUpPage> {
                                   autovalidateMode:
                                       AutovalidateMode.onUserInteraction,
                                   validator: (confirmPassword) {
-                                    // For now, pass requirement is need to contain at least 6 chars
                                     if (confirmPassword !=
                                         passwordController.text) {
                                       signUpCriteriaMet = false;
