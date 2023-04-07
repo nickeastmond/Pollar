@@ -304,43 +304,47 @@ class SignUpPageState extends State<SignUpPage> {
                                 color: theme.secondaryHeaderColor,
                                 borderRadius: BorderRadius.circular(0)),
                             child: TextButton(
-                                child: const Text(
+                                onPressed: signUpCriteriaMet 
+                                  ? () async{
+                                    String error = '';
+                                    if (passwordController.text ==
+                                        confirmPasswordController.text) {
+                                      error =
+                                          await FirebaseSignup.firebaseUserSignup(
+                                        emailController.text,
+                                        passwordController.text,
+                                      );
+                                      if (context.mounted &&
+                                          PollarAuth.isUserSignedIn()) {
+                                        Navigator.pop(context);
+                                      }
+                                    } else {
+                                      error = 'Passwords do not match';
+                                    }
+                                    var snackBar = SnackBar(
+                                      duration: const Duration(seconds: 3),
+                                      backgroundColor: Colors.red,
+                                      content: Text(
+                                        error,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(fontSize: 15),
+                                      ),
+                                    );
+                                    if (context.mounted && error.isNotEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                    }
+                                  }
+                                  : null,
+                                  child: const Text(
                                   "Sign Up",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 17,
                                       fontWeight: FontWeight.w400),
                                 ),
-                                onPressed: () async {
-                                  String error = '';
-                                  if (passwordController.text ==
-                                      confirmPasswordController.text) {
-                                    error =
-                                        await FirebaseSignup.firebaseUserSignup(
-                                      emailController.text,
-                                      passwordController.text,
-                                    );
-                                    if (context.mounted &&
-                                        PollarAuth.isUserSignedIn()) {
-                                      Navigator.pop(context);
-                                    }
-                                  } else {
-                                    error = 'Passwords do not match';
-                                  }
-                                  var snackBar = SnackBar(
-                                    duration: const Duration(seconds: 3),
-                                    backgroundColor: Colors.red,
-                                    content: Text(
-                                      error,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 15),
-                                    ),
-                                  );
-                                  if (context.mounted && error.isNotEmpty) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(snackBar);
-                                  }
-                                }),
+
+                                ),
                           ),
                           const Spacer(),
                         ],
