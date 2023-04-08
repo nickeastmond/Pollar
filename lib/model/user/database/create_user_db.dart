@@ -19,7 +19,7 @@ void addUserToFirestore(PollarUser pollarUser) async {
     await ref.doc(PollarAuth.getUid()).set(pollarUser.getAll()).onError((e, _) {
       print("Error writing to db ${e}");
       return;
-    });;
+    });
     print("Added user to database");
   } catch (e) {
     print("Error creating user in database : ${e}");

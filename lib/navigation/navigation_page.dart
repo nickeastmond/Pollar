@@ -1,9 +1,14 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
+
+
 import 'package:flutter/material.dart';
+import 'package:pollar/login/login_page.dart';
 
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
+import '../services/location.dart';
+
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -19,6 +24,19 @@ class NavigationPageState extends State<NavigationPage> {
   static double elevation = 2.5;
 
   int tabSelected = 0; // initially tab selected is poll feed
+
+   @override
+   initState() {
+    super.initState();
+    checkLocationEnabled(context);
+    
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +68,7 @@ class NavigationPageState extends State<NavigationPage> {
                 onPressed: (() {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => CreatePollPage(),
+                      builder: (context) => const CreatePollPage(),
                     ),
                   );
                 }),
@@ -105,6 +123,18 @@ class NavigationPageState extends State<NavigationPage> {
                 ),
                 label: 'Profile Page',
               ),
+
+              // TEMP
+              BottomNavigationBarItem(
+                icon: IconButton(
+                  icon: const Icon(Icons.exit_to_app),
+                  iconSize: iconSize,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                  }
+                  ),
+                label: 'Temporary Sign Out Page',
+              ),
             ],
           ),
         ),
@@ -113,6 +143,7 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
+            
             Container(
               color: theme.secondaryHeaderColor,
             ),
