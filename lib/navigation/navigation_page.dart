@@ -95,18 +95,6 @@ class NavigationPageState extends State<NavigationPage> {
                 ),
                 label: 'Profile Page',
               ),
-
-              // TEMP
-              BottomNavigationBarItem(
-                icon: IconButton(
-                  icon: const Icon(Icons.exit_to_app),
-                  iconSize: iconSize,
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
-                  }
-                  ),
-                label: 'Temporary Sign Out Button',
-              ),
             ],
           ),
         ),
@@ -124,19 +112,72 @@ class NavigationPageState extends State<NavigationPage> {
             Container(
               color: Colors.red,
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-              child: 
-              Column(
+              child: Flex(
+                direction: Axis.vertical,
                 children: [
-                  // emoji
-                  SizedBox(
-                    height: 100,
-                    child: Image.asset(
-                      'assets/sample_emoji.png',
-                      alignment: Alignment.topCenter,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+                        child: Column(
+                          children: [
+                            // emoji pfp
+                            SizedBox(
+                              height: 100,
+                              child: Image.asset(
+                                'assets/sample_emoji.png',
+                                alignment: Alignment.topCenter,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 25
+                            ),
+
+                            // Change emoji button
+                            TextButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2))
+                              ),
+                              child: const Text(
+                                "Change Profile Emoji",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                )
+                              ),
+                              onPressed: () {
+                                // bring up list of emojis to pick from
+                              },
+                            ),
+
+                            // account details
+
+                            const SizedBox(
+                              height: 25
+                            ),
+
+                            // sign out button
+                            TextButton(
+                              style: ButtonStyle(
+                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                              ),
+                              child: const Text(
+                                "Sign out",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                )
+                              ),
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  // account details
                 ],
               ),
             ),
