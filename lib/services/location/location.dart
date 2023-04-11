@@ -26,7 +26,7 @@ Future<bool> getLocation() async {
     PositionAdapter.saveToSharedPreferences("location", position);
     final prefs = await SharedPreferences.getInstance();
     print("Geolocation is: ");
-    print(prefs.getString("location") ?? "");
+    print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
     return true;
     }
     catch (e) {
@@ -48,8 +48,6 @@ void checkLocationEnabled(BuildContext context) async {
             TextButton(
               child: const Text("Cancel"),
               onPressed: () {
-                
-                
               SystemNavigator.pop();
             }
               
@@ -57,7 +55,7 @@ void checkLocationEnabled(BuildContext context) async {
             TextButton(
               child: const Text("Settings"),
               onPressed: () async {
-                bool result = await Geolocator.openLocationSettings();
+                await Geolocator.openLocationSettings();
               },
             ),
           ],

@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pollar/services/auth.dart';
-
 Future<List<QueryDocumentSnapshot>> getUserById(String uid) async {
     var firestore = FirebaseFirestore.instance; 
     CollectionReference ref = firestore.collection('User');
