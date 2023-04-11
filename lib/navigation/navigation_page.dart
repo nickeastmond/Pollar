@@ -7,7 +7,7 @@ import 'package:pollar/login/login_page.dart';
 
 import 'package:flutter/material.dart';
 import '../polls_theme.dart';
-import '../services/location.dart';
+import '../services/location/location.dart';
 
 
 class NavigationPage extends StatefulWidget {

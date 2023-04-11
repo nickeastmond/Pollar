@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/Position/position_adapter.dart';
+import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
   try {
