@@ -13,7 +13,7 @@ class Wrapper extends StatelessWidget {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        print(snapshot.connectionState);
+        print("Is user signed in?: ${PollarAuth.isUserSignedIn()}");
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (PollarAuth.isUserSignedIn() ) {

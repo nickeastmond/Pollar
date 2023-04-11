@@ -8,7 +8,19 @@ User? getUser() {
   return user;
 }
 
-static void signOut() async => await FirebaseAuth.instance.signOut();
+static Future<void> signOut() async {
+
+  // Get the current user
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final User? user = auth.currentUser;
+
+  if (user != null) {
+    // Sign out the current user
+    await auth.signOut();
+    // Force the authStateChanges() stream to emit an event immediately
+    await Future.delayed(Duration.zero);
+  }
+}
 static String? getUid() => FirebaseAuth.instance.currentUser?.uid;
 static String? getEmail() => FirebaseAuth.instance.currentUser?.email;
 static String? getDisplayName() => FirebaseAuth.instance.currentUser?.displayName;
@@ -19,7 +31,7 @@ static void setDisplayName(String name) async =>
 // check if user is signed in
 static bool isUserSignedIn() {
   User? user = FirebaseAuth.instance.currentUser;
-  print(user);
+  print("user is: ${user}");
   if (user != null) {
     // user is signed in
     // set user's state as authenticated

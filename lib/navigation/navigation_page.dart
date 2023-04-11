@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:pollar/login/login_page.dart';
+import 'package:pollar/services/auth.dart';
 
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
@@ -130,7 +131,13 @@ class NavigationPageState extends State<NavigationPage> {
                   icon: const Icon(Icons.exit_to_app),
                   iconSize: iconSize,
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                    PollarAuth.signOut().then((_) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            });
+                    
+                    
                   }
                   ),
                 label: 'Temporary Sign Out Page',
