@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/login/login_page.dart';
 
-import 'package:flutter/material.dart';
+import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
 
@@ -47,8 +47,36 @@ class NavigationPageState extends State<NavigationPage> {
           automaticallyImplyLeading: false,
           elevation: elevation,
           backgroundColor: theme.primaryColor,
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: IconButton(
+              icon: Icon(
+                Icons.map_outlined,
+                size: iconSize,
+              ),
+              onPressed: (() {}),
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: IconButton(
+                icon: Icon(
+                  Icons.add_chart,
+                  size: iconSize,
+                ),
+                onPressed: (() {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const CreatePollPage(),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
           title: const Icon(
-            Icons.bar_chart_rounded,
+            Icons.bar_chart,
             size: 35,
           ),
         ),
@@ -68,8 +96,8 @@ class NavigationPageState extends State<NavigationPage> {
             backgroundColor: theme.primaryColor,
             showSelectedLabels: false,
             showUnselectedLabels: false,
-            selectedItemColor: theme.unselectedWidgetColor.withAlpha(100),
-            unselectedItemColor: theme.unselectedWidgetColor,
+            selectedItemColor: theme.unselectedWidgetColor,
+            unselectedItemColor: theme.unselectedWidgetColor.withAlpha(100),
             currentIndex: tabSelected,
             onTap: (int tab) => setState(() => tabSelected = tab),
             items: [
@@ -117,10 +145,10 @@ class NavigationPageState extends State<NavigationPage> {
           children: [
             
             Container(
-              color: Colors.blue,
+              color: theme.secondaryHeaderColor,
             ),
             Container(
-              color: Colors.red,
+              color: theme.primaryColor,
             )
           ],
         ),
