@@ -1,14 +1,12 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
-
-
 import 'package:flutter/material.dart';
 import 'package:pollar/login/login_page.dart';
 
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location.dart';
-
+import '../maps.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -25,18 +23,16 @@ class NavigationPageState extends State<NavigationPage> {
 
   int tabSelected = 0; // initially tab selected is poll feed
 
-   @override
-   initState() {
+  @override
+  initState() {
     super.initState();
     checkLocationEnabled(context);
-    
   }
 
   @override
   void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +50,13 @@ class NavigationPageState extends State<NavigationPage> {
                 Icons.map_outlined,
                 size: iconSize,
               ),
-              onPressed: (() {}),
+              onPressed: (() {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CreateMapPage(),
+                  ),
+                );
+              }),
             ),
           ),
           actions: [
@@ -127,12 +129,15 @@ class NavigationPageState extends State<NavigationPage> {
               // TEMP
               BottomNavigationBarItem(
                 icon: IconButton(
-                  icon: const Icon(Icons.exit_to_app),
-                  iconSize: iconSize,
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
-                  }
-                  ),
+                    icon: const Icon(Icons.exit_to_app),
+                    iconSize: iconSize,
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false);
+                    }),
                 label: 'Temporary Sign Out Page',
               ),
             ],
@@ -143,7 +148,6 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
-            
             Container(
               color: theme.secondaryHeaderColor,
             ),
