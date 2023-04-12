@@ -4,8 +4,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:pollar/login/login_page.dart';
-
-import 'package:flutter/material.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
+import 'package:pollar/navigation/profile_page.dart';
+import 'package:pollar/services/auth.dart';
 import '../polls_theme.dart';
 import '../services/location.dart';
 
@@ -22,6 +23,8 @@ class NavigationPage extends StatefulWidget {
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 30;
   static double elevation = 2.5;
+  double? emojiBoxHeight = 0;
+  String? profEmoji = PollarAuth.getDisplayName();
 
   int tabSelected = 0; // initially tab selected is poll feed
 
@@ -37,6 +40,21 @@ class NavigationPageState extends State<NavigationPage> {
     super.dispose();
   }
 
+  Widget emojiOption(String emoji) {
+    return TextButton(
+      onPressed: () {
+        profEmoji = emoji;
+        setPollarUserEmoji(emoji);
+        setState(() {
+          emojiBoxHeight = 0;
+        });
+      },
+      child: Text(
+        emoji,
+        textScaleFactor: 2,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,22 +137,25 @@ class NavigationPageState extends State<NavigationPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
                         child: Column(
                           children: [
                             // emoji pfp
                             SizedBox(
                               height: 100,
-                              child: Image.asset(
-                                'assets/sample_emoji.png',
-                                alignment: Alignment.topCenter,
+                              child: 
+                              //if no saved emoji:
+                              Text(
+                                '${profEmoji}',
+                                textScaleFactor: 6,
                               ),
                             ),
                             const SizedBox(
                               height: 25
                             ),
+                            // Change emoji functionality
 
-                            // Change emoji button
+                      
                             TextButton(
                               style: ButtonStyle(
                                 backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2))
@@ -147,12 +168,94 @@ class NavigationPageState extends State<NavigationPage> {
                                 )
                               ),
                               onPressed: () {
-                                // bring up list of emojis to pick from
+                                setState(() {
+                                  if (emojiBoxHeight! > 0) {
+                                    emojiBoxHeight = 0;
+                                  } else {
+                                    emojiBoxHeight = 100;
+                                  }
+                                });
                               },
                             ),
-
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              height: emojiBoxHeight,
+                              color: Colors.black.withOpacity(0.2),
+                              padding: const EdgeInsets.symmetric(horizontal: 25),
+                              child: Flex(
+                                direction: Axis.horizontal,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  emojiOption(defaultEmoji),
+                                  emojiOption('😂'),
+                                  emojiOption('😍'),
+                                ],
+                              ),
+                            ),
+                          
+                            const SizedBox(
+                              height: 25
+                            ),
                             // account details
-
+                            Container(
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    'Email:',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                  Text(
+                                    // futureToString(getPollarUserEmail()),
+                                    '${PollarAuth.getEmail()}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 25
+                                  ),
+                                  // change email
+                                  TextButton(
+                                    style: ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                    ),
+                                    child: const Text(
+                                      "Change Email",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      // change email
+                                    },
+                                  ),
+                                  const SizedBox(
+                                    height: 25
+                                  ),
+                                  //change password button
+                                  TextButton(
+                                    style: ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                    ),
+                                    child: const Text(
+                                      "Change Password",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      // change pass
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                             const SizedBox(
                               height: 25
                             ),
@@ -169,7 +272,8 @@ class NavigationPageState extends State<NavigationPage> {
                                     fontSize: 17,
                                 )
                               ),
-                              onPressed: () {
+                              onPressed: () async {
+                                PollarAuth.signOut();
                                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
                               },
                             ),
