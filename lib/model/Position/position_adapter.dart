@@ -18,7 +18,6 @@ class PositionAdapter {
       speedAccuracy: double.parse(parts[6]),
       timestamp: DateTime.parse(parts[7]),
     );
-    
   }
 
   //GET POSITION FROM SHARED PREFS, WAY FASTER THAN USING GEO.
