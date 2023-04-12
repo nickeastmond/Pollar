@@ -175,7 +175,7 @@ class NavigationPageState extends State<NavigationPage> {
                               child: 
                               //if no saved emoji:
                               Text(
-                                '${profEmoji}',
+                                profEmoji!,
                                 textScaleFactor: 6,
                               ),
                             ),
@@ -198,12 +198,8 @@ class NavigationPageState extends State<NavigationPage> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  if (emojiBoxHeight! > 0) {
-                                    emojiBoxHeight = 0;
-                                  } else {
-                                    emojiBoxHeight = 100;
-                                  }
-                                });
+                                  (emojiBoxHeight! > 0) ? emojiBoxHeight = 0 : emojiBoxHeight = 100;
+                                  });
                               },
                             ),
                             AnimatedContainer(
