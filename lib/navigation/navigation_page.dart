@@ -155,13 +155,13 @@ class NavigationPageState extends State<NavigationPage> {
                 icon: IconButton(
                     icon: const Icon(Icons.exit_to_app),
                     iconSize: iconSize,
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
-                          (route) => false);
-                    }),
+                    onPressed: () async {
+                                PollarAuth.signOut().then((_) {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                  );
+                                });
+                              }),
                 label: 'Temporary Sign Out Page',
               ),
             ],
