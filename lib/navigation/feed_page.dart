@@ -78,7 +78,19 @@ class _FeedPageState extends State<FeedPage> {
                       Padding(
                         padding: const EdgeInsets.only(
                             top: 6, bottom: 0, left: 8, right: 8),
-                        child: SizedBox(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: MediaQuery.of(context).platformBrightness ==
+                                    Brightness.dark
+                                ? theme.primaryColor
+                                : theme.cardColor,
+                            boxShadow: const [
+                              BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  spreadRadius: 0),
+                            ],
+                          ),
                           height: 40,
                           child: FlutterMap(
                             mapController: _mapController,
