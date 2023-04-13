@@ -20,6 +20,13 @@ version: 1.0.0+1
 environment:
   sdk: '>=2.18.0-224.0.dev <3.0.0'
 
+
+dependency_overrides:
+    flutter_map:
+        git:
+            url: https://github.com/fleaflet/flutter_map.git
+            # ref: main 
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -43,8 +50,9 @@ dependencies:
   email_validator: ^2.1.17
   permission_handler: ^10.2.0
   shared_preferences: ^2.1.0
-  firebase: ^9.0.3
-  auth: ^8.2.0+02
+  flutter_map: ^2.2.0
+  latlong2: ^0.8.1
+  geocoding: ^2.0.5
 
 dev_dependencies:
   flutter_test:

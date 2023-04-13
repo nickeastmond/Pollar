@@ -1,8 +1,8 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pollar/login/login_page.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/profile_page.dart';
@@ -11,6 +11,8 @@ import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
 
+import '../maps.dart';
+import 'feed_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -29,11 +31,10 @@ class NavigationPageState extends State<NavigationPage> {
 
   int tabSelected = 0; // initially tab selected is poll feed
 
-   @override
-   initState() {
+  @override
+  initState() {
     super.initState();
     checkLocationEnabled(context);
-    
   }
 
   @override
@@ -73,7 +74,13 @@ class NavigationPageState extends State<NavigationPage> {
                 Icons.map_outlined,
                 size: iconSize,
               ),
-              onPressed: (() {}),
+              onPressed: (() {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CreateMapPage(),
+                  ),
+                );
+              }),
             ),
           ),
           actions: [
@@ -100,15 +107,15 @@ class NavigationPageState extends State<NavigationPage> {
           ),
         ),
         bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 4,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
+          // decoration: const BoxDecoration(
+          //   boxShadow: <BoxShadow>[
+          //     BoxShadow(
+          //       color: Colors.black38,
+          //       blurRadius: 4,
+          //       spreadRadius: 2,
+          //     ),
+          //   ],
+          // ),
           child: BottomNavigationBar(
             //Navigation bar that contains feed, poll, and profile page icons
             elevation: 25,
@@ -142,6 +149,21 @@ class NavigationPageState extends State<NavigationPage> {
                 ),
                 label: 'Profile Page',
               ),
+
+              // TEMP
+              BottomNavigationBarItem(
+                icon: IconButton(
+                    icon: const Icon(Icons.exit_to_app),
+                    iconSize: iconSize,
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false);
+                    }),
+                label: 'Temporary Sign Out Page',
+              ),
             ],
           ),
         ),
@@ -156,6 +178,7 @@ class NavigationPageState extends State<NavigationPage> {
             ),
 
             // ProfilePage()
+            const FeedPage(),
             Container(
               color: theme.primaryColor,
               alignment: Alignment.center,
