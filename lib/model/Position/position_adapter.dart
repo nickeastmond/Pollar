@@ -28,7 +28,9 @@ class PositionAdapter {
     if (value != null) {
       return decode(value);
     }
-    return null;
+    final slowAccessLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    return slowAccessLocation;
   }
 
   static Future<bool> saveToSharedPreferences(

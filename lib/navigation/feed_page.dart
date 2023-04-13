@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pollar/model/Position/position_adapter.dart';
 
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
@@ -29,10 +30,8 @@ class _FeedPageState extends State<FeedPage> {
   final MapController _mapController = MapController();
 
   Future<LocationData> _getCurrentLocation() async {
-    final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    _userLocation = LatLng(position.latitude, position.longitude);
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    _userLocation = LatLng(position!.latitude, position.longitude);
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
