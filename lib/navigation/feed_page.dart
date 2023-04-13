@@ -1,12 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:pollar/polls/poll.dart';
-import 'package:pollar/services/location.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
@@ -151,7 +147,8 @@ class _FeedPageState extends State<FeedPage> {
                         padding: EdgeInsets.only(
                             left: 8.0, right: 8.0, top: 8, bottom: 0),
                         child: PollCard(
-                          question: "Should I take CSE 160 or CSE 140 next quarter?",
+                          question:
+                              "Should I take CSE 160 or CSE 140 next quarter?",
                         ),
                       ),
                       const Padding(
