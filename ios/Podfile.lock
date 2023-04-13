@@ -71,6 +71,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
   - Flutter (1.0.0)
+  - geocoding_ios (1.0.5):
+    - Flutter
   - geolocator_apple (1.2.0):
     - Flutter
   - GoogleAppMeasurement (10.7.0):
@@ -132,9 +134,10 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `10.7.0`)
   - Flutter (from `Flutter`)
+  - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
 
 SPEC REPOS:
   trunk:
@@ -164,12 +167,14 @@ EXTERNAL SOURCES:
     :tag: 10.7.0
   Flutter:
     :path: Flutter
+  geocoding_ios:
+    :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+    :path: ".symlinks/plugins/shared_preferences_foundation/ios"
 
 CHECKOUT OPTIONS:
   FirebaseFirestore:
@@ -186,9 +191,10 @@ SPEC CHECKSUMS:
   FirebaseAuth: dd64c01631df724b09f33e584625775c52f7d71f
   FirebaseCore: e317665b9d744727a97e623edbbed009320afdd7
   FirebaseCoreInternal: 8845798510aae74703467480f71ac613788d0696
-  FirebaseFirestore: 712ff268d746fc65efb361e9ce2cfeb458f10643
+  FirebaseFirestore: 7b7d95b74637ed61b76996077a2b292167dae7e5
   FirebaseInstallations: 59c0e4c7a816a0f76710d83f77e5369b3e45eb96
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  geocoding_ios: a389ea40f6f548de6e63006a2e31bf66ff80769a
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   GoogleAppMeasurement: fe17c92a32207dd5cdd4e8d742767f2da74857f6
   GoogleUtilities: 9aa0ad5a7bc171f8bae016300bfcfa3fb8425749

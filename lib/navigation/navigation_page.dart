@@ -1,12 +1,15 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pollar/login/login_page.dart';
 
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location.dart';
 import '../maps.dart';
+import 'feed_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -19,7 +22,7 @@ class NavigationPage extends StatefulWidget {
 
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 30;
-  static double elevation = 2.5;
+  static double elevation = 0;
 
   int tabSelected = 0; // initially tab selected is poll feed
 
@@ -83,15 +86,15 @@ class NavigationPageState extends State<NavigationPage> {
           ),
         ),
         bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 4,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
+          // decoration: const BoxDecoration(
+          //   boxShadow: <BoxShadow>[
+          //     BoxShadow(
+          //       color: Colors.black38,
+          //       blurRadius: 4,
+          //       spreadRadius: 2,
+          //     ),
+          //   ],
+          // ),
           child: BottomNavigationBar(
             //Navigation bar that contains feed, poll, and profile page icons
             elevation: 25,
@@ -148,9 +151,7 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
-            Container(
-              color: theme.secondaryHeaderColor,
-            ),
+            const FeedPage(),
             Container(
               color: theme.primaryColor,
             )
