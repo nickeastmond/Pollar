@@ -156,12 +156,13 @@ class NavigationPageState extends State<NavigationPage> {
                     icon: const Icon(Icons.exit_to_app),
                     iconSize: iconSize,
                     onPressed: () async {
-                                PollarAuth.signOut().then((_) {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                                  );
-                                });
-                              }),
+                      PollarAuth.signOut().then((_) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      });
+                    }),
                 label: 'Temporary Sign Out Page',
               ),
             ],
@@ -172,11 +173,6 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
-            
-            Container(
-              color: theme.secondaryHeaderColor,
-            ),
-
             // ProfilePage()
             const FeedPage(),
             Container(
@@ -189,36 +185,32 @@ class NavigationPageState extends State<NavigationPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 50, horizontal: 40),
                         child: Column(
                           children: [
                             // emoji pfp
                             SizedBox(
                               height: 100,
-                              child: 
-                              //if no saved emoji:
-                              Text(
+                              child:
+                                  //if no saved emoji:
+                                  Text(
                                 '${profEmoji}',
                                 textScaleFactor: 6,
                               ),
                             ),
-                            const SizedBox(
-                              height: 25
-                            ),
+                            const SizedBox(height: 25),
                             // Change emoji functionality
 
-                      
                             TextButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2))
-                              ),
-                              child: const Text(
-                                "Change Profile Emoji",
-                                style: TextStyle(
+                                  backgroundColor: MaterialStatePropertyAll(
+                                      Colors.black.withOpacity(0.2))),
+                              child: const Text("Change Profile Emoji",
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
-                                )
-                              ),
+                                  )),
                               onPressed: () {
                                 setState(() {
                                   if (emojiBoxHeight! > 0) {
@@ -233,10 +225,12 @@ class NavigationPageState extends State<NavigationPage> {
                               duration: const Duration(milliseconds: 250),
                               height: emojiBoxHeight,
                               color: Colors.black.withOpacity(0.2),
-                              padding: const EdgeInsets.symmetric(horizontal: 25),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 25),
                               child: Flex(
                                 direction: Axis.horizontal,
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   emojiOption(defaultEmoji),
                                   emojiOption('😂'),
@@ -244,10 +238,8 @@ class NavigationPageState extends State<NavigationPage> {
                                 ],
                               ),
                             ),
-                          
-                            const SizedBox(
-                              height: 25
-                            ),
+
+                            const SizedBox(height: 25),
                             // account details
                             Container(
                               child: Column(
@@ -267,13 +259,12 @@ class NavigationPageState extends State<NavigationPage> {
                                       fontSize: 17,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: 25
-                                  ),
+                                  const SizedBox(height: 25),
                                   // change email
                                   TextButton(
                                     style: ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.black.withOpacity(0.2)),
                                     ),
                                     child: const Text(
                                       "Change Email",
@@ -286,13 +277,12 @@ class NavigationPageState extends State<NavigationPage> {
                                       // change email
                                     },
                                   ),
-                                  const SizedBox(
-                                    height: 25
-                                  ),
+                                  const SizedBox(height: 25),
                                   //change password button
                                   TextButton(
                                     style: ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.black.withOpacity(0.2)),
                                     ),
                                     child: const Text(
                                       "Change Password",
@@ -308,26 +298,25 @@ class NavigationPageState extends State<NavigationPage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(
-                              height: 25
-                            ),
+                            const SizedBox(height: 25),
 
                             // sign out button
                             TextButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                backgroundColor: MaterialStatePropertyAll(
+                                    Colors.black.withOpacity(0.2)),
                               ),
-                              child: const Text(
-                                "Sign out",
-                                style: TextStyle(
+                              child: const Text("Sign out",
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
-                                )
-                              ),
+                                  )),
                               onPressed: () async {
                                 PollarAuth.signOut().then((_) {
                                   Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage()),
                                   );
                                 });
                               },
