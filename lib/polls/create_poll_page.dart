@@ -1,11 +1,9 @@
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
-import 'package:pollar/services/auth.dart';
 
 import '../model/Poll/database/add_poll_firestore.dart';
 import '../model/Poll/poll_model.dart';
@@ -82,7 +80,10 @@ class CreatePollPageState extends State<CreatePollPage> {
                     data["pollData"]["answers"] = answers;
                     String uid = FirebaseAuth.instance.currentUser!.uid;
                     Poll p = Poll.fromData(uid, data);
-                    addUserToFirestore(p);
+                    bool success = await addUserToFirestore(p);
+                    if (context.mounted && success ) {
+                                        Navigator.pop(context);
+                                      }
                     }
                     catch (e) {
                       debugPrint(e.toString());
