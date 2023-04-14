@@ -1,9 +1,5 @@
-import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:pollar/services/auth.dart';
-
 
 class Poll {
   final String userId;
@@ -11,6 +7,7 @@ class Poll {
   final Map<String,dynamic> pollData;
   final double radius;
   int votes = 0;
+  int numComments = 0;
 
 
   Poll({
@@ -18,10 +15,12 @@ class Poll {
     required this.locationData,
     required this.pollData,
     required this.radius,
+    required this.votes,
+    required this.numComments
   });
 
   factory Poll.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    return Poll.fromData(doc.id, doc.data() ?? {});
+    return Poll.fromData(doc.data()!["userId"], doc.data() ?? {});
   }
 
   factory Poll.fromData(String id, Map<String, dynamic> data) {
@@ -29,7 +28,9 @@ class Poll {
       userId: id,
       locationData: data["locationData"],
       pollData: data["pollData"],
-      radius: data["radius"] ?? 20.0
+      radius: data["radius"] ?? 20.0,
+      votes: data["votes"] ?? 0,
+      numComments: data["numComments"] ?? 0
     );
   }
 
@@ -39,6 +40,8 @@ class Poll {
         "locationData": locationData,
         "pollData": pollData,
         "radius": radius,
+        "numComments": numComments,
+        "votes": votes
     };
   }
 }

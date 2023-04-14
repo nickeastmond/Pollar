@@ -1,12 +1,12 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+
 import 'package:pollar/login/login_page.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/services/auth.dart';
+import 'package:provider/provider.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
@@ -34,6 +34,7 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
+
     checkLocationEnabled(context);
   }
 
@@ -174,7 +175,11 @@ class NavigationPageState extends State<NavigationPage> {
           //children: const [FeedPage(), ProfilePage()],
           children: [
             // ProfilePage()
-            const FeedPage(),
+            
+            ChangeNotifierProvider(
+  create: (_) => FeedProvider()..fetchItems(),
+  child: const FeedPage()
+),
             Container(
               color: theme.primaryColor,
               alignment: Alignment.center,

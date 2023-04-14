@@ -8,8 +8,13 @@ class PollCard extends StatelessWidget {
   const PollCard({
     Key? key,
     required this.question,
+    required this.numComments,
+    required this.votes,
   }) : super(key: key);
   final String question;
+  final String numComments;
+  final String votes;
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +90,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        "69",
+                        numComments,
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -108,7 +113,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        "420",
+                        votes,
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,

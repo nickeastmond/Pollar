@@ -1,12 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:provider/provider.dart';
 
+import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
+
+class FeedProvider extends ChangeNotifier {
+  List<Poll> _items = [];
+
+  List<Poll> get items => _items;
+
+  Future<void> fetchItems() async {
+    final snapshot = await FirebaseFirestore.instance.collection('Poll').get();
+    _items = snapshot.docs.map((doc) => Poll.fromDoc(doc)).toList();
+    notifyListeners();
+  }
+}
 
 class LocationData {
   final LatLng latLng;
@@ -50,6 +66,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   initState() {
     super.initState();
+
     // _getCurrentLocation();
   }
 
@@ -60,27 +77,26 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return PollsTheme(
-      builder: (context, theme) {
-        return Scaffold(
-          backgroundColor:
-              MediaQuery.of(context).platformBrightness == Brightness.light
-                  ? Colors.white
-                  : const Color.fromARGB(255, 25, 25, 25),
-          body: FutureBuilder<LocationData>(
-              future: _getCurrentLocation(),
-              builder: (context, snapshot) {
-                return SingleChildScrollView(
-                  child: Column(
+Widget build(BuildContext context) {
+  return Consumer<FeedProvider>(
+    builder: (_, provider, __) {
+      return PollsTheme(
+        builder: (context, theme) {
+          return Scaffold(
+            backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? Colors.white
+                : const Color.fromARGB(255, 25, 25, 25),
+            body: FutureBuilder<LocationData>(
+                future: _getCurrentLocation(),
+                builder: (context, snapshot) {
+                  return Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(
                             top: 6, bottom: 0, left: 8, right: 8),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: MediaQuery.of(context).platformBrightness ==
-                                    Brightness.dark
+                            color: MediaQuery.of(context).platformBrightness == Brightness.dark
                                 ? theme.primaryColor
                                 : theme.cardColor,
                             boxShadow: const [
@@ -132,56 +148,39 @@ class _FeedPageState extends State<FeedPage> {
                           ),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question: "Best restaurant in Santa Cruz?",
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question:
-                              "Best time of the day to go to the UCSC Gym?",
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question: "What dining hall has the best food?",
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question:
-                              "Should I take CSE 160 or CSE 140 next quarter?",
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question: "SnE or McHenry?",
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(
-                            left: 8.0, right: 8.0, top: 8, bottom: 0),
-                        child: PollCard(
-                          question: "What dining hall has the best food?",
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () => provider.fetchItems(),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: provider.items.length,
+                            itemBuilder: (_, int index) {
+                              final item = provider.items[index];
+                              final String question = item.pollData["question"];
+
+                              final String numComments = item.numComments.toString();
+                              final String votes = item.votes.toString();
+                              
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 8.0, right: 8.0, top: 8, bottom: 0),
+                                child: PollCard(
+                                  question: question,
+                                  numComments: numComments,
+                                  votes: votes
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                );
-              }),
-        );
-      },
-    );
-  }
+                  );
+                }),
+          );
+        },
+      );
+    },
+  );
+}
 }
