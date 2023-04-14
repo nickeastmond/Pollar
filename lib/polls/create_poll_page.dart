@@ -1,7 +1,14 @@
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:pollar/services/auth.dart';
 
+import '../model/Poll/database/add_poll_firestore.dart';
+import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
 import 'bar_graph.dart';
 
@@ -36,7 +43,52 @@ class CreatePollPageState extends State<CreatePollPage> {
             Padding(
                 padding: const EdgeInsets.only(right: 17.5),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    try {
+
+                    
+                    Map<String, dynamic> data = {};
+                    Position? cur = await PositionAdapter.getFromSharedPreferences("location");
+                    if (pollQuestionController.text.isEmpty) {
+                        debugPrint("Please don't leave the question empty"); 
+                        throw Exception("Tried to submit without filling out the question");
+                      }
+                    data.addAll(
+                      {"locationData": 
+                        {
+                            "longitude": cur!.longitude,
+                            "latitude" : cur.latitude,
+                            "altitude" : cur.altitude
+                        }
+                      ,
+                      
+                      "pollData": 
+                      {
+                          "question": pollQuestionController.text,
+                          "answers": List<String>
+                          
+                      }
+                    }
+                    );
+                    List<String> answers = [];
+                    for (int i = 0; i < numBars; i++) {
+                      String answer = pollChoices[i].text;
+                      if (answer.isEmpty) {
+                        debugPrint("Please don't leave any answers empty"); 
+                        throw Exception("Tried to submit without filling out answers");
+                      }
+                      answers.add(answer);
+                    }
+                    data["pollData"]["answers"] = answers;
+                    String uid = FirebaseAuth.instance.currentUser!.uid;
+                    Poll p = Poll.fromData(uid, data);
+                    addUserToFirestore(p);
+                    }
+                    catch (e) {
+                      debugPrint(e.toString());
+                    }
+                    //Poll newPoll = Poll.fromData(PollarAuth.getUid()!,data );
+                  },
                   child: const Icon(
                     Icons.done_rounded,
                     size: 30.0,
