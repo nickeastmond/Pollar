@@ -13,7 +13,7 @@ class PollsTheme extends StatefulWidget {
     secondaryHeaderColor: const Color.fromARGB(255, 248, 182, 82),
     unselectedWidgetColor: Colors.white,
     cardColor: Colors.white,
-    indicatorColor: Colors.black,
+    indicatorColor: Colors.grey.shade800,
   );
 
   static final darkTheme = ThemeData(

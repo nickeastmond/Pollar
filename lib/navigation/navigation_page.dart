@@ -1,16 +1,18 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
-
-
 import 'package:flutter/material.dart';
+
 import 'package:pollar/login/login_page.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/services/auth.dart';
+import 'package:provider/provider.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
 
+import '../maps.dart';
+import 'feed_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -29,11 +31,11 @@ class NavigationPageState extends State<NavigationPage> {
 
   int tabSelected = 0; // initially tab selected is poll feed
 
-   @override
-   initState() {
+  @override
+  initState() {
     super.initState();
+
     checkLocationEnabled(context);
-    
   }
 
   @override
@@ -73,7 +75,13 @@ class NavigationPageState extends State<NavigationPage> {
                 Icons.map_outlined,
                 size: iconSize,
               ),
-              onPressed: (() {}),
+              onPressed: (() {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CreateMapPage(),
+                  ),
+                );
+              }),
             ),
           ),
           actions: [
@@ -100,15 +108,15 @@ class NavigationPageState extends State<NavigationPage> {
           ),
         ),
         bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black38,
-                blurRadius: 4,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
+          // decoration: const BoxDecoration(
+          //   boxShadow: <BoxShadow>[
+          //     BoxShadow(
+          //       color: Colors.black38,
+          //       blurRadius: 4,
+          //       spreadRadius: 2,
+          //     ),
+          //   ],
+          // ),
           child: BottomNavigationBar(
             //Navigation bar that contains feed, poll, and profile page icons
             elevation: 25,
@@ -142,6 +150,22 @@ class NavigationPageState extends State<NavigationPage> {
                 ),
                 label: 'Profile Page',
               ),
+
+              // TEMP
+              BottomNavigationBarItem(
+                icon: IconButton(
+                    icon: const Icon(Icons.exit_to_app),
+                    iconSize: iconSize,
+                    onPressed: () async {
+                      PollarAuth.signOut().then((_) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      });
+                    }),
+                label: 'Temporary Sign Out Page',
+              ),
             ],
           ),
         ),
@@ -150,12 +174,12 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
-            
-            Container(
-              color: theme.secondaryHeaderColor,
-            ),
-
             // ProfilePage()
+            
+            ChangeNotifierProvider(
+  create: (_) => FeedProvider()..fetchItems(),
+  child: const FeedPage()
+),
             Container(
               color: theme.primaryColor,
               alignment: Alignment.center,
@@ -166,36 +190,32 @@ class NavigationPageState extends State<NavigationPage> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 50, horizontal: 40),
                         child: Column(
                           children: [
                             // emoji pfp
                             SizedBox(
                               height: 100,
-                              child: 
-                              //if no saved emoji:
-                              Text(
+                              child:
+                                  //if no saved emoji:
+                                  Text(
                                 '${profEmoji}',
                                 textScaleFactor: 6,
                               ),
                             ),
-                            const SizedBox(
-                              height: 25
-                            ),
+                            const SizedBox(height: 25),
                             // Change emoji functionality
 
-                      
                             TextButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2))
-                              ),
-                              child: const Text(
-                                "Change Profile Emoji",
-                                style: TextStyle(
+                                  backgroundColor: MaterialStatePropertyAll(
+                                      Colors.black.withOpacity(0.2))),
+                              child: const Text("Change Profile Emoji",
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
-                                )
-                              ),
+                                  )),
                               onPressed: () {
                                 setState(() {
                                   if (emojiBoxHeight! > 0) {
@@ -210,10 +230,12 @@ class NavigationPageState extends State<NavigationPage> {
                               duration: const Duration(milliseconds: 250),
                               height: emojiBoxHeight,
                               color: Colors.black.withOpacity(0.2),
-                              padding: const EdgeInsets.symmetric(horizontal: 25),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 25),
                               child: Flex(
                                 direction: Axis.horizontal,
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   emojiOption(defaultEmoji),
                                   emojiOption('😂'),
@@ -221,10 +243,8 @@ class NavigationPageState extends State<NavigationPage> {
                                 ],
                               ),
                             ),
-                          
-                            const SizedBox(
-                              height: 25
-                            ),
+
+                            const SizedBox(height: 25),
                             // account details
                             Container(
                               child: Column(
@@ -244,13 +264,12 @@ class NavigationPageState extends State<NavigationPage> {
                                       fontSize: 17,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: 25
-                                  ),
+                                  const SizedBox(height: 25),
                                   // change email
                                   TextButton(
                                     style: ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.black.withOpacity(0.2)),
                                     ),
                                     child: const Text(
                                       "Change Email",
@@ -263,13 +282,12 @@ class NavigationPageState extends State<NavigationPage> {
                                       // change email
                                     },
                                   ),
-                                  const SizedBox(
-                                    height: 25
-                                  ),
+                                  const SizedBox(height: 25),
                                   //change password button
                                   TextButton(
                                     style: ButtonStyle(
-                                    backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.black.withOpacity(0.2)),
                                     ),
                                     child: const Text(
                                       "Change Password",
@@ -285,26 +303,25 @@ class NavigationPageState extends State<NavigationPage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(
-                              height: 25
-                            ),
+                            const SizedBox(height: 25),
 
                             // sign out button
                             TextButton(
                               style: ButtonStyle(
-                                backgroundColor: MaterialStatePropertyAll(Colors.black.withOpacity(0.2)),
+                                backgroundColor: MaterialStatePropertyAll(
+                                    Colors.black.withOpacity(0.2)),
                               ),
-                              child: const Text(
-                                "Sign out",
-                                style: TextStyle(
+                              child: const Text("Sign out",
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
-                                )
-                              ),
+                                  )),
                               onPressed: () async {
                                 PollarAuth.signOut().then((_) {
                                   Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage()),
                                   );
                                 });
                               },
