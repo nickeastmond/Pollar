@@ -25,7 +25,9 @@ class SignUpPageState extends State<SignUpPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
   int tabSelected = 0; // initially tab selected is poll feed
-  bool signUpCriteriaMet = true;
+  bool emailValid = false;
+  bool passValid = false;
+  bool passConfirmed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -138,10 +140,10 @@ class SignUpPageState extends State<SignUpPage> {
                                   validator: (email) {
                                     if (email == null ||
                                         !EmailValidator.validate(email)) {
-                                      signUpCriteriaMet = false;
+                                      emailValid = false;
                                       return 'Please enter a valid email';
                                     }
-                                    signUpCriteriaMet = true;
+                                    emailValid = true;
                                     return null;
                                   },
                                 ),
@@ -208,10 +210,10 @@ class SignUpPageState extends State<SignUpPage> {
                                   validator: (password) {
                                     if (password != null &&
                                         password.length < 6) {
-                                      signUpCriteriaMet = false;
+                                      passValid = false;
                                       return 'Password must be at least 6 characters long';
                                     }
-                                    signUpCriteriaMet = true;
+                                    passValid = true;
                                     return null;
                                   },
                                 ),
@@ -275,10 +277,10 @@ class SignUpPageState extends State<SignUpPage> {
                                   validator: (confirmPassword) {
                                     if (confirmPassword !=
                                         passwordController.text) {
-                                      signUpCriteriaMet = false;
+                                      passConfirmed = false;
                                       return 'Passwords do not match';
                                     }
-                                    signUpCriteriaMet = true;
+                                    passConfirmed = true;
                                     return null;
                                   },
                                 ),
@@ -304,8 +306,8 @@ class SignUpPageState extends State<SignUpPage> {
                                 color: theme.secondaryHeaderColor,
                                 borderRadius: BorderRadius.circular(0)),
                             child: TextButton(
-                                onPressed: signUpCriteriaMet 
-                                  ? () async{
+                                onPressed: (emailValid && passValid && passConfirmed) 
+                                  ? () async {
                                     String error = '';
                                     if (passwordController.text ==
                                         confirmPasswordController.text) {
@@ -336,10 +338,13 @@ class SignUpPageState extends State<SignUpPage> {
                                     }
                                   }
                                   : null,
-                                  child: const Text(
+                                  child: Text(
                                   "Sign Up",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: 
+                                      (emailValid && passValid && passConfirmed) ?
+                                        Colors.white
+                                      : Colors.white38,
                                       fontSize: 17,
                                       fontWeight: FontWeight.w400),
                                 ),
