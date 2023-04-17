@@ -12,7 +12,7 @@ final defaultOuterColor = Colors.red.value;
 
 class PollarUser {
   final String id;
-  final emailAddress;
+  final String emailAddress;
   final String emoji;
   final Color innerColor;
   final Color outerColor;
