@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-Future<DocumentSnapshot<Object?>> getUserById(String uid) async {
+Future<Object?> getUserById(String uid) async {
 
   DocumentReference documentReference = FirebaseFirestore.instance.collection('User').doc(uid);
   DocumentSnapshot documentSnapshot = await documentReference.get();
-  return documentSnapshot;
+  if (documentSnapshot.exists) {
+    return documentSnapshot;
+  }
+  return null;
 } 
 
 Future<List<QueryDocumentSnapshot>> getUserByEmail(String? emailAddress) async {

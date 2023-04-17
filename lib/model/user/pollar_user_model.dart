@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pollar/services/auth.dart';
+import 'package:pollar/model/user/database/get_user_db.dart';
 
 const defaultEmoji = "🤪";
 final defaultInnerColor = Colors.blue.value;
@@ -66,7 +68,11 @@ class PollarUser {
 Future<PollarUser> getPollarUser(String uid) async => PollarUser.fromDoc(
     await FirebaseFirestore.instance.collection("PollarUsers").doc(uid).get());
   
-
+void getEmoji() async  {
+    Object? temp =  await getUserById(FirebaseAuth.instance.currentUser!.uid).;
+    print(temp['emoji']);
+   
+}
 
 Future<PollarUser> setEmoji(String emoji) async {
   await FirebaseFirestore.instance

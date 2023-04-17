@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class PollarAuth {
@@ -21,6 +22,7 @@ static Future<void> signOut() async {
     await Future.delayed(Duration.zero);
   }
 }
+static bool? isVerified() => FirebaseAuth.instance.currentUser?.emailVerified;
 static String? getUid() => FirebaseAuth.instance.currentUser?.uid;
 static String? getEmail() => FirebaseAuth.instance.currentUser?.email;
 static String? getDisplayName() => FirebaseAuth.instance.currentUser?.displayName;
@@ -54,5 +56,20 @@ static void deleteUser() async {
   print(e.toString());
 }
 }
+
+// sends reset password link to email 
+// ISSUE: sends to spam unless user reports as not spam
+static void resetPassword() async {
+  await FirebaseAuth.instance
+    .sendPasswordResetEmail(email: '${PollarAuth.getEmail()}');
+}
+
+// Sends an email with verification link
+static void verifyEmail() async {
+  await FirebaseAuth.instance.currentUser!
+    .sendEmailVerification();
+  signOut();
+}
+
 
 }
