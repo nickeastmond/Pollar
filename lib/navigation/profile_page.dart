@@ -15,16 +15,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  //String userEmoji = getEmoji();
+  String userEmoji = '';
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   String  notVerifiedText = '⚠ Unverified email. Press for verification link.';
   bool unverifiedTextVisibility = true;
   bool resetPassSent = false;
-  String? profEmoji = PollarAuth.getDisplayName();
 
   @override
   initState() {
+    updateEmoji();
     super.initState();
   }
 
@@ -33,12 +33,18 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
+  updateEmoji() async {
+    String newEmoji = await getFromSharedPreferences('emoji');
+    setState(() {
+      userEmoji = newEmoji;
+    });
+  } 
+
   Widget emojiOption(String emoji) {
     return TextButton(
       onPressed: () {
-        profEmoji = emoji;
-        //setEmoji(emoji);
-        print('hi');
+        changeEmoji(emoji);
+        updateEmoji();
         setState(() {
           emojiBoxHeight = 0;
           
@@ -49,9 +55,6 @@ class _ProfilePageState extends State<ProfilePage> {
         textScaleFactor: 2.5,
       ),
     );
-  }
-
-  void changePassword() {
   }
 
   @override
@@ -78,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: 
                           //if no saved emoji:
                           Text(
-                            defaultEmoji,
+                            userEmoji,
                             textScaleFactor: 6,
                           ),
                         ),

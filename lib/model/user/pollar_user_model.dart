@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pollar/services/auth.dart';
 import 'package:pollar/model/user/database/get_user_db.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultEmoji = "🤪";
 final defaultInnerColor = Colors.blue.value;
@@ -12,7 +13,7 @@ final defaultOuterColor = Colors.red.value;
 
 class PollarUser {
   final String id;
-  final emailAddress;
+  final String emailAddress;
   final String emoji;
   final Color innerColor;
   final Color outerColor;
@@ -69,6 +70,10 @@ Future<PollarUser> getPollarUser(String uid) async => PollarUser.fromDoc(
     await FirebaseFirestore.instance.collection("PollarUsers").doc(uid).get());
   
 
+Future<String> getEmoji() async  {
+    PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
+    return user.emoji;
+}
 
 Future<PollarUser> setEmoji(String emoji) async {
   await FirebaseFirestore.instance
@@ -100,4 +105,34 @@ Stream<PollarUser> subscribePollarUser(String uid) async* {
   await for (final snapshot in snapshots) {
     yield PollarUser.fromDoc(snapshot);
   }
+}
+
+Future<String> getFromSharedPreferences(String key) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? val = prefs.getString(key);
+  if (val != null) {
+    return val;
+  } else if (key == 'emoji') {
+    saveToSharedPreferences('emoji', defaultEmoji);
+    return defaultEmoji;
+  }
+  print('No value found for key: $key');
+  return '';
+}
+
+Future<bool> saveToSharedPreferences(String key, String value) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.setString(key, value);
+}
+
+// For now, only emoji gets saved in shared prefs
+// can add more if desired
+void fetchFromFirebaseToSharedPreferences() async {
+  PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
+  saveToSharedPreferences("emoji", user.emoji);
+}
+
+void changeEmoji(String emoji) {
+  setEmoji(emoji);
+  saveToSharedPreferences('emoji', emoji);
 }
