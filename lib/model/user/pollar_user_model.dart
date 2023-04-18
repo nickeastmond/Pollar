@@ -67,16 +67,16 @@ class PollarUser {
 
 
 Future<PollarUser> getPollarUser(String uid) async => PollarUser.fromDoc(
-    await FirebaseFirestore.instance.collection("PollarUsers").doc(uid).get());
+    await FirebaseFirestore.instance.collection("User").doc(uid).get());
   
 Future<String> getEmoji() async  {
-    PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
-    return user.emoji;
+  PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
+  return user.emoji;
 }
 
 Future<PollarUser> setEmoji(String emoji) async {
   await FirebaseFirestore.instance
-      .collection('PollarUsers')
+      .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emoji": emoji}, SetOptions(merge: true));
   return getPollarUser(PollarAuth.getUid()!);
@@ -112,14 +112,14 @@ Future<String> getFromSharedPreferences(String key) async {
   if (val != null) {
     return val;
   } else if (key == 'emoji') {
-    saveToSharedPreferences('emoji', defaultEmoji);
+    saveUserInfoToSharedPreferences('emoji', defaultEmoji);
     return defaultEmoji;
   }
   print('No value found for key: $key');
   return '';
 }
 
-Future<bool> saveToSharedPreferences(String key, String value) async {
+Future<bool> saveUserInfoToSharedPreferences(String key, String value) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.setString(key, value);
 }
@@ -127,11 +127,11 @@ Future<bool> saveToSharedPreferences(String key, String value) async {
 // For now, only emoji gets saved in shared prefs
 // can add more if desired
 void fetchFromFirebaseToSharedPreferences() async {
-  PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
-  saveToSharedPreferences("emoji", user.emoji);
+  String emoji =  await getEmoji();
+  //saveToSharedPreferences("emoji", emoji);
 }
 
 void changeEmoji(String emoji) {
   setEmoji(emoji);
-  saveToSharedPreferences('emoji', emoji);
+  saveUserInfoToSharedPreferences('emoji', emoji);
 }

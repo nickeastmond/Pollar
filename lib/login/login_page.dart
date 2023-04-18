@@ -233,7 +233,6 @@ class LoginPageState extends State<LoginPage> {
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
                                 } else if (context.mounted) {
-                                  fetchFromFirebaseToSharedPreferences();
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => const NavigationPage()));
                                 }
                               }),
