@@ -35,7 +35,7 @@ class PollarUser {
   factory PollarUser.fromData(String id, Map<String, dynamic> data) {
     return PollarUser(
       id: id,
-      emailAddress: data["emailAddress"],
+      emailAddress: data["email"],
       emoji: data['emoji'] ?? defaultEmoji,
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
@@ -66,38 +66,27 @@ class PollarUser {
 
 
 
-Future<PollarUser> getPollarUser(String uid) async => PollarUser.fromDoc(
-    await FirebaseFirestore.instance.collection("User").doc(uid).get());
-  
 
 Future<String> getEmoji() async  {
-  PollarUser user =  await getPollarUser(FirebaseAuth.instance.currentUser!.uid);
+  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
   return user.emoji;
 }
 
-Future<PollarUser> setEmoji(String emoji) async {
+Future<bool> setEmoji(String emoji) async {
+  try {
+  
   await FirebaseFirestore.instance
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emoji": emoji}, SetOptions(merge: true));
-  return getPollarUser(PollarAuth.getUid()!);
+      return true;
+  
+  } catch (e) {
+    debugPrint("failed setting user emoji");
+    return false;
+  }
 }
 
-Future<PollarUser> setInnerColor(Color color) async {
-  await FirebaseFirestore.instance
-      .collection('PollarUsers')
-      .doc(PollarAuth.getUid()!)
-      .set({"innerColor": color.value}, SetOptions(merge: true));
-  return getPollarUser(PollarAuth.getUid()!);
-}
-
-Future<PollarUser> setOuterColor(Color color) async {
-  await FirebaseFirestore.instance
-      .collection('PollarUsers')
-      .doc(PollarAuth.getUid()!)
-      .set({"outerColor": color.value}, SetOptions(merge: true));
-  return getPollarUser(PollarAuth.getUid()!);
-}
 
 Stream<PollarUser> subscribePollarUser(String uid) async* {
   final snapshots =

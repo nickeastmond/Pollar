@@ -44,52 +44,45 @@ class CreatePollPageState extends State<CreatePollPage> {
                 child: GestureDetector(
                   onTap: () async {
                     try {
-
-                    
-                    Map<String, dynamic> data = {};
-                    Position? cur = await PositionAdapter.getFromSharedPreferences("location");
-                    if (pollQuestionController.text.isEmpty) {
-                        debugPrint("Please don't leave the question empty"); 
-                        throw Exception("Tried to submit without filling out the question");
+                      Map<String, dynamic> data = {};
+                      Position? cur =
+                          await PositionAdapter.getFromSharedPreferences(
+                              "location");
+                      if (pollQuestionController.text.isEmpty) {
+                        debugPrint("Please don't leave the question empty");
+                        throw Exception(
+                            "Tried to submit without filling out the question");
                       }
-                    data.addAll(
-                      {"locationData": 
-                        {
-                            "longitude": cur!.longitude,
-                            "latitude" : cur.latitude,
-                            "altitude" : cur.altitude
-                        }
-                      ,
-                      
-                      "pollData": 
-                      {
+                      data.addAll({
+                        "locationData": {
+                          "longitude": cur!.longitude,
+                          "latitude": cur.latitude,
+                          "altitude": cur.altitude
+                        },
+                        "pollData": {
                           "question": pollQuestionController.text,
                           "answers": List<String>
-                          
+                        }
+                      });
+                      List<String> answers = [];
+                      for (int i = 0; i < numBars; i++) {
+                        String answer = pollChoices[i].text;
+                        if (answer.isEmpty) {
+                          debugPrint("Please don't leave any answers empty");
+                          throw Exception(
+                              "Tried to submit without filling out answers");
+                        }
+                        answers.add(answer);
                       }
-                    }
-                    );
-                    List<Map<String,int>> answers = [];
-                    for (int i = 0; i < numBars; i++) {
-                      Map<String,int> answerObj = {};
-                      String answer = pollChoices[i].text;
-                      if (answer.isEmpty) {
-                        debugPrint("Please don't leave any answers empty"); 
-                        throw Exception("Tried to submit without filling out answers");
+                      data["pollData"]["answers"] = answers;
+                      String uid = FirebaseAuth.instance.currentUser!.uid;
+                      data["timestamp"] = DateTime.now();
+                      Poll p = Poll.fromData(uid, data);
+                      bool success = await addPollToFirestore(p);
+                      if (context.mounted && success) {
+                        Navigator.pop(context);
                       }
-                      answerObj[answer] = 0;
-                      answers.add(answerObj);
-                    }
-                    data["pollData"]["answers"] = answers;
-                    data["timestamp"] = DateTime.now();
-                    String uid = FirebaseAuth.instance.currentUser!.uid;
-                    Poll p = Poll.fromData(uid, data);
-                    bool success = await addPollToFirestore(p);
-                    if (context.mounted && success ) {
-                                        Navigator.pop(context);
-                                      }
-                    }
-                    catch (e) {
+                    } catch (e) {
                       debugPrint(e.toString());
                     }
                     //Poll newPoll = Poll.fromData(PollarAuth.getUid()!,data );
@@ -331,7 +324,7 @@ class PollChoiceWidget extends StatelessWidget {
           color: color,
           boxShadow: [
             BoxShadow(
-                color: Color.fromARGB(48, 0, 0, 0),
+                color: Colors.black38,
                 blurRadius: 10,
                 offset: Offset.fromDirection(pi / 2, 2))
           ],

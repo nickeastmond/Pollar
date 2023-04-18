@@ -1,6 +1,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pollar/services/auth.dart';
+
 void deleteUserFirestore() async {
   var firestore = FirebaseFirestore.instance; 
     CollectionReference ref = firestore.collection('User');
@@ -10,5 +12,4 @@ void deleteUserFirestore() async {
       onError: (e) => print("Error updating document $e"),
     );
     PollarAuth.deleteUser();
-
 }
