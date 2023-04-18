@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
 import 'bar_graph.dart';
+import 'expanded_poll_page.dart';
 
 class PollCard extends StatelessWidget {
   const PollCard({
@@ -15,11 +16,18 @@ class PollCard extends StatelessWidget {
   final String numComments;
   final String votes;
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const ExpandedPollPage(
+              pollID: '123456',
+            ),
+          ),
+        );
+      },
       child: PollsTheme(builder: (context, theme) {
         return Container(
           decoration: BoxDecoration(
