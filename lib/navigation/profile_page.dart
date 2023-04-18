@@ -24,7 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   initState() {
-    updateEmoji();
+    // need to change to fetch from shared prefs later
+    fetchEmoji();
     super.initState();
   }
 
@@ -33,18 +34,22 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  updateEmoji() async {
-    String newEmoji = await getFromSharedPreferences('emoji');
+  void fetchEmoji() async {
+    userEmoji = await getEmoji();
+  }
+
+  void updateEmoji(emoji) async {
+    setEmoji(emoji);
+    saveUserInfoToSharedPreferences('userEmoji', emoji);
     setState(() {
-      userEmoji = newEmoji;
+      userEmoji = emoji;
     });
   } 
 
   Widget emojiOption(String emoji) {
     return TextButton(
       onPressed: () {
-        changeEmoji(emoji);
-        updateEmoji();
+        updateEmoji(emoji);
         setState(() {
           emojiBoxHeight = 0;
           

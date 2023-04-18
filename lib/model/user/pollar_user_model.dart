@@ -102,26 +102,40 @@ Future<String> getFromSharedPreferences(String key) async {
   if (val != null) {
     return val;
   } else if (key == 'emoji') {
-    saveUserInfoToSharedPreferences('emoji', defaultEmoji);
+    saveUserInfoToSharedPreferences('userEmoji', defaultEmoji);
     return defaultEmoji;
   }
   print('No value found for key: $key');
   return '';
 }
 
-Future<bool> saveUserInfoToSharedPreferences(String key, String value) async {
+Future<bool> saveUserInfoToSharedPreferences(String key, var value) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.setString(key, value);
+  switch (value) {
+    case String: 
+      return prefs.setString(key, value);
+    case Color: {
+      //case for color
+      return true;
+    }
+    case int: {
+      return prefs.setString(key, value); 
+    }
+    default: {
+      return true;
+    }
+  }
+
 }
 
 // For now, only emoji gets saved in shared prefs
 // can add more if desired
 void fetchFromFirebaseToSharedPreferences() async {
-  String emoji =  await getEmoji();
-  //saveToSharedPreferences("emoji", emoji);
-}
-
-void changeEmoji(String emoji) {
-  setEmoji(emoji);
-  saveUserInfoToSharedPreferences('emoji', emoji);
+  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  saveUserInfoToSharedPreferences('userId', user.id);
+  saveUserInfoToSharedPreferences('userEmail', user.emailAddress);
+  saveUserInfoToSharedPreferences('userEmoji', user.emoji);
+  saveUserInfoToSharedPreferences('userInnerColor', user.innerColor);
+  saveUserInfoToSharedPreferences('userEmoji', user.outerColor);
+  saveUserInfoToSharedPreferences('userEmoji', user.points);
 }
