@@ -12,14 +12,21 @@ import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
-class FeedProvider extends ChangeNotifier {
-  List<Poll> _items = [];
+class PollFeedObject {
+  Poll poll;
+  String pollId;
 
-  List<Poll> get items => _items;
+  PollFeedObject(this.poll, this.pollId);
+}
+
+class FeedProvider extends ChangeNotifier {
+  List<PollFeedObject> _items = [];
+
+  List<PollFeedObject> get items => _items;
 
   Future<void> fetchItems() async {
     final snapshot = await FirebaseFirestore.instance.collection('Poll').get();
-    _items = snapshot.docs.map((doc) => Poll.fromDoc(doc)).toList();
+    _items = snapshot.docs.map((doc) => PollFeedObject(Poll.fromDoc(doc),doc.id)).toList();
     notifyListeners();
   }
 }
@@ -96,13 +103,8 @@ class _FeedPageState extends State<FeedPage> {
                         shrinkWrap: true,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
-                          final item = provider.items[index];
-                          final String question =
-                              item.pollData["question"];
-
-                          final String numComments =
-                              item.numComments.toString();
-                          final String votes = item.votes.toString();
+                          final pollItem = provider.items[index];
+                          
                           if (index == 0) {
                             return Column(
                               children: [
@@ -184,9 +186,7 @@ class _FeedPageState extends State<FeedPage> {
                                       top: 8,
                                       bottom: 0),
                                   child: PollCard(
-                                      question: question,
-                                      numComments: numComments,
-                                      votes: votes),
+                                      poll: pollItem,),
                                 ),
                               ],
                             );
@@ -195,9 +195,7 @@ class _FeedPageState extends State<FeedPage> {
                             padding: const EdgeInsets.only(
                                 left: 8.0, right: 8.0, top: 8, bottom: 0),
                             child: PollCard(
-                                question: question,
-                                numComments: numComments,
-                                votes: votes),
+                                poll:pollItem),
                           );
                         },
                       ),

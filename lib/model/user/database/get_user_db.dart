@@ -7,7 +7,7 @@ Future<PollarUser> getUserById(String uid) async {
       .collection('User')
       .doc(uid)
       .get();
-      debugPrint("doc is: ${doc.data()}");
+      
       return PollarUser.fromDoc(doc);
 } 
 

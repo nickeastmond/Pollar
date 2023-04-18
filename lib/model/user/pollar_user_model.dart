@@ -29,10 +29,12 @@ class PollarUser {
   });
 
   factory PollarUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    print(doc.data());
     return PollarUser.fromData(doc.id, doc.data() ?? {});
   }
 
   factory PollarUser.fromData(String id, Map<String, dynamic> data) {
+    
     return PollarUser(
       id: id,
       emailAddress: data["email"],
@@ -69,6 +71,7 @@ class PollarUser {
 
 Future<String> getEmoji() async  {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  
   return user.emoji;
 }
 
@@ -117,7 +120,7 @@ Future<bool> saveUserInfoToSharedPreferences(String key, String value) async {
 // For now, only emoji gets saved in shared prefs
 // can add more if desired
 void fetchFromFirebaseToSharedPreferences() async {
-  String emoji =  await getEmoji();
+  String emoji = await getEmoji();
   //saveToSharedPreferences("emoji", emoji);
 }
 
