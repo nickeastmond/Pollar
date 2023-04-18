@@ -76,6 +76,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       }
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;
+                      data["timestamp"] = DateTime.now();
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
                       if (context.mounted && success) {

@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-Future<Object?> getUserById(String uid) async {
+import 'package:flutter/cupertino.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
+Future<PollarUser> getUserById(String uid) async {
 
-  DocumentReference documentReference = FirebaseFirestore.instance.collection('User').doc(uid);
-  DocumentSnapshot documentSnapshot = await documentReference.get();
-  if (documentSnapshot.exists) {
-    return documentSnapshot;
-  }
-  return null;
+ DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore.instance
+      .collection('User')
+      .doc(uid)
+      .get();
+      debugPrint("doc is: ${doc.data()}");
+      return PollarUser.fromDoc(doc);
 } 
 
 Future<List<QueryDocumentSnapshot>> getUserByEmail(String? emailAddress) async {
