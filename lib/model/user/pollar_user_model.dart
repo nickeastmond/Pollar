@@ -68,11 +68,7 @@ class PollarUser {
 Future<PollarUser> getPollarUser(String uid) async => PollarUser.fromDoc(
     await FirebaseFirestore.instance.collection("PollarUsers").doc(uid).get());
   
-void getEmoji() async  {
-    Object? temp =  await getUserById(FirebaseAuth.instance.currentUser!.uid).;
-    print(temp['emoji']);
-   
-}
+
 
 Future<PollarUser> setEmoji(String emoji) async {
   await FirebaseFirestore.instance

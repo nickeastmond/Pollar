@@ -39,9 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
         profEmoji = emoji;
         //setEmoji(emoji);
         print('hi');
-        getEmoji();
         setState(() {
           emojiBoxHeight = 0;
+          
         });
       },
       child: Text(

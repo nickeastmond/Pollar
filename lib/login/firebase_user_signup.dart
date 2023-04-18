@@ -15,6 +15,9 @@ class FirebaseSignup {
         email: emailAddress,
         password: password,
       );
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+    email: emailAddress,
+    password: password);
       debugPrint("Created Pollar user");
       PollarUser user = PollarUser.asBasic(credential.user!.uid, emailAddress);
       addUserToFirestore(user);
