@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pollar/model/user/database/create_user_db.dart';
 import 'package:flutter/material.dart';
