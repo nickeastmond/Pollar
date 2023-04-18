@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';
@@ -28,7 +29,8 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
-
+    
+    fetchFromFirebaseToSharedPreferences();
     checkLocationEnabled(context);
   }
 

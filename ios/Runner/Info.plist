@@ -32,10 +32,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>LocationInUse</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>LocationAlways</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>LocationInUse</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>LocationAlways</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

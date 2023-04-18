@@ -280,6 +280,7 @@ class SignUpPageState extends State<SignUpPage> {
                                       passConfirmed = false;
                                       return 'Passwords do not match';
                                     }
+                                    
                                     passConfirmed = true;
                                     return null;
                                   },
@@ -306,8 +307,8 @@ class SignUpPageState extends State<SignUpPage> {
                                 color: theme.secondaryHeaderColor,
                                 borderRadius: BorderRadius.circular(0)),
                             child: TextButton(
-                                onPressed: (emailValid && passValid && passConfirmed) 
-                                  ? () async {
+                                onPressed: 
+                                  () async {
                                     String error = '';
                                     if (passwordController.text ==
                                         confirmPasswordController.text) {
@@ -316,8 +317,10 @@ class SignUpPageState extends State<SignUpPage> {
                                         emailController.text,
                                         passwordController.text,
                                       );
+                                      
                                       if (context.mounted &&
                                           PollarAuth.isUserSignedIn()) {
+                                            
                                         Navigator.pop(context);
                                       }
                                     } else {
@@ -337,7 +340,7 @@ class SignUpPageState extends State<SignUpPage> {
                                           .showSnackBar(snackBar);
                                     }
                                   }
-                                  : null,
+                                  ,
                                   child: Text(
                                   "Sign Up",
                                   style: TextStyle(
