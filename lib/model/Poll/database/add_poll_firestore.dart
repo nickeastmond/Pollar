@@ -5,7 +5,7 @@ import 'package:pollar/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
-Future<bool> addUserToFirestore(Poll poll) async {
+Future<bool> addPollToFirestore(Poll poll) async {
   try {
     var firestore = FirebaseFirestore.instance; 
     CollectionReference ref = firestore.collection('Poll');

@@ -8,6 +8,7 @@ class Poll {
   final double radius;
   int votes = 0;
   int numComments = 0;
+  DateTime timestamp;
 
 
   Poll({
@@ -16,11 +17,12 @@ class Poll {
     required this.pollData,
     required this.radius,
     required this.votes,
-    required this.numComments
+    required this.numComments,
+    required this.timestamp
   });
 
   factory Poll.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    return Poll.fromData(doc.data()!["userId"], doc.data() ?? {});
+    return Poll.fromDataDoc(doc.data()!["userId"], doc.data() ?? {});
   }
 
   factory Poll.fromData(String id, Map<String, dynamic> data) {
@@ -30,6 +32,19 @@ class Poll {
       pollData: data["pollData"],
       radius: data["radius"] ?? 20.0,
       votes: data["votes"] ?? 0,
+      timestamp: data["timestamp"],
+      numComments: data["numComments"] ?? 0
+    );
+  }
+
+  factory Poll.fromDataDoc(String id, Map<String, dynamic> data) {
+    return Poll(
+      userId: id,
+      locationData: data["locationData"],
+      pollData: data["pollData"],
+      radius: data["radius"] ?? 20.0,
+      votes: data["votes"] ?? 0,
+      timestamp: data["timestamp"].toDate(),
       numComments: data["numComments"] ?? 0
     );
   }
@@ -41,7 +56,8 @@ class Poll {
         "pollData": pollData,
         "radius": radius,
         "numComments": numComments,
-        "votes": votes
+        "votes": votes,
+        "timestamp": timestamp
     };
   }
 }

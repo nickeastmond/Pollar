@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -76,7 +77,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;
                       Poll p = Poll.fromData(uid, data);
-                      bool success = await addUserToFirestore(p);
+                      bool success = await addPollToFirestore(p);
                       if (context.mounted && success) {
                         Navigator.pop(context);
                       }
