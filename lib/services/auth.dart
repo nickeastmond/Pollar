@@ -18,6 +18,7 @@ static Future<void> signOut() async {
   if (user != null) {
     // Sign out the current user
     await auth.signOut();
+    FirebaseAuth.instance.authStateChanges().listen(null); // create new instance of the stream
     // Force the authStateChanges() stream to emit an event immediately
     await Future.delayed(Duration.zero);
   }

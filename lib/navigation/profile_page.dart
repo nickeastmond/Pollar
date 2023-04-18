@@ -47,6 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
         updateEmoji();
         setState(() {
           emojiBoxHeight = 0;
+          
         });
       },
       child: Text(
@@ -233,13 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fontSize: 17,
                               )),
                           onPressed: () async {
-                            PollarAuth.signOut().then((_) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LoginPage()),
-                              );
-                            });
+                            PollarAuth.signOut();
                           },
                         ),
                       ],

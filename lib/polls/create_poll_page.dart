@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,19 +69,22 @@ class CreatePollPageState extends State<CreatePollPage> {
                       }
                     }
                     );
-                    List<String> answers = [];
+                    List<Map<String,int>> answers = [];
                     for (int i = 0; i < numBars; i++) {
+                      Map<String,int> answerObj = {};
                       String answer = pollChoices[i].text;
                       if (answer.isEmpty) {
                         debugPrint("Please don't leave any answers empty"); 
                         throw Exception("Tried to submit without filling out answers");
                       }
-                      answers.add(answer);
+                      answerObj[answer] = 0;
+                      answers.add(answerObj);
                     }
                     data["pollData"]["answers"] = answers;
+                    data["timestamp"] = DateTime.now();
                     String uid = FirebaseAuth.instance.currentUser!.uid;
                     Poll p = Poll.fromData(uid, data);
-                    bool success = await addUserToFirestore(p);
+                    bool success = await addPollToFirestore(p);
                     if (context.mounted && success ) {
                                         Navigator.pop(context);
                                       }
