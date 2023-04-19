@@ -21,7 +21,7 @@ class NavigationPage extends StatefulWidget {
 }
 
 class NavigationPageState extends State<NavigationPage> {
-  static double iconSize = 30;
+  static double iconSize = 32;
   static double elevation = 2.5;
 
   int tabSelected = 0; // initially tab selected is poll feed
@@ -29,7 +29,7 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
-    
+
     //fetchFromFirebaseToSharedPreferences();
     checkLocationEnabled(context);
   }
@@ -49,7 +49,7 @@ class NavigationPageState extends State<NavigationPage> {
           elevation: elevation,
           backgroundColor: theme.primaryColor,
           leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            padding: const EdgeInsets.only(left: 18.0),
             child: IconButton(
               icon: Icon(
                 Icons.map_outlined,
@@ -82,9 +82,9 @@ class NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ],
-          title: const Icon(
+          title: Icon(
             Icons.bar_chart,
-            size: 35,
+            size: iconSize,
           ),
         ),
         bottomNavigationBar: Container(
@@ -139,9 +139,8 @@ class NavigationPageState extends State<NavigationPage> {
           //children: const [FeedPage(), ProfilePage()],
           children: [
             ChangeNotifierProvider(
-              create: (_) => FeedProvider()..fetchItems(),
-              child: const FeedPage()
-            ),
+                create: (_) => FeedProvider()..fetchItems(),
+                child: const FeedPage()),
             const ProfilePage(),
           ],
         ),
