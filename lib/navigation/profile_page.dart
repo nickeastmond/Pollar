@@ -35,7 +35,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void fetchEmoji() async {
-    userEmoji = await getEmoji();
+    String temp = await getEmoji();
+    setState(() {
+      userEmoji = temp;
+    });
   }
 
   void updateEmoji(emoji) async {
@@ -240,6 +243,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               )),
                           onPressed: () async {
                             PollarAuth.signOut();
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage()
+                              ), 
+                              (route) => false
+                            );
                           },
                         ),
                       ],
