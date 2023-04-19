@@ -9,12 +9,14 @@ class PollCard extends StatelessWidget {
   const PollCard({
     Key? key,
     required this.question,
+    required this.time,
     required this.numComments,
     required this.votes,
   }) : super(key: key);
   final String question;
   final String numComments;
   final String votes;
+  final DateTime time;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +147,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 0),
                       child: Text(
-                        "27 days | ~3mi",
+                        pollText(time),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -166,4 +168,15 @@ class PollCard extends StatelessWidget {
       }),
     );
   }
+}
+
+String pollText(DateTime t) {
+  final since = DateTime.now().difference(t);
+  final pair = since.inMinutes < 60
+      ? MapEntry(since.inMinutes, "min")
+      : since.inHours < 24
+          ? MapEntry(since.inHours, "hrs")
+          : MapEntry(since.inDays, "days");
+  //return "${pair.key} ${pair.value} | ~${poll.milesFrom(currentLocation)}mi";
+  return "${pair.key} ${pair.value} ago";
 }

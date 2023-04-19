@@ -91,14 +91,15 @@ class _FeedPageState extends State<FeedPage> {
                   future: _getCurrentLocation(),
                   builder: (context, snapshot) {
                     return RefreshIndicator(
+                      color: theme.secondaryHeaderColor,
                       onRefresh: () => provider.fetchItems(),
                       child: ListView.builder(
-                        shrinkWrap: true,
+                        shrinkWrap: false,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
                           final item = provider.items[index];
-                          final String question =
-                              item.pollData["question"];
+                          final String question = item.pollData["question"];
+                          final DateTime time = item.timestamp;
 
                           final String numComments =
                               item.numComments.toString();
@@ -108,10 +109,7 @@ class _FeedPageState extends State<FeedPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      top: 6,
-                                      bottom: 0,
-                                      left: 8,
-                                      right: 8),
+                                      top: 6, bottom: 0, left: 8, right: 8),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: MediaQuery.of(context)
@@ -140,15 +138,10 @@ class _FeedPageState extends State<FeedPage> {
                                           retinaMode: true,
                                           urlTemplate:
                                               "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                          subdomains: const [
-                                            'a',
-                                            'b',
-                                            'c'
-                                          ],
+                                          subdomains: const ['a', 'b', 'c'],
                                         ),
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.all(5.5),
+                                          padding: const EdgeInsets.all(5.5),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -156,15 +149,13 @@ class _FeedPageState extends State<FeedPage> {
                                               Text(
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontWeight:
-                                                      FontWeight.w400,
+                                                  fontWeight: FontWeight.w400,
                                                   fontSize: 17.5,
                                                   shadows: [
                                                     Shadow(
                                                       blurRadius: 10,
                                                       color: Colors.black,
-                                                      offset: Offset(
-                                                          1.0, 1.0),
+                                                      offset: Offset(1.0, 1.0),
                                                     ),
                                                   ],
                                                 ),
@@ -179,14 +170,13 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 8.0,
-                                      right: 8.0,
-                                      top: 8,
-                                      bottom: 0),
+                                      left: 8.0, right: 8.0, top: 8, bottom: 0),
                                   child: PollCard(
-                                      question: question,
-                                      numComments: numComments,
-                                      votes: votes),
+                                    question: question,
+                                    numComments: numComments,
+                                    votes: votes,
+                                    time: time,
+                                  ),
                                 ),
                               ],
                             );
@@ -195,9 +185,11 @@ class _FeedPageState extends State<FeedPage> {
                             padding: const EdgeInsets.only(
                                 left: 8.0, right: 8.0, top: 8, bottom: 0),
                             child: PollCard(
-                                question: question,
-                                numComments: numComments,
-                                votes: votes),
+                              question: question,
+                              numComments: numComments,
+                              votes: votes,
+                              time: time,
+                            ),
                           );
                         },
                       ),
