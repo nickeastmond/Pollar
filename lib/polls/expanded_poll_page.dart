@@ -115,7 +115,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                   ),
                   child: BarGraph(
                     numBars: widget.pollFeedObj.poll.pollData["answers"].length,
-                    initalDisplayData: false,
+                    initalDisplayData: true,
                     height: MediaQuery.of(context).size.width - 120,
                     width: MediaQuery.of(context).size.width - 120,
                     spacing: 3,

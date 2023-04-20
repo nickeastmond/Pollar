@@ -68,7 +68,7 @@ class BarGraphState extends State<BarGraph> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => setState(() => displayData = !displayData),
+      onTap: () => setState(() => displayData = displayData),
       child: SizedBox(
         height: widget.height,
         child: Row(
