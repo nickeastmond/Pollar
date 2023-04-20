@@ -14,8 +14,12 @@ class PollCard extends StatelessWidget {
   }) : super(key: key);
   final PollFeedObject poll;
 
+  
+
   @override
   Widget build(BuildContext context) {
+    
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(

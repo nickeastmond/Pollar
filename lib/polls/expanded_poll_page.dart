@@ -13,6 +13,8 @@ class ExpandedPollPage extends StatefulWidget {
     required this.pollFeedObj,
   });
   final PollFeedObject pollFeedObj;
+  // Output: [5, 2, 3]
+ 
 
   @override
   State<ExpandedPollPage> createState() => ExpandedPollPageState();
@@ -25,8 +27,10 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
 
   @override
   void initState() {
+    
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -110,13 +114,14 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                     vertical: 24.0,
                   ),
                   child: BarGraph(
-                    numBars: 5,
+                    numBars: widget.pollFeedObj.poll.pollData["answers"].length,
                     initalDisplayData: false,
                     height: MediaQuery.of(context).size.width - 120,
                     width: MediaQuery.of(context).size.width - 120,
                     spacing: 3,
                     minHeight: 15,
-                    counters: const [27, 52, 70, 40, 23],
+                    counters: widget.pollFeedObj.poll.pollData["answers"].map<int>((e) => int.parse(e["count"].toString()))
+    .toList(),
                     circleBorder: 0,
                   ),
                 ),
