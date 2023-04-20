@@ -61,10 +61,10 @@ class CreatePollPageState extends State<CreatePollPage> {
                         },
                         "pollData": {
                           "question": pollQuestionController.text,
-                          "answers": List<String>
+                          "answers": List<Map<String,int>>
                         }
                       });
-                      List<String> answers = [];
+                     List<Map<String,dynamic>> answers = [];
                       for (int i = 0; i < numBars; i++) {
                         String answer = pollChoices[i].text;
                         if (answer.isEmpty) {
@@ -72,7 +72,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                           throw Exception(
                               "Tried to submit without filling out answers");
                         }
-                        answers.add(answer);
+                        answers.add({"text": answer, "count": 0});
                       }
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;

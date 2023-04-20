@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls/bar_graph.dart';
+import '../model/Poll/database/voting.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
 
@@ -134,7 +136,13 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                   ),
                   for (int i = 0; i < widget.pollFeedObj.poll.pollData["answers"].length; i++)
                     GestureDetector(
-                      onTap: () => {},
+                      onTap: () async
+                      {
+                          
+                          await pollInteraction(i,FirebaseAuth.instance.currentUser!.uid,widget.pollFeedObj.pollId);
+                          
+
+                      },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 100),
                         height: 100,
@@ -160,7 +168,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                               enabled: false,
                               readOnly: true,
                               controller: TextEditingController(
-                                  text: widget.pollFeedObj.poll.pollData["answers"][i]),
+                                  text: widget.pollFeedObj.poll.pollData["answers"][i]["text"]),
                               style: const TextStyle(
                                   fontSize: 17.5, color: Colors.white),
                               textInputAction: TextInputAction.done,
