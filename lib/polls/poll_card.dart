@@ -176,11 +176,11 @@ String pollText(DateTime t) {
       ? MapEntry(since.inMinutes, "min")
       : since.inHours < 24
           ? MapEntry(since.inHours, "hrs")
+          : (since.inDays == 1) 
+          ?
+            MapEntry(since.inDays, "day")
           : MapEntry(since.inDays, "days");
   //return "${pair.key} ${pair.value} | ~${poll.milesFrom(currentLocation)}mi";
-  if (pair.key == 1) 
-  {
-    return "${pair.key} day ago";
-  }
+ 
   return "${pair.key} ${pair.value} ago";
 }

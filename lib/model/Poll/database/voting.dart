@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
 
+// There is a cloud function that deletes all interaections upon poll deletion
 Future<bool> pollInteraction(int vote, String userId, String pollId) async
 {
   bool canVote = await hasUserVoted(pollId, userId);
