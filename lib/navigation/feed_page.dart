@@ -47,9 +47,14 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
+
+  
   LatLng _userLocation = LatLng(0, 0);
   String locality = '';
   final MapController _mapController = MapController();
+
+  final ScrollController _scrollController = ScrollController();
+  
 
   Future<LocationData> _getCurrentLocation() async {
     final position = await PositionAdapter.getFromSharedPreferences("location");
@@ -72,7 +77,8 @@ class _FeedPageState extends State<FeedPage> {
   @override
   initState() {
     super.initState();
-
+    
+    
     // _getCurrentLocation();
   }
 
