@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pollar/navigation/feed_page.dart';
 
+import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
 import 'bar_graph.dart';
@@ -8,15 +10,9 @@ import 'expanded_poll_page.dart';
 class PollCard extends StatelessWidget {
   const PollCard({
     Key? key,
-    required this.question,
-    required this.time,
-    required this.numComments,
-    required this.votes,
+    required this.poll,
   }) : super(key: key);
-  final String question;
-  final String numComments;
-  final String votes;
-  final DateTime time;
+  final PollFeedObject poll;
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +20,8 @@ class PollCard extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => const ExpandedPollPage(
-              pollID: '123456',
+            builder: (context) => ExpandedPollPage(
+              pollFeedObj: poll,
             ),
           ),
         );
@@ -64,7 +60,7 @@ class PollCard extends StatelessWidget {
                       width: 250,
                       //color: Colors.grey.shade900,
                       child: Text(
-                        question,
+                        poll.poll.pollData["question"],
                         style: TextStyle(
                           height: 1.4,
                           color: theme.indicatorColor,
@@ -100,7 +96,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        numComments,
+                        poll.poll.numComments.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -123,7 +119,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        votes,
+                        poll.poll.votes.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -147,7 +143,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 0),
                       child: Text(
-                        pollText(time),
+                        pollText(poll.poll.timestamp),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -178,5 +174,9 @@ String pollText(DateTime t) {
           ? MapEntry(since.inHours, "hrs")
           : MapEntry(since.inDays, "days");
   //return "${pair.key} ${pair.value} | ~${poll.milesFrom(currentLocation)}mi";
+  if (pair.key == 1) 
+  {
+    return "${pair.key} day ago";
+  }
   return "${pair.key} ${pair.value} ago";
 }

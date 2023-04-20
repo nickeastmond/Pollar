@@ -31,6 +31,7 @@ class NavigationPageState extends State<NavigationPage> {
     super.initState();
 
     //fetchFromFirebaseToSharedPreferences();
+    
     checkLocationEnabled(context);
   }
 

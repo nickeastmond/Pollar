@@ -1,15 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls/bar_graph.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
 
 class ExpandedPollPage extends StatefulWidget {
-  const ExpandedPollPage({
+  ExpandedPollPage({
     super.key,
-    required this.pollID,
+    required this.pollFeedObj,
   });
-  final String pollID;
+  final PollFeedObject pollFeedObj;
 
   @override
   State<ExpandedPollPage> createState() => ExpandedPollPageState();
@@ -87,7 +88,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 25),
                   child: Text(
-                    "Question for this Poll",
+                    widget.pollFeedObj.poll.pollData["question"],
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w400,
@@ -131,7 +132,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                               offset: Offset.fromDirection(pi / 2, 2))
                         ]),
                   ),
-                  for (int i = 0; i < 5; i++)
+                  for (int i = 0; i < widget.pollFeedObj.poll.pollData["answers"].length; i++)
                     GestureDetector(
                       onTap: () => {},
                       child: AnimatedContainer(
@@ -159,7 +160,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                               enabled: false,
                               readOnly: true,
                               controller: TextEditingController(
-                                  text: "Voting Option $i"),
+                                  text: widget.pollFeedObj.poll.pollData["answers"][i]),
                               style: const TextStyle(
                                   fontSize: 17.5, color: Colors.white),
                               textInputAction: TextInputAction.done,
