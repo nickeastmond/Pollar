@@ -11,7 +11,8 @@ class CreateMapPage extends StatefulWidget {
 
 class CreateMapPageState extends State<CreateMapPage> {
   double? lat, long;
-  int _value = 6;
+  int _value = 5;
+  late int radius;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LocationData?>(
@@ -67,6 +68,7 @@ class CreateMapPageState extends State<CreateMapPage> {
                         setState(() {
                           lat = pickedData.latLong.latitude;
                           long = pickedData.latLong.longitude;
+                          radius = _value;
                         });
                       }),
                 )
