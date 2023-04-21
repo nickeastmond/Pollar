@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: characters
-      sha256: e6a326c8af69605aec75ed6c187d06b349707a27fbff8222ca9cc2cff167975c
+      sha256: "04a925763edad70e8443c99234dc3328f442e811f1d8fd1a72f1c8ad0f69a605"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.3.0"
   clock:
     dependency: transitive
     description:
@@ -69,10 +69,10 @@ packages:
     dependency: transitive
     description:
       name: collection
-      sha256: cfc915e6923fe5ce6e153b0723c753045de46de1b4d63771530504004a45fae0
+      sha256: "4a07be6cb69c84d677a6c3096fcf960cc3285a8330b4603e0d463d15d9bd934c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.17.1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -190,6 +190,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_compass:
+    dependency: transitive
+    description:
+      name: flutter_compass
+      sha256: "1a0121bff32df95193812b4e0f69e95f45fdec042ebd7a326ba087c0f6ec8304"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -207,6 +215,22 @@ packages:
       url: "https://github.com/fleaflet/flutter_map.git"
     source: git
     version: "3.2.0"
+  flutter_map_location_marker:
+    dependency: "direct main"
+    description:
+      name: flutter_map_location_marker
+      sha256: c65b31e0759ca36326318a281a76dfb13c782d438b5cf622b11059b752ced1e2
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.0"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: c224ac897bed083dabf11f238dd11a239809b446740be0c2044608c50029ffdf
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.9"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -297,6 +321,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1"
+  google_maps_flutter:
+    dependency: "direct main"
+    description:
+      name: google_maps_flutter
+      sha256: "24392ef192f3b00bcd93151375676805a9933574423a5bd5509a0ead2e8a4215"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.5"
+  google_maps_flutter_android:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_android
+      sha256: ee3c1a63983b8ba17a9a7c1233c3542fbfbc0ebf540d3aa9b8fd5162681e0219
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.10"
+  google_maps_flutter_ios:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_ios
+      sha256: e9ad74415a222573625a2c1717adc1e375b18e8ce660fc12db734d1bda1132d4
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
+  google_maps_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_platform_interface
+      sha256: a07811d2b82055815ede75e1fe4b7b76f71a0b4820b26f71bdaddd157d6a3e20
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.6"
   http:
     dependency: transitive
     description:
@@ -325,10 +381,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: "5528c2f391ededb7775ec1daa69e65a2d61276f7552de2b5f7b8d34ee9fd4ab7"
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.5"
+    version: "0.6.7"
   latlong2:
     dependency: "direct main"
     description:
@@ -353,14 +409,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      sha256: "9051959f6f2ccadd887b28b66e9cbbcc25b6838e37cf9e894c421ccc0ebf80b5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.4.0"
+  location_platform_interface:
+    dependency: transitive
+    description:
+      name: location_platform_interface
+      sha256: "62eeaf1658e92e4459b727f55a3c328eccbac8ba043fa6d262ac5286ad48384c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
+  location_web:
+    dependency: transitive
+    description:
+      name: location_web
+      sha256: "6c08c408a040534c0269c4ff9fe17eebb5a36dea16512fbaf116b9c8bc21545b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
   matcher:
     dependency: transitive
     description:
       name: matcher
-      sha256: "16db949ceee371e9b99d22f88fa3a73c4e59fd0afed0bd25fc336eb76c198b72"
+      sha256: c94db23593b89766cda57aab9ac311e3616cf87c6fa4e9749df032f66f30dcb8
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.13"
+    version: "0.12.14"
   material_color_utilities:
     dependency: transitive
     description:
@@ -373,10 +453,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "6c268b42ed578a53088d834796959e4a1814b5e9e164f147f580a386e5decf42"
+      sha256: "12307e7f0605ce3da64cf0db90e5fcab0869f3ca03f76be6bb2991ce0a55e82b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0"
+    version: "1.9.0"
   mgrs_dart:
     dependency: transitive
     description:
@@ -385,6 +465,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  open_street_map_search_and_pick:
+    dependency: "direct main"
+    description:
+      name: open_street_map_search_and_pick
+      sha256: "5320774b5217a554c6bbe371d473728c8d2ed5e572a623735d425aa2b63c79bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.16"
   nested:
     dependency: transitive
     description:
@@ -397,10 +485,10 @@ packages:
     dependency: transitive
     description:
       name: path
-      sha256: db9d4f58c908a4ba5953fcee2ae317c94889433e5024c27ce74a37f94267945b
+      sha256: "8829d8a55c13fc0e37127c29fedf290c102f4e40ae94ada574091fe0ff96c917"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.2"
+    version: "1.8.3"
   path_provider_linux:
     dependency: transitive
     description:
@@ -606,6 +694,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  stream_transform:
+    dependency: transitive
+    description:
+      name: stream_transform
+      sha256: "14a00e794c7c11aa145a170587321aedce29769c08d7f58b1d141da75e3b1c6f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   streaming_shared_preferences:
     dependency: "direct main"
     description:
@@ -622,6 +718,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  syncfusion_flutter_core:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_core
+      sha256: "3659bd6b4774ff95ce22b624be932f009c20913a99baf8898166ba2d36b73156"
+      url: "https://pub.dev"
+    source: hosted
+    version: "21.1.39"
+  syncfusion_flutter_maps:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_maps
+      sha256: "4b777c17495aede1ab13fbc9bebc5e55d48b6b49bfe9a78c51a19512fd1159a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "21.1.39"
   term_glyph:
     dependency: transitive
     description:
@@ -634,10 +746,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: ad540f65f92caa91bf21dfc8ffb8c589d6e4dc0c2267818b4cc2792857706206
+      sha256: "6182294da5abf431177fccc1ee02401f6df30f766bc6130a0852c6b6d7ee6b2d"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.16"
+    version: "0.4.18"
   tuple:
     dependency: transitive
     description:
@@ -695,5 +807,5 @@ packages:
     source: hosted
     version: "1.0.0"
 sdks:
-  dart: ">=2.18.0 <3.0.0"
-  flutter: ">=3.0.0"
+  dart: ">=2.19.0 <4.0.0"
+  flutter: ">=3.3.0"
