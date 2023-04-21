@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pollar/login/firebase_user_login.dart';
 import 'package:pollar/login/signup_page.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/navigation_page.dart';
 
 import '../polls_theme.dart';

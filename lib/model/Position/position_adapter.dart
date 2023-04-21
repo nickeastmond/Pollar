@@ -18,7 +18,6 @@ class PositionAdapter {
       speedAccuracy: double.parse(parts[6]),
       timestamp: DateTime.parse(parts[7]),
     );
-    
   }
 
   //GET POSITION FROM SHARED PREFS, WAY FASTER THAN USING GEO.
@@ -29,7 +28,9 @@ class PositionAdapter {
     if (value != null) {
       return decode(value);
     }
-    return null;
+    final slowAccessLocation = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    return slowAccessLocation;
   }
 
   static Future<bool> saveToSharedPreferences(

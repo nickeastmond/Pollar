@@ -1,13 +1,13 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:pollar/login/login_page.dart';
-
+import 'package:pollar/navigation/profile_page.dart';
+import 'package:provider/provider.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
-import '../services/location.dart';
+import '../services/location/location.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
+
 import '../maps.dart';
 import 'feed_page.dart';
 
@@ -21,14 +21,17 @@ class NavigationPage extends StatefulWidget {
 }
 
 class NavigationPageState extends State<NavigationPage> {
-  static double iconSize = 30;
-  static double elevation = 0;
+  static double iconSize = 32;
+  static double elevation = 2.5;
 
   int tabSelected = 0; // initially tab selected is poll feed
 
   @override
   initState() {
     super.initState();
+
+    //fetchFromFirebaseToSharedPreferences();
+    
     checkLocationEnabled(context);
   }
 
@@ -47,7 +50,7 @@ class NavigationPageState extends State<NavigationPage> {
           elevation: elevation,
           backgroundColor: theme.primaryColor,
           leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            padding: const EdgeInsets.only(left: 18.0),
             child: IconButton(
               icon: Icon(
                 Icons.map_outlined,
@@ -80,9 +83,9 @@ class NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ],
-          title: const Icon(
+          title: Icon(
             Icons.bar_chart,
-            size: 35,
+            size: iconSize,
           ),
         ),
         bottomNavigationBar: Container(
@@ -128,21 +131,6 @@ class NavigationPageState extends State<NavigationPage> {
                 ),
                 label: 'Profile Page',
               ),
-
-              // TEMP
-              BottomNavigationBarItem(
-                icon: IconButton(
-                    icon: const Icon(Icons.exit_to_app),
-                    iconSize: iconSize,
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
-                          (route) => false);
-                    }),
-                label: 'Temporary Sign Out Page',
-              ),
             ],
           ),
         ),
@@ -151,10 +139,10 @@ class NavigationPageState extends State<NavigationPage> {
           //const [FeedPage(), ReceivePollPage(), ProfilePage()],
           //children: const [FeedPage(), ProfilePage()],
           children: [
-            const FeedPage(),
-            Container(
-              color: theme.primaryColor,
-            )
+            ChangeNotifierProvider(
+                create: (_) => FeedProvider()..fetchItems(),
+                child: const FeedPage()),
+            const ProfilePage(),
           ],
         ),
       ),

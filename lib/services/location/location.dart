@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/Position/position_adapter.dart';
+import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
   try {
@@ -26,7 +26,7 @@ Future<bool> getLocation() async {
     PositionAdapter.saveToSharedPreferences("location", position);
     final prefs = await SharedPreferences.getInstance();
     print("Geolocation is: ");
-    print(prefs.getString("location") ?? "");
+    print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
     return true;
     }
     catch (e) {
@@ -48,8 +48,6 @@ void checkLocationEnabled(BuildContext context) async {
             TextButton(
               child: const Text("Cancel"),
               onPressed: () {
-                
-                
               SystemNavigator.pop();
             }
               
@@ -57,7 +55,7 @@ void checkLocationEnabled(BuildContext context) async {
             TextButton(
               child: const Text("Settings"),
               onPressed: () async {
-                bool result = await Geolocator.openLocationSettings();
+                await Geolocator.openLocationSettings();
               },
             ),
           ],
