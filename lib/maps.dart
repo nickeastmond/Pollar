@@ -2,6 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+final CollectionReference myCollection =
+    FirebaseFirestore.instance.collection('mapsData');
+
+Future<void> addData(int var1, double var2, double var3) async {
+  await myCollection.add({'Radius': var1, 'Longitude': var2, 'Latitude': var3});
+}
 
 class CreateMapPage extends StatefulWidget {
   const CreateMapPage({super.key});
@@ -10,9 +18,7 @@ class CreateMapPage extends StatefulWidget {
 }
 
 class CreateMapPageState extends State<CreateMapPage> {
-  double? lat, long;
   int _value = 5;
-  late int radius;
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LocationData?>(
@@ -66,9 +72,9 @@ class CreateMapPageState extends State<CreateMapPage> {
                       buttonText: 'Set Current Location',
                       onPicked: (pickedData) {
                         setState(() {
-                          lat = pickedData.latLong.latitude;
-                          long = pickedData.latLong.longitude;
-                          radius = _value;
+                          addData(_value, pickedData.latLong.longitude,
+                              pickedData.latLong.latitude);
+                          Navigator.pop(context);
                         });
                       }),
                 )
