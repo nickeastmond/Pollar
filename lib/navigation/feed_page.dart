@@ -152,16 +152,6 @@ class _FeedPageState extends State<FeedPage> {
                         shrinkWrap: false,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
-                          
-                          if(index == provider.items.length){
-                _loading=true;  // declare the boolean and return loading indicator
-                return Center(
-                     child: Container(
-                         child: const Center(child: CircularProgressIndicator())));
-
-                         
-                          }
-                          
                           final pollItem = provider.items[index];
                           
                           if (index == 0) {
