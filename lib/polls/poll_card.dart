@@ -173,8 +173,10 @@ String pollText(DateTime t) {
   final since = DateTime.now().difference(t);
   final pair = since.inMinutes < 60
       ? MapEntry(since.inMinutes, "min")
-      : since.inHours < 24
-          ? MapEntry(since.inHours, "hrs")
+      : since.inHours < 24 ?
+        (since.inHours == 1)
+          ? MapEntry(since.inHours, "hr"):
+           MapEntry(since.inHours, "hrs")
           : (since.inDays == 1) 
           ?
             MapEntry(since.inDays, "day")

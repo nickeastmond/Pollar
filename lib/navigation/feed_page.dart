@@ -32,6 +32,15 @@ class FeedProvider extends ChangeNotifier {
         .limit(limit)
         .get();
       _items = snapshot.docs.map((doc) => PollFeedObject(Poll.fromDoc(doc),doc.id)).toList();
+      if (items.isEmpty)
+      {
+        _moreItemsToLoad = false;
+      }
+      else
+      {
+        _moreItemsToLoad = true;
+      }
+      
       notifyListeners();
   
   }
@@ -52,6 +61,10 @@ class FeedProvider extends ChangeNotifier {
       if (newItems.isEmpty)
       {
         _moreItemsToLoad = false;
+      }
+      else
+      {
+        _moreItemsToLoad = true;
       }
     _items.addAll(newItems);
     notifyListeners();
