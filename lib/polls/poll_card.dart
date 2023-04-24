@@ -18,8 +18,6 @@ class PollCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -74,15 +72,16 @@ class PollCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
                       child: BarGraph(
                           initalDisplayData: true,
-                          numBars: 5,
+                          numBars: poll.poll.pollData["answers"].length,
                           height: 35,
                           width: 38,
                           minHeight: 5,
-                          counters: [1, 2, 3, 2, 1],
+                          counters: poll.poll.pollData["answers"].map<int>((e) => int.parse(e["count"].toString()))
+    .toList(),
                           spacing: 2,
                           circleBorder: 0),
                     ),

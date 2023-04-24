@@ -23,11 +23,17 @@ class FeedProvider extends ChangeNotifier {
 
   List<PollFeedObject> get items => _items;
 
-  Future<void> fetchItems() async {
-    final snapshot = await FirebaseFirestore.instance.collection('Poll').get();
-    _items = snapshot.docs.map((doc) => PollFeedObject(Poll.fromDoc(doc),doc.id)).toList();
-    notifyListeners();
-  }
+  Future<void> fetchItems(int limit) async {
+  final querySnapshot = await FirebaseFirestore.instance
+      .collection('Poll')
+      .orderBy('timestamp', descending: true)
+      .limit(limit)
+      .get();
+  _items = querySnapshot.docs
+      .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+      .toList();
+  notifyListeners();
+}
 }
 
 class LocationData {
@@ -104,7 +110,7 @@ class _FeedPageState extends State<FeedPage> {
                   builder: (context, snapshot) {
                     return RefreshIndicator(
                       color: theme.secondaryHeaderColor,
-                      onRefresh: () => provider.fetchItems(),
+                      onRefresh: () => provider.fetchItems(6),
                       child: ListView.builder(
                         shrinkWrap: false,
                         itemCount: provider.items.length,

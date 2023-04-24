@@ -60,4 +60,6 @@ class Poll {
         "timestamp": timestamp
     };
   }
+
+
 }
