@@ -23,17 +23,35 @@ class FeedProvider extends ChangeNotifier {
 
   List<PollFeedObject> get items => _items;
 
-  Future<void> fetchItems(int limit) async {
-  final querySnapshot = await FirebaseFirestore.instance
-      .collection('Poll')
-      .orderBy('timestamp', descending: true)
-      .limit(limit)
-      .get();
-  _items = querySnapshot.docs
-      .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-      .toList();
-  notifyListeners();
-}
+  Future<void> fetchInitial(int limit) async {
+      print("fetchin initial");
+      final snapshot = await FirebaseFirestore.instance
+        .collection('Poll')
+        .orderBy('timestamp', descending: true)
+        .limit(5)
+        .get();
+      _items = snapshot.docs.map((doc) => PollFeedObject(Poll.fromDoc(doc),doc.id)).toList();
+      notifyListeners();
+  
+  }
+    Future<void> fetchMore(int limit) async {
+
+      print("Fetcjing more");
+      final lastDocId = _items.lastWhere((item) => item != null).pollId;
+      final lastDoc = await FirebaseFirestore.instance.collection("Poll").doc(lastDocId).get();
+      final querySnapshot = await FirebaseFirestore.instance
+        .collection('Poll')
+        .orderBy('timestamp', descending: true)
+        .startAfterDocument(lastDoc)
+        .limit(5)
+        .get();
+    final newItems = querySnapshot.docs
+        .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+        .toList();
+    _items.addAll(newItems);
+    notifyListeners();
+    
+  }
 }
 
 class LocationData {
@@ -60,7 +78,8 @@ class _FeedPageState extends State<FeedPage> {
   final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
-  
+  bool _loading = false;
+
 
   Future<LocationData> _getCurrentLocation() async {
     final position = await PositionAdapter.getFromSharedPreferences("location");
@@ -80,10 +99,24 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _fetchMore();
+    }
+  }
+
+  Future<void> _fetchMore() async {
+    // Fetch new items
+    await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
+  }
+
   @override
   initState() {
     super.initState();
     
+    _scrollController.addListener(_onScroll);
+
     
     // _getCurrentLocation();
   }
@@ -91,6 +124,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void dispose() {
     // Your own implementation
+    _scrollController.removeListener(_onScroll);
     super.dispose(); // Call super method
   }
 
@@ -109,12 +143,25 @@ class _FeedPageState extends State<FeedPage> {
                   future: _getCurrentLocation(),
                   builder: (context, snapshot) {
                     return RefreshIndicator(
+                      triggerMode: RefreshIndicatorTriggerMode.onEdge,
                       color: theme.secondaryHeaderColor,
-                      onRefresh: () => provider.fetchItems(6),
+                      onRefresh: () => provider.fetchInitial(6),
                       child: ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
                         shrinkWrap: false,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
+                          
+                          if(index == provider.items.length){
+                _loading=true;  // declare the boolean and return loading indicator
+                return Center(
+                     child: Container(
+                         child: const Center(child: CircularProgressIndicator())));
+
+                         
+                          }
+                          
                           final pollItem = provider.items[index];
                           
                           if (index == 0) {
