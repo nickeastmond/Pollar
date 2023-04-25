@@ -152,8 +152,10 @@ class FeedProvider extends ChangeNotifier {
 class LocationData {
   final LatLng latLng;
   final List<Placemark> placemarks;
+  final int radius;
 
-  LocationData({required this.latLng, required this.placemarks});
+  LocationData(
+      {required this.latLng, required this.placemarks, required this.radius});
 }
 
 class FeedPage extends StatefulWidget {
@@ -180,7 +182,10 @@ class _FeedPageState extends State<FeedPage> {
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
-    return LocationData(latLng: _userLocation, placemarks: placemark);
+    return LocationData(
+        latLng: _userLocation,
+        placemarks: placemark,
+        radius: prefs.getInt('Radius') ?? 5);
   }
 
   Future<List<Placemark>> placemarkLocation(LatLng location) async {
@@ -310,7 +315,7 @@ class _FeedPageState extends State<FeedPage> {
                                                     ),
                                                   ],
                                                 ),
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • 5 Mi',
+                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"}',
                                               ),
                                             ],
                                           ),
