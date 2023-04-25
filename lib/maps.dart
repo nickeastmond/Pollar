@@ -103,8 +103,8 @@ class CreateMapPageState extends State<CreateMapPage> {
                       onPicked: (pickedData) {
                         setState(() {
                           storeMapsData(_value, pickedData.latLong.longitude,
-                              pickedData.latLong.latitude);
-                          Navigator.pop(context);
+                              pickedData.latLong.latitude).then((_) =>  Navigator.pop(context));
+
                         });
                       }),
                 )
