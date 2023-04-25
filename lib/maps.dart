@@ -39,9 +39,6 @@ class CreateMapPage extends StatefulWidget {
 }
 
 class CreateMapPageState extends State<CreateMapPage> {
-<<<<<<< HEAD
-  int _value = 5; //Default
-=======
   late int _value; //Default
 
   @override
@@ -57,7 +54,6 @@ class CreateMapPageState extends State<CreateMapPage> {
     });
   }
 
->>>>>>> ca06e86117ddea9e00513dd9ed5dfc7cce0533f3
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LocationData?>(
