@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:provider/provider.dart';
+import '../model/Poll/database/delete_all.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';

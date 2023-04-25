@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,11 +8,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
+
+const double MAX_DISTANCE = 5.0; // MILES
 
 class PollFeedObject {
   Poll poll;
@@ -21,52 +26,126 @@ class PollFeedObject {
 
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
-  bool _moreItemsToLoad = true;
+  bool _moreItemsToLoad = false;
 
   List<PollFeedObject> get items => _items;
 
+  double latIncrement(userLat, userLong) {
+    double latitude = 40.7128; // New York City's latitude in degrees
+    double miles = MAX_DISTANCE; // the distance to convert, in miles
+    double earthRadius = 3963.1906; // earth radius in miles
+    double degreeLatLength = earthRadius *
+        pi /
+        180; // length of one degree of latitude at equator in miles
+    double degreeLatLengthAtGivenLat = degreeLatLength *
+        cos(latitude *
+            pi /
+            180); // length of one degree of latitude at given latitude
+    double latIncrement =
+        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
+    return latIncrement;
+  }
+
+  double longIncrement(userLat, userLong) {
+    double latitude = 40.7128; // New York City's latitude in degrees
+    double miles = MAX_DISTANCE; // the distance to convert, in miles
+    double earthRadius = 3963.1906; // earth radius in miles
+    double degreeLatLength = earthRadius *
+        pi /
+        180; // length of one degree of latitude at equator in miles
+    double degreeLatLengthAtGivenLat = degreeLatLength *
+        cos(latitude *
+            pi /
+            180); // length of one degree of latitude at given latitude
+    double latIncrement =
+        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
+    double lonIncrement = latIncrement *
+        cos(latitude * pi / 180); // longitude increment in degrees
+    return lonIncrement;
+  }
+
   Future<void> fetchInitial(int limit) async {
-    print("fetchin initial");
+    debugPrint("fetchin initial");
+    // Define the user's current location
+
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    final double userLat = position!.latitude;
+    final double userLong = position.latitude;
+    final currentLocation = GeoPoint(userLat, userLong);
+
     final snapshot = await FirebaseFirestore.instance
         .collection('Poll')
-        .orderBy('timestamp', descending: true)
+        .where('locationData',
+            isGreaterThan: GeoPoint(
+              userLat - latIncrement(userLat, userLong),
+              userLong - longIncrement(userLat, userLong),
+            ))
+        .where('locationData',
+            isLessThan: GeoPoint(
+              userLat + latIncrement(userLat, userLong),
+              userLong + longIncrement(userLat, userLong),
+            ))
+        .orderBy("locationData", descending: true)
         .limit(limit)
         .get();
     _items = snapshot.docs
         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
         .toList();
-    if (items.isEmpty) {
-      _moreItemsToLoad = false;
-    } else {
-      _moreItemsToLoad = true;
-    }
+
+    _items.map((item) => print(item.poll.timestamp));
 
     notifyListeners();
   }
 
   Future<void> fetchMore(int limit) async {
-    print("Fetcjing more");
-    final lastDocId = _items.lastWhere((item) => item != null).pollId;
-    final lastDoc = await FirebaseFirestore.instance
-        .collection("Poll")
-        .doc(lastDocId)
-        .get();
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('Poll')
-        .orderBy('timestamp', descending: true)
-        .startAfterDocument(lastDoc)
-        .limit(limit)
-        .get();
-    final newItems = querySnapshot.docs
-        .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-        .toList();
-    if (newItems.isEmpty) {
-      _moreItemsToLoad = false;
-    } else {
-      _moreItemsToLoad = true;
+    try {
+      final position =
+          await PositionAdapter.getFromSharedPreferences("location");
+      final double userLat = position!.latitude;
+      final double userLong = position.latitude;
+      final currentLocation = GeoPoint(userLat, userLong);
+
+      print("Fetcjing more");
+      final lastDocId = _items.lastWhere((item) => item != null).pollId;
+      final lastDoc = await FirebaseFirestore.instance
+          .collection("Poll")
+          .doc(lastDocId)
+          .get();
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Poll')
+          .where('locationData',
+              isGreaterThan: GeoPoint(
+                userLat - MAX_DISTANCE,
+                userLong - MAX_DISTANCE,
+              ))
+          .where('locationData',
+              isLessThan: GeoPoint(
+                userLat + MAX_DISTANCE,
+                userLong + MAX_DISTANCE,
+              ))
+          .orderBy("locationData", descending: true)
+          .startAfterDocument(lastDoc)
+          .limit(limit)
+          .get();
+      final newItems = querySnapshot.docs
+          .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+          .toList();
+
+      if (newItems.isEmpty) {
+        _moreItemsToLoad = false;
+      } else {
+        _moreItemsToLoad = true;
+      }
+
+      _items.addAll(newItems);
+
+      // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("No polls in database");
+      return;
     }
-    _items.addAll(newItems);
-    notifyListeners();
   }
 }
 
