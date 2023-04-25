@@ -7,10 +7,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
+
 class PollFeedObject {
   Poll poll;
   String pollId;
@@ -25,31 +26,32 @@ class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> get items => _items;
 
   Future<void> fetchInitial(int limit) async {
-      print("fetchin initial");
-      final snapshot = await FirebaseFirestore.instance
+    print("fetchin initial");
+    final snapshot = await FirebaseFirestore.instance
         .collection('Poll')
         .orderBy('timestamp', descending: true)
         .limit(limit)
         .get();
-      _items = snapshot.docs.map((doc) => PollFeedObject(Poll.fromDoc(doc),doc.id)).toList();
-      if (items.isEmpty)
-      {
-        _moreItemsToLoad = false;
-      }
-      else
-      {
-        _moreItemsToLoad = true;
-      }
-      
-      notifyListeners();
-  
-  }
-    Future<void> fetchMore(int limit) async {
+    _items = snapshot.docs
+        .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+        .toList();
+    if (items.isEmpty) {
+      _moreItemsToLoad = false;
+    } else {
+      _moreItemsToLoad = true;
+    }
 
-      print("Fetcjing more");
-      final lastDocId = _items.lastWhere((item) => item != null).pollId;
-      final lastDoc = await FirebaseFirestore.instance.collection("Poll").doc(lastDocId).get();
-      final querySnapshot = await FirebaseFirestore.instance
+    notifyListeners();
+  }
+
+  Future<void> fetchMore(int limit) async {
+    print("Fetcjing more");
+    final lastDocId = _items.lastWhere((item) => item != null).pollId;
+    final lastDoc = await FirebaseFirestore.instance
+        .collection("Poll")
+        .doc(lastDocId)
+        .get();
+    final querySnapshot = await FirebaseFirestore.instance
         .collection('Poll')
         .orderBy('timestamp', descending: true)
         .startAfterDocument(lastDoc)
@@ -58,17 +60,13 @@ class FeedProvider extends ChangeNotifier {
     final newItems = querySnapshot.docs
         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
         .toList();
-      if (newItems.isEmpty)
-      {
-        _moreItemsToLoad = false;
-      }
-      else
-      {
-        _moreItemsToLoad = true;
-      }
+    if (newItems.isEmpty) {
+      _moreItemsToLoad = false;
+    } else {
+      _moreItemsToLoad = true;
+    }
     _items.addAll(newItems);
     notifyListeners();
-    
   }
 }
 
@@ -89,18 +87,22 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-
-  
   LatLng _userLocation = LatLng(0, 0);
   String locality = '';
   final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
 
-
   Future<LocationData> _getCurrentLocation() async {
-    final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(position!.latitude, position.longitude);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getInt('Radius') != null) {
+      _userLocation =
+          LatLng(prefs.getDouble('Latitiude')!, prefs.getDouble('Longitude')!);
+    } else {
+      final position =
+          await PositionAdapter.getFromSharedPreferences("location");
+      _userLocation = LatLng(position!.latitude, position.longitude);
+    }
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -123,17 +125,17 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
-   Future<void> _fetchMore() async {
+  Future<void> _fetchMore() async {
     // Fetch new items
     await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
-   }
+  }
+
   @override
   initState() {
     super.initState();
-    
+
     _scrollController.addListener(_onScroll);
 
-    
     // _getCurrentLocation();
   }
 
@@ -168,20 +170,17 @@ class _FeedPageState extends State<FeedPage> {
                         shrinkWrap: false,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
-                          if(index == provider.items.length-1 && provider._moreItemsToLoad){
-                  // declare the boolean and return loading indicator
-                return const Center(
-                  heightFactor: 3,
-                         child: CircularProgressIndicator(
-                                  
-                                  
-                                 ),
+                          if (index == provider.items.length - 1 &&
+                              provider._moreItemsToLoad) {
+                            // declare the boolean and return loading indicator
+                            return const Center(
+                              heightFactor: 3,
+                              child: CircularProgressIndicator(),
                             );
                           }
-                          
-                          
+
                           final pollItem = provider.items[index];
-                          
+
                           if (index == 0) {
                             return Column(
                               children: [
@@ -250,7 +249,8 @@ class _FeedPageState extends State<FeedPage> {
                                   padding: const EdgeInsets.only(
                                       left: 8.0, right: 8.0, top: 8, bottom: 0),
                                   child: PollCard(
-                                      poll: pollItem,),
+                                    poll: pollItem,
+                                  ),
                                 ),
                               ],
                             );
@@ -258,8 +258,7 @@ class _FeedPageState extends State<FeedPage> {
                           return Padding(
                             padding: const EdgeInsets.only(
                                 left: 8.0, right: 8.0, top: 8, bottom: 0),
-                            child: PollCard(
-                                poll:pollItem),
+                            child: PollCard(poll: pollItem),
                           );
                         },
                       ),
