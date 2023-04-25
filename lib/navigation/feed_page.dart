@@ -174,14 +174,9 @@ class _FeedPageState extends State<FeedPage> {
 
   Future<LocationData> _getCurrentLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getInt('Radius') != null) {
-      _userLocation =
-          LatLng(prefs.getDouble('Latitiude')!, prefs.getDouble('Longitude')!);
-    } else {
-      final position =
-          await PositionAdapter.getFromSharedPreferences("location");
-      _userLocation = LatLng(position!.latitude, position.longitude);
-    }
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    _userLocation = LatLng(prefs.getDouble('Latitiude') ?? position!.latitude,
+        prefs.getDouble('Longitude') ?? position!.longitude);
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
