@@ -23,6 +23,7 @@ class PollCard extends StatefulWidget {
 
 class _PollCardState extends State<PollCard> {
   bool canVote = true;
+  int totalVotes = 0;
   List<int> counters = [0, 0, 0, 0, 0];
 
   @override
@@ -32,6 +33,7 @@ class _PollCardState extends State<PollCard> {
       counters = widget.poll.poll.pollData["answers"]
           .map<int>((e) => int.parse(e["count"].toString()))
           .toList();
+      totalVotes = widget.poll.poll.votes;
     });
     super.initState();
   }
@@ -80,6 +82,10 @@ class _PollCardState extends State<PollCard> {
         );
         debugPrint("just left from poll");
         await checkVoted();
+        totalVotes = 0;
+        for (int i = 0; i < counters.length; i++) {
+          totalVotes += counters[i];
+        }
         setState(() {});
       },
       child: PollsTheme(builder: (context, theme) {
@@ -175,7 +181,7 @@ class _PollCardState extends State<PollCard> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        widget.poll.poll.votes.toString(),
+                        totalVotes.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
