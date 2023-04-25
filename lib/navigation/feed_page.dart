@@ -315,7 +315,7 @@ class _FeedPageState extends State<FeedPage> {
                                                     ),
                                                   ],
                                                 ),
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"}',
+                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
                                               ),
                                             ],
                                           ),
