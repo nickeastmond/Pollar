@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls/bar_graph.dart';
 import '../model/Poll/database/voting.dart';
@@ -14,7 +16,6 @@ class ExpandedPollPage extends StatefulWidget {
   });
   final PollFeedObject pollFeedObj;
   // Output: [5, 2, 3]
- 
 
   @override
   State<ExpandedPollPage> createState() => ExpandedPollPageState();
@@ -24,13 +25,75 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
   ScrollController scrollController = ScrollController();
 
   bool displayResults = false;
+  bool canVote = true;
+  int vote = -1;
+  List<int> counters = [0, 1, 0, 0, 0];
 
   @override
   void initState() {
-    
+    checkVoted();
+    setState(() {
+      counters = widget.pollFeedObj.poll.pollData["answers"]
+          .map<int>((e) => int.parse(e["count"].toString()))
+          .toList();
+    });
+
     super.initState();
   }
 
+  checkVoted() async {
+    bool hasVoted = await hasUserVoted(
+        widget.pollFeedObj.pollId, FirebaseAuth.instance.currentUser!.uid);
+    setState(() {
+      canVote = hasVoted;
+    });
+  }
+
+  void showLoadingScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Stack(
+          children: const <Widget>[
+            ModalBarrier(
+              color: Color.fromARGB(0, 0, 0, 0),
+              dismissible: false,
+            ),
+            Center(
+              child: CircularProgressIndicator(
+                color: Colors.teal,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _onRefresh() async {
+    // Simulate a delay while loading new data
+    bool hasVoted = await hasUserVoted(
+        widget.pollFeedObj.pollId, FirebaseAuth.instance.currentUser!.uid);
+
+    // Add some new data to the list
+    setState(() {
+      canVote = hasVoted;
+    });
+
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await FirebaseFirestore.instance
+            .collection('Poll')
+            .doc(widget.pollFeedObj.pollId)
+            .get();
+
+    Poll poll = Poll.fromDoc(documentSnapshot);
+    setState(() {
+      counters = poll.pollData["answers"]
+          .map<int>((e) => int.parse(e["count"].toString()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,125 +145,157 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
           elevation: 2,
           backgroundColor: theme.primaryColor,
         ),
-        body: SingleChildScrollView(
-          controller: ScrollController(),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Text(
-                    widget.pollFeedObj.poll.pollData["question"],
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                      color: MediaQuery.of(context).platformBrightness ==
-                              Brightness.light
-                          ? Colors.black
-                          : Colors.white,
+        body: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: SingleChildScrollView(
+            controller: ScrollController(),
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Text(
+                        widget.pollFeedObj.poll.pollData["question"],
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: MediaQuery.of(context).platformBrightness ==
+                                  Brightness.light
+                              ? Colors.black
+                              : Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.center,
-                color: theme.scaffoldBackgroundColor,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24.0,
-                  ),
-                  child: BarGraph(
-                    numBars: widget.pollFeedObj.poll.pollData["answers"].length,
-                    initalDisplayData: true,
-                    height: MediaQuery.of(context).size.width - 120,
-                    width: MediaQuery.of(context).size.width - 120,
-                    spacing: 3,
-                    minHeight: 15,
-                    counters: widget.pollFeedObj.poll.pollData["answers"].map<int>((e) => int.parse(e["count"].toString()))
-    .toList(),
-                    circleBorder: 0,
-                  ),
-                ),
-              ),
-              Column(
-                children: [
                   Container(
-                    height: 16,
-                    decoration: BoxDecoration(
-                        color: theme.scaffoldBackgroundColor,
-                        boxShadow: [
-                          BoxShadow(
-                              color: const Color.fromARGB(48, 0, 0, 0),
-                              blurRadius: 10,
-                              offset: Offset.fromDirection(pi / 2, 2))
-                        ]),
+                    alignment: Alignment.center,
+                    color: theme.scaffoldBackgroundColor,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 24.0,
+                      ),
+                      child: BarGraph(
+                        numBars:
+                            widget.pollFeedObj.poll.pollData["answers"].length,
+                        initalDisplayData: !canVote,
+                        height: MediaQuery.of(context).size.width - 120,
+                        width: MediaQuery.of(context).size.width - 120,
+                        spacing: 3,
+                        minHeight: 15,
+                        counters: counters,
+                        circleBorder: 0,
+                      ),
+                    ),
                   ),
-                  for (int i = 0; i < widget.pollFeedObj.poll.pollData["answers"].length; i++)
-                    GestureDetector(
-                      onTap: () async
-                      {
-                          
-                          await pollInteraction(i,FirebaseAuth.instance.currentUser!.uid,widget.pollFeedObj.pollId);
-                          
-
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
-                        height: 100,
+                  Column(
+                    children: [
+                      Container(
+                        height: 16,
                         decoration: BoxDecoration(
-                          color: [
-                            const Color.fromARGB(255, 243, 92, 81),
-                            const Color.fromARGB(255, 96, 142, 240),
-                            const Color.fromARGB(255, 248, 182, 82),
-                            Colors.teal,
-                            const Color.fromARGB(255, 159, 121, 226),
-                          ][i % 5],
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black38,
-                                blurRadius: 10,
-                                offset: Offset.fromDirection(pi / 2, 2))
-                          ],
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: TextField(
-                              enabled: false,
-                              readOnly: true,
-                              controller: TextEditingController(
-                                  text: widget.pollFeedObj.poll.pollData["answers"][i]["text"]),
-                              style: const TextStyle(
-                                  fontSize: 17.5, color: Colors.white),
-                              textInputAction: TextInputAction.done,
-                              minLines: 1,
-                              maxLines: 10,
-                              textAlignVertical: TextAlignVertical.top,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0)),
-                                disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: BorderSide.none),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 16),
-                                filled: true,
+                            color: theme.scaffoldBackgroundColor,
+                            boxShadow: [
+                              BoxShadow(
+                                  color: const Color.fromARGB(48, 0, 0, 0),
+                                  blurRadius: 10,
+                                  offset: Offset.fromDirection(pi / 2, 2))
+                            ]),
+                      ),
+                      for (int i = 0;
+                          i <
+                              widget
+                                  .pollFeedObj.poll.pollData["answers"].length;
+                          i++)
+                        GestureDetector(
+                          onTap: () async {
+                            if (!canVote) {
+                              return;
+                            }
+                            showLoadingScreen(context);
+                            bool success = await pollInteraction(
+                                i,
+                                FirebaseAuth.instance.currentUser!.uid,
+                                widget.pollFeedObj.pollId);
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+                            if (success) {
+                              setState(() {
+                                vote = i;
+                                canVote = false;
+                                counters[i]++;
+                              });
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: [
+                                const Color.fromARGB(255, 243, 92, 81),
+                                const Color.fromARGB(255, 96, 142, 240),
+                                const Color.fromARGB(255, 248, 182, 82),
+                                Colors.teal,
+                                const Color.fromARGB(255, 159, 121, 226),
+                              ][i % 5],
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.black38,
+                                    blurRadius: 10,
+                                    offset: Offset.fromDirection(pi / 2, 2))
+                              ],
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: TextField(
+                                  enabled: false,
+                                  readOnly: true,
+                                  controller: TextEditingController(
+                                      text: widget.pollFeedObj.poll
+                                          .pollData["answers"][i]["text"]),
+                                  style: const TextStyle(
+                                      fontSize: 17.5, color: Colors.white),
+                                  textInputAction: TextInputAction.done,
+                                  minLines: 1,
+                                  maxLines: 10,
+                                  textAlignVertical: TextAlignVertical.top,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0)),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      borderSide: BorderSide(
+                                        width: 2,
+                                        style: vote == i
+                                            ? BorderStyle.solid
+                                            : BorderStyle.none,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 16),
+                                    filled: true,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    )
+                        )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 100,
+                  )
                 ],
               ),
-              const SizedBox(
-                height: 100,
-              )
-            ],
+            ),
           ),
         ),
       );
