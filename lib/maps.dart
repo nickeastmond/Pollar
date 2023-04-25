@@ -34,7 +34,7 @@ class CreateMapPage extends StatefulWidget {
 }
 
 class CreateMapPageState extends State<CreateMapPage> {
-  int _value = 5; //Default
+  late int _value; //Default
 
   @override
   void initState() {
