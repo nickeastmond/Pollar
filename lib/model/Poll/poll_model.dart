@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Poll {
   final String userId;
-  final Map<String,dynamic> locationData;
+  final GeoPoint locationData;
   final Map<String,dynamic> pollData;
   final double radius;
   int votes = 0;

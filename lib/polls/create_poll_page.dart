@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -53,17 +54,15 @@ class CreatePollPageState extends State<CreatePollPage> {
                         throw Exception(
                             "Tried to submit without filling out the question");
                       }
+                      
                       data.addAll({
-                        "locationData": {
-                          "longitude": cur!.longitude,
-                          "latitude": cur.latitude,
-                          "altitude": cur.altitude
-                        },
+                        "locationData": GeoPoint(cur!.latitude,cur.longitude),
                         "pollData": {
                           "question": pollQuestionController.text,
                           "answers": List<Map<String,int>>
                         }
                       });
+                      
                      List<Map<String,dynamic>> answers = [];
                       for (int i = 0; i < numBars; i++) {
                         String answer = pollChoices[i].text;
@@ -77,6 +76,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;
                       data["timestamp"] = DateTime.now();
+                      print(data["locationData"]);
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
                       if (context.mounted && success) {
