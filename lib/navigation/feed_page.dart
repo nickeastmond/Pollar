@@ -15,7 +15,7 @@ import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
-const double MAX_DISTANCE = 5.0; // MILES
+const double RADIUS = 5.0; // MILES
 
 class PollFeedObject {
   Poll poll;
@@ -32,7 +32,7 @@ class FeedProvider extends ChangeNotifier {
 
   double latIncrement(userLat, userLong) {
     double latitude = 40.7128; // New York City's latitude in degrees
-    double miles = MAX_DISTANCE; // the distance to convert, in miles
+    double miles = RADIUS; // the distance to convert, in miles
     double earthRadius = 3963.1906; // earth radius in miles
     double degreeLatLength = earthRadius *
         pi /
@@ -48,7 +48,7 @@ class FeedProvider extends ChangeNotifier {
 
   double longIncrement(userLat, userLong) {
     double latitude = 40.7128; // New York City's latitude in degrees
-    double miles = MAX_DISTANCE; // the distance to convert, in miles
+    double miles = RADIUS; // the distance to convert, in miles
     double earthRadius = 3963.1906; // earth radius in miles
     double degreeLatLength = earthRadius *
         pi /
@@ -115,13 +115,13 @@ class FeedProvider extends ChangeNotifier {
           .collection('Poll')
           .where('locationData',
               isGreaterThan: GeoPoint(
-                userLat - MAX_DISTANCE,
-                userLong - MAX_DISTANCE,
+                userLat - RADIUS,
+                userLong - RADIUS,
               ))
           .where('locationData',
               isLessThan: GeoPoint(
-                userLat + MAX_DISTANCE,
-                userLong + MAX_DISTANCE,
+                userLat + RADIUS,
+                userLong + RADIUS,
               ))
           .orderBy("locationData", descending: true)
           .startAfterDocument(lastDoc)
