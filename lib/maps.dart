@@ -1,23 +1,28 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:pollar/model/Position/position_adapter.dart';
 
-class LocationData {
-  final LatLng latLng;
-  LocationData({required this.latLng});
-}
-
-Future<LocationData> _getCurrentLocation() async {
-  LatLng userLocation = LatLng(0, 0);
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final position = await PositionAdapter.getFromSharedPreferences("location");
-  userLocation = LatLng(prefs.getDouble('Latitiude') ?? position!.latitude,
-      prefs.getDouble('Longitude') ?? position!.longitude);
-  debugPrint("setting state to $userLocation");
-  return LocationData(latLng: userLocation);
+Future<LocationData?> _currentLocation() async {
+  bool serviceEnabled;
+  PermissionStatus permissionGranted;
+  Location location = Location();
+  serviceEnabled = await location.serviceEnabled();
+  if (!serviceEnabled) {
+    serviceEnabled = await location.requestService();
+    if (!serviceEnabled) {
+      return null;
+    }
+  }
+  permissionGranted = await location.hasPermission();
+  if (permissionGranted == PermissionStatus.denied) {
+    permissionGranted = await location.requestPermission();
+    if (permissionGranted != PermissionStatus.granted) {
+      return null;
+    }
+  }
+  return await location.getLocation();
 }
 
 Future<void> storeMapsData(int var1, double var2, double var3) async {
@@ -35,24 +40,10 @@ class CreateMapPage extends StatefulWidget {
 
 class CreateMapPageState extends State<CreateMapPage> {
   int _value = 5; //Default
-
-  @override
-  void initState() {
-    super.initState();
-    _getValue();
-  }
-
-  Future<void> _getValue() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _value = prefs.getInt('Radius') ?? 5;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LocationData?>(
-      future: _getCurrentLocation(),
+      future: _currentLocation(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapchat) {
         if (snapchat.hasData) {
           final LocationData currentLocation = snapchat.data;
@@ -95,16 +86,15 @@ class CreateMapPageState extends State<CreateMapPage> {
                 SizedBox(
                   height: 630,
                   child: OpenStreetMapSearchAndPick(
-                      center: LatLong(currentLocation.latLng.latitude,
-                          currentLocation.latLng.longitude),
+                      center: LatLong(currentLocation.latitude!,
+                          currentLocation.longitude!),
                       buttonColor: Colors.green,
                       locationPinIconColor: Colors.green,
                       buttonText: 'Set Current Location',
                       onPicked: (pickedData) {
                         setState(() {
                           storeMapsData(_value, pickedData.latLong.longitude,
-                              pickedData.latLong.latitude);
-                          Navigator.pop(context);
+                              pickedData.latLong.latitude).then((value) => Navigator.pop(context));
                         });
                       }),
                 )
