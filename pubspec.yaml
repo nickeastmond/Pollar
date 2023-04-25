@@ -61,7 +61,6 @@ dependencies:
   provider: ^6.0.5
   rxdart: ^0.27.7
   flutter_compass: ^0.7.0
-  geoflutterfire: ^3.0.3
 
 dev_dependencies:
   flutter_test:
