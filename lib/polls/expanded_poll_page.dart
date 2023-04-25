@@ -27,7 +27,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
   bool displayResults = false;
   bool canVote = true;
   int vote = -1;
-  List<int> counters = [0, 1, 0, 0, 0];
+  List<int> counters = [0, 0, 0, 0, 0];
 
   @override
   void initState() {
@@ -101,10 +101,17 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          leading: const Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: BackButton(
-              color: Colors.white,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context, counters);
+              },
+              child: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+                size: 30.0,
+              ),
             ),
           ),
           actions: [
