@@ -2,13 +2,34 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final CollectionReference myCollection =
-    FirebaseFirestore.instance.collection('mapsData');
+Future<LocationData?> _currentLocation() async {
+  bool serviceEnabled;
+  PermissionStatus permissionGranted;
+  Location location = Location();
+  serviceEnabled = await location.serviceEnabled();
+  if (!serviceEnabled) {
+    serviceEnabled = await location.requestService();
+    if (!serviceEnabled) {
+      return null;
+    }
+  }
+  permissionGranted = await location.hasPermission();
+  if (permissionGranted == PermissionStatus.denied) {
+    permissionGranted = await location.requestPermission();
+    if (permissionGranted != PermissionStatus.granted) {
+      return null;
+    }
+  }
+  return await location.getLocation();
+}
 
-Future<void> addData(int var1, double var2, double var3) async {
-  await myCollection.add({'Radius': var1, 'Longitude': var2, 'Latitude': var3});
+Future<void> storeMapsData(int var1, double var2, double var3) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setInt('Radius', var1);
+  prefs.setDouble('Longitude', var2);
+  prefs.setDouble('Latitiude', var3);
 }
 
 class CreateMapPage extends StatefulWidget {
@@ -18,7 +39,7 @@ class CreateMapPage extends StatefulWidget {
 }
 
 class CreateMapPageState extends State<CreateMapPage> {
-  int _value = 5;
+  int _value = 5; //Default
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LocationData?>(
@@ -72,7 +93,7 @@ class CreateMapPageState extends State<CreateMapPage> {
                       buttonText: 'Set Current Location',
                       onPicked: (pickedData) {
                         setState(() {
-                          addData(_value, pickedData.latLong.longitude,
+                          storeMapsData(_value, pickedData.latLong.longitude,
                               pickedData.latLong.latitude);
                           Navigator.pop(context);
                         });
@@ -84,25 +105,4 @@ class CreateMapPageState extends State<CreateMapPage> {
       },
     );
   }
-}
-
-Future<LocationData?> _currentLocation() async {
-  bool serviceEnabled;
-  PermissionStatus permissionGranted;
-  Location location = Location();
-  serviceEnabled = await location.serviceEnabled();
-  if (!serviceEnabled) {
-    serviceEnabled = await location.requestService();
-    if (!serviceEnabled) {
-      return null;
-    }
-  }
-  permissionGranted = await location.hasPermission();
-  if (permissionGranted == PermissionStatus.denied) {
-    permissionGranted = await location.requestPermission();
-    if (permissionGranted != PermissionStatus.granted) {
-      return null;
-    }
-  }
-  return await location.getLocation();
 }
