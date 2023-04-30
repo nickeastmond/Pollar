@@ -243,6 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               )),
                           onPressed: () async {
                             PollarAuth.signOut();
+                            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
                             
                           },
                         ),
