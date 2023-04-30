@@ -1,32 +1,92 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pollar/navigation/feed_page.dart';
 
+import '../model/Poll/database/voting.dart';
+import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
 import 'bar_graph.dart';
 import 'expanded_poll_page.dart';
 
-class PollCard extends StatelessWidget {
-  const PollCard({
+class PollCard extends StatefulWidget {
+  PollCard({
     Key? key,
-    required this.question,
-    required this.numComments,
-    required this.votes,
+    required this.poll,
   }) : super(key: key);
-  final String question;
-  final String numComments;
-  final String votes;
+  PollFeedObject poll;
+
+  @override
+  _PollCardState createState() => _PollCardState();
+}
+
+class _PollCardState extends State<PollCard> {
+  bool canVote = true;
+  int totalVotes = 0;
+  List<int> counters = [0, 0, 0, 0, 0];
+
+  @override
+  void initState() {
+    checkVoted();
+    setState(() {
+      counters = widget.poll.poll.pollData["answers"]
+          .map<int>((e) => int.parse(e["count"].toString()))
+          .toList();
+      totalVotes = widget.poll.poll.votes;
+    });
+    super.initState();
+  }
+
+  checkVoted() async {
+    bool hasVoted = await hasUserVoted(
+        widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
+    setState(() {
+      canVote = hasVoted;
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    // Simulate a delay while loading new data
+    bool hasVoted = await hasUserVoted(
+        widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
+    // Add some new data to the list
+    setState(() {
+      canVote = hasVoted;
+    });
+
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await FirebaseFirestore.instance
+            .collection('Poll')
+            .doc(widget.poll.pollId)
+            .get();
+
+    Poll poll = Poll.fromDoc(documentSnapshot);
+    setState(() {
+      counters = poll.pollData["answers"]
+          .map<int>((e) => int.parse(e["count"].toString()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
+      onTap: () async {
+        counters = await Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => const ExpandedPollPage(
-              pollID: '123456',
+            builder: (context) => ExpandedPollPage(
+              pollFeedObj: widget.poll,
             ),
           ),
         );
+        debugPrint("just left from poll");
+        await checkVoted();
+        totalVotes = 0;
+        for (int i = 0; i < counters.length; i++) {
+          totalVotes += counters[i];
+        }
+        setState(() {});
       },
       child: PollsTheme(builder: (context, theme) {
         return Container(
@@ -62,7 +122,7 @@ class PollCard extends StatelessWidget {
                       width: 250,
                       //color: Colors.grey.shade900,
                       child: Text(
-                        question,
+                        widget.poll.poll.pollData["question"],
                         style: TextStyle(
                           height: 1.4,
                           color: theme.indicatorColor,
@@ -72,15 +132,15 @@ class PollCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
                       child: BarGraph(
-                          initalDisplayData: true,
-                          numBars: 5,
+                          initalDisplayData: !canVote,
+                          numBars: widget.poll.poll.pollData["answers"].length,
                           height: 35,
                           width: 38,
                           minHeight: 5,
-                          counters: [1, 2, 3, 2, 1],
+                          counters: counters,
                           spacing: 2,
                           circleBorder: 0),
                     ),
@@ -96,9 +156,9 @@ class PollCard extends StatelessWidget {
                       width: 65,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(bottom: 4.5),
+                      padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        numComments,
+                        widget.poll.poll.numComments.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -121,7 +181,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        votes,
+                        totalVotes.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -145,7 +205,7 @@ class PollCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 0),
                       child: Text(
-                        "27 days | ~3mi",
+                        pollText(widget.poll.poll.timestamp),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,
@@ -166,4 +226,20 @@ class PollCard extends StatelessWidget {
       }),
     );
   }
+}
+
+String pollText(DateTime t) {
+  final since = DateTime.now().difference(t);
+  final pair = since.inMinutes < 60
+      ? MapEntry(since.inMinutes, "min")
+      : since.inHours < 24
+          ? (since.inHours == 1)
+              ? MapEntry(since.inHours, "hr")
+              : MapEntry(since.inHours, "hrs")
+          : (since.inDays == 1)
+              ? MapEntry(since.inDays, "day")
+              : MapEntry(since.inDays, "days");
+  //return "${pair.key} ${pair.value} | ~${poll.milesFrom(currentLocation)}mi";
+
+  return "${pair.key} ${pair.value} ago";
 }

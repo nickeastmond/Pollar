@@ -31,6 +31,7 @@ class BarGraph extends StatefulWidget {
 class BarGraphState extends State<BarGraph> {
   int largest = 1;
   bool displayData = true;
+  
   void setHighest() {
     for (int i = 0; i < widget.counters.length; i++) {
       if (widget.counters[i] > largest) {
@@ -41,6 +42,7 @@ class BarGraphState extends State<BarGraph> {
 
   @override
   void initState() {
+      debugPrint("Counters ${widget.counters.toString()} length: ${widget.counters.length}");
     super.initState();
     setHighest();
     displayData = widget.initalDisplayData;
@@ -66,7 +68,7 @@ class BarGraphState extends State<BarGraph> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => setState(() => displayData = !displayData),
+      onTap: () => setState(() => displayData = displayData),
       child: SizedBox(
         height: widget.height,
         child: Row(

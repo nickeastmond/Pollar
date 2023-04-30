@@ -7,6 +7,7 @@ import 'navigation/navigation_page.dart';
 
 class Wrapper extends StatelessWidget {
   const Wrapper({Key? key});
+  
 
   @override
   Widget build(BuildContext context) {

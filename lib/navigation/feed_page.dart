@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,29 +8,154 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
+const double RADIUS = 5.0; // MILES
+
+class PollFeedObject {
+  Poll poll;
+  String pollId;
+
+  PollFeedObject(this.poll, this.pollId);
+}
+
 class FeedProvider extends ChangeNotifier {
-  List<Poll> _items = [];
+  List<PollFeedObject> _items = [];
+  bool _moreItemsToLoad = false;
 
-  List<Poll> get items => _items;
+  List<PollFeedObject> get items => _items;
 
-  Future<void> fetchItems() async {
-    final snapshot = await FirebaseFirestore.instance.collection('Poll').get();
-    _items = snapshot.docs.map((doc) => Poll.fromDoc(doc)).toList();
+  double latIncrement(userLat, userLong) {
+    double latitude = 40.7128; // New York City's latitude in degrees
+    double miles = RADIUS; // the distance to convert, in miles
+    double earthRadius = 3963.1906; // earth radius in miles
+    double degreeLatLength = earthRadius *
+        pi /
+        180; // length of one degree of latitude at equator in miles
+    double degreeLatLengthAtGivenLat = degreeLatLength *
+        cos(latitude *
+            pi /
+            180); // length of one degree of latitude at given latitude
+    double latIncrement =
+        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
+    return latIncrement;
+  }
+
+  double longIncrement(userLat, userLong) {
+    double latitude = 40.7128; // New York City's latitude in degrees
+    double miles = RADIUS; // the distance to convert, in miles
+    double earthRadius = 3963.1906; // earth radius in miles
+    double degreeLatLength = earthRadius *
+        pi /
+        180; // length of one degree of latitude at equator in miles
+    double degreeLatLengthAtGivenLat = degreeLatLength *
+        cos(latitude *
+            pi /
+            180); // length of one degree of latitude at given latitude
+    double latIncrement =
+        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
+    double lonIncrement = latIncrement *
+        cos(latitude * pi / 180); // longitude increment in degrees
+    return lonIncrement;
+  }
+
+  Future<void> fetchInitial(int limit) async {
+    debugPrint("fetchin initial");
+    // Define the user's current location
+
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    final double userLat = position!.latitude;
+    final double userLong = position.latitude;
+    final currentLocation = GeoPoint(userLat, userLong);
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('Poll')
+        .where('locationData',
+            isGreaterThan: GeoPoint(
+              userLat - latIncrement(userLat, userLong),
+              userLong - longIncrement(userLat, userLong),
+            ))
+        .where('locationData',
+            isLessThan: GeoPoint(
+              userLat + latIncrement(userLat, userLong),
+              userLong + longIncrement(userLat, userLong),
+            ))
+        .orderBy("locationData", descending: true)
+        .limit(limit)
+        .get();
+    _items = snapshot.docs
+        .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+        .toList();
+
+    _items.map((item) => print(item.poll.timestamp));
+
     notifyListeners();
+  }
+
+  Future<void> fetchMore(int limit) async {
+    try {
+      final position =
+          await PositionAdapter.getFromSharedPreferences("location");
+      final double userLat = position!.latitude;
+      final double userLong = position.latitude;
+      final currentLocation = GeoPoint(userLat, userLong);
+
+      print("Fetcjing more");
+      final lastDocId = _items.lastWhere((item) => item != null).pollId;
+      final lastDoc = await FirebaseFirestore.instance
+          .collection("Poll")
+          .doc(lastDocId)
+          .get();
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('Poll')
+          .where('locationData',
+              isGreaterThan: GeoPoint(
+                userLat - RADIUS,
+                userLong - RADIUS,
+              ))
+          .where('locationData',
+              isLessThan: GeoPoint(
+                userLat + RADIUS,
+                userLong + RADIUS,
+              ))
+          .orderBy("locationData", descending: true)
+          .startAfterDocument(lastDoc)
+          .limit(limit)
+          .get();
+      final newItems = querySnapshot.docs
+          .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+          .toList();
+
+      if (newItems.isEmpty) {
+        _moreItemsToLoad = false;
+      } else {
+        _moreItemsToLoad = true;
+      }
+
+      _items.addAll(newItems);
+
+      // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("No polls in database");
+      return;
+    }
   }
 }
 
 class LocationData {
   final LatLng latLng;
   final List<Placemark> placemarks;
+  final int radius;
 
-  LocationData({required this.latLng, required this.placemarks});
+  LocationData(
+      {required this.latLng, required this.placemarks, required this.radius});
 }
 
 class FeedPage extends StatefulWidget {
@@ -45,13 +172,20 @@ class _FeedPageState extends State<FeedPage> {
   String locality = '';
   final MapController _mapController = MapController();
 
+  final ScrollController _scrollController = ScrollController();
+
   Future<LocationData> _getCurrentLocation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(position!.latitude, position.longitude);
+    _userLocation = LatLng(prefs.getDouble('Latitiude') ?? position!.latitude,
+        prefs.getDouble('Longitude') ?? position!.longitude);
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
-    return LocationData(latLng: _userLocation, placemarks: placemark);
+    return LocationData(
+        latLng: _userLocation,
+        placemarks: placemark,
+        radius: prefs.getInt('Radius') ?? 5);
   }
 
   Future<List<Placemark>> placemarkLocation(LatLng location) async {
@@ -63,9 +197,23 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _fetchMore();
+    }
+  }
+
+  Future<void> _fetchMore() async {
+    // Fetch new items
+    await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
+  }
+
   @override
   initState() {
     super.initState();
+
+    _scrollController.addListener(_onScroll);
 
     // _getCurrentLocation();
   }
@@ -73,6 +221,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void dispose() {
     // Your own implementation
+    _scrollController.removeListener(_onScroll);
     super.dispose(); // Call super method
   }
 
@@ -91,27 +240,32 @@ class _FeedPageState extends State<FeedPage> {
                   future: _getCurrentLocation(),
                   builder: (context, snapshot) {
                     return RefreshIndicator(
-                      onRefresh: () => provider.fetchItems(),
+                      triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                      color: theme.secondaryHeaderColor,
+                      onRefresh: () => provider.fetchInitial(7),
                       child: ListView.builder(
-                        shrinkWrap: true,
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        shrinkWrap: false,
                         itemCount: provider.items.length,
                         itemBuilder: (_, int index) {
-                          final item = provider.items[index];
-                          final String question =
-                              item.pollData["question"];
+                          if (index == provider.items.length - 1 &&
+                              provider._moreItemsToLoad) {
+                            // declare the boolean and return loading indicator
+                            return const Center(
+                              heightFactor: 3,
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                          final String numComments =
-                              item.numComments.toString();
-                          final String votes = item.votes.toString();
+                          final pollItem = provider.items[index];
+
                           if (index == 0) {
                             return Column(
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      top: 6,
-                                      bottom: 0,
-                                      left: 8,
-                                      right: 8),
+                                      top: 6, bottom: 0, left: 8, right: 8),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: MediaQuery.of(context)
@@ -140,15 +294,10 @@ class _FeedPageState extends State<FeedPage> {
                                           retinaMode: true,
                                           urlTemplate:
                                               "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                          subdomains: const [
-                                            'a',
-                                            'b',
-                                            'c'
-                                          ],
+                                          subdomains: const ['a', 'b', 'c'],
                                         ),
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.all(5.5),
+                                          padding: const EdgeInsets.all(5.5),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -156,19 +305,17 @@ class _FeedPageState extends State<FeedPage> {
                                               Text(
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontWeight:
-                                                      FontWeight.w400,
+                                                  fontWeight: FontWeight.w400,
                                                   fontSize: 17.5,
                                                   shadows: [
                                                     Shadow(
                                                       blurRadius: 10,
                                                       color: Colors.black,
-                                                      offset: Offset(
-                                                          1.0, 1.0),
+                                                      offset: Offset(1.0, 1.0),
                                                     ),
                                                   ],
                                                 ),
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • 5 Mi',
+                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
                                               ),
                                             ],
                                           ),
@@ -179,14 +326,10 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 8.0,
-                                      right: 8.0,
-                                      top: 8,
-                                      bottom: 0),
+                                      left: 8.0, right: 8.0, top: 8, bottom: 0),
                                   child: PollCard(
-                                      question: question,
-                                      numComments: numComments,
-                                      votes: votes),
+                                    poll: pollItem,
+                                  ),
                                 ),
                               ],
                             );
@@ -194,10 +337,7 @@ class _FeedPageState extends State<FeedPage> {
                           return Padding(
                             padding: const EdgeInsets.only(
                                 left: 8.0, right: 8.0, top: 8, bottom: 0),
-                            child: PollCard(
-                                question: question,
-                                numComments: numComments,
-                                votes: votes),
+                            child: PollCard(poll: pollItem),
                           );
                         },
                       ),

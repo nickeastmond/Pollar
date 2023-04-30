@@ -3,10 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:provider/provider.dart';
+import '../model/Poll/database/delete_all.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';
@@ -21,16 +23,17 @@ class NavigationPage extends StatefulWidget {
 }
 
 class NavigationPageState extends State<NavigationPage> {
-  static double iconSize = 30;
+  static double iconSize = 32;
   static double elevation = 2.5;
-
+  bool refresh = false;
   int tabSelected = 0; // initially tab selected is poll feed
 
   @override
   initState() {
     super.initState();
-    
+
     //fetchFromFirebaseToSharedPreferences();
+
     checkLocationEnabled(context);
   }
 
@@ -49,18 +52,29 @@ class NavigationPageState extends State<NavigationPage> {
           elevation: elevation,
           backgroundColor: theme.primaryColor,
           leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            padding: const EdgeInsets.only(left: 18.0),
             child: IconButton(
               icon: Icon(
                 Icons.map_outlined,
                 size: iconSize,
               ),
-              onPressed: (() {
-                Navigator.of(context).push(
+              onPressed: (() async {
+                bool success = await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const CreateMapPage(),
                   ),
                 );
+                if (success) {
+                  setState(() {
+                    refresh = !refresh;
+                  });
+                }
+                debugPrint("fck + $success");
+                final prefs = await SharedPreferences.getInstance();
+                double? long, lat;
+                long = prefs.getDouble("Longitude");
+                lat = prefs.getDouble("Latitude");
+                debugPrint("returned from map with long $long and lat $lat");
               }),
             ),
           ),
@@ -82,9 +96,9 @@ class NavigationPageState extends State<NavigationPage> {
               ),
             ),
           ],
-          title: const Icon(
+          title: Icon(
             Icons.bar_chart,
-            size: 35,
+            size: iconSize,
           ),
         ),
         bottomNavigationBar: Container(
@@ -139,9 +153,8 @@ class NavigationPageState extends State<NavigationPage> {
           //children: const [FeedPage(), ProfilePage()],
           children: [
             ChangeNotifierProvider(
-              create: (_) => FeedProvider()..fetchItems(),
-              child: const FeedPage()
-            ),
+                create: (_) => FeedProvider()..fetchInitial(7),
+                child: const FeedPage()),
             const ProfilePage(),
           ],
         ),
