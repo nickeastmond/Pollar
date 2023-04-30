@@ -15,7 +15,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String userEmoji = '';
+  String userEmoji = defaultEmoji;
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   String  notVerifiedText = '⚠ Unverified email. Press for verification link.';
@@ -35,10 +35,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void fetchEmoji() async {
-    String temp = await getEmoji();
-    setState(() {
-      userEmoji = temp;
-    });
+    String? temp = await getEmoji();
+
+    // B/c of await, temp can be temporarily null upon account creation (raises error)
+    if (temp != null) {
+      setState(() {
+        userEmoji = temp;
+      });
+    }
   }
 
   void updateEmoji(emoji) async {
@@ -148,35 +152,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fontSize: 17,
                               ),
                             ),
-
-                            // ignore for now, button does nothing
-                            // Visibility(
-                            //   visible: PollarAuth.isVerified()! ? false : true,
-                            //   child: TextButton(
-                            //     child: const Text(
-                            //         '⚠ Unverified email. Press for verification link.',
-                            //         style: TextStyle(
-                            //           color: Colors.red,
-                            //           fontSize: 14,
-                            //       ),
-                            //     ),
-                            //     onPressed: () {
-                            //       //PollarAuth.verifyEmail();
-                            //       var verifyEmailSnackBar = const (
-                            //         duration: Duration(seconds: 3),
-                            //         backgroundColor: Colors.red,
-                            //         content: Text(
-                            //           'Verification link has been sent to email',
-                            //           textAlign: TextAlign.center,
-                            //           ),
-                            //       );
-                            //       if (context.mounted) {
-                            //         ScaffoldMessenger.of(context).showSnackBar(verifyEmailSnackBar);
-                            //       }
-                            //     },
-                            //   ),
-                            // ),
-
                           ],
                         ),
                         const SizedBox(height: 20),
