@@ -5,5 +5,7 @@ class Constants {
   static const CREATE_POLL_POINTS = 2;
   // ignore: constant_identifier_names
   static const COMMENT_POINTS = 1;
+  // ignore: constant_identifier_names
+  static const RADIUS = 5;
 
 }

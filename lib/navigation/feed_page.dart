@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -20,6 +19,7 @@ const double RADIUS = 5.0; // MILES
 class PollFeedObject {
   Poll poll;
   String pollId;
+  
 
   PollFeedObject(this.poll, this.pollId);
 }
@@ -27,126 +27,132 @@ class PollFeedObject {
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
   bool _moreItemsToLoad = false;
+  
+
+
+
 
   List<PollFeedObject> get items => _items;
+  Future<bool> geoPointsOverlap(
+    Position p1, double r1, Position p2, double r2) async {
+  // Calculate the distance between the two points
+  double distance = Geolocator.distanceBetween(
+      p1.latitude, p1.longitude, p2.latitude, p2.longitude);
 
-  double latIncrement(userLat, userLong) {
-    double latitude = 40.7128; // New York City's latitude in degrees
-    double miles = RADIUS; // the distance to convert, in miles
-    double earthRadius = 3963.1906; // earth radius in miles
-    double degreeLatLength = earthRadius *
-        pi /
-        180; // length of one degree of latitude at equator in miles
-    double degreeLatLengthAtGivenLat = degreeLatLength *
-        cos(latitude *
-            pi /
-            180); // length of one degree of latitude at given latitude
-    double latIncrement =
-        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
-    return latIncrement;
-  }
+  // Calculate the sum of the radii
+  double radiusSum = r1 + r2;
+  print(distance);
+  print(radiusSum);
+  // Check if the distance is less than or equal to the sum of the radii
+  return distance <= radiusSum;
+}
 
-  double longIncrement(userLat, userLong) {
-    double latitude = 40.7128; // New York City's latitude in degrees
-    double miles = RADIUS; // the distance to convert, in miles
-    double earthRadius = 3963.1906; // earth radius in miles
-    double degreeLatLength = earthRadius *
-        pi /
-        180; // length of one degree of latitude at equator in miles
-    double degreeLatLengthAtGivenLat = degreeLatLength *
-        cos(latitude *
-            pi /
-            180); // length of one degree of latitude at given latitude
-    double latIncrement =
-        miles / degreeLatLengthAtGivenLat; // latitude increment in degrees
-    double lonIncrement = latIncrement *
-        cos(latitude * pi / 180); // longitude increment in degrees
-    return lonIncrement;
-  }
+
+
+
+
+
+
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
     // Define the user's current location
-
+    
     final position = await PositionAdapter.getFromSharedPreferences("location");
     final double userLat = position!.latitude;
-    final double userLong = position.latitude;
-    final currentLocation = GeoPoint(userLat, userLong);
+    final double userLong = position.longitude;
+    final currentLocation = Position(latitude: userLat, longitude: userLong,timestamp: DateTime.now(),accuracy: 0,altitude: 0,heading: 0,speed: 0,speedAccuracy: 0);
 
     final snapshot = await FirebaseFirestore.instance
-        .collection('Poll')
-        .where('locationData',
-            isGreaterThan: GeoPoint(
-              userLat - latIncrement(userLat, userLong),
-              userLong - longIncrement(userLat, userLong),
-            ))
-        .where('locationData',
-            isLessThan: GeoPoint(
-              userLat + latIncrement(userLat, userLong),
-              userLong + longIncrement(userLat, userLong),
-            ))
-        .orderBy("locationData", descending: true)
-        .limit(limit)
-        .get();
-    _items = snapshot.docs
-        .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-        .toList();
+      .collection('Poll')
+      .limit(limit)
+      .get();
+    _items = [];
+    
+    // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
+    for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
+      // Get the document's geopoint and radius
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);
+      GeoPoint locationData = doc.data()['locationData'];
+      final otherLocation = Position(latitude: locationData.latitude, longitude: locationData.longitude,timestamp: DateTime(9),accuracy: 0,altitude: 0,heading: 0,speed: 0,speedAccuracy: 0);
+      
+     final bool overlap =  await geoPointsOverlap(currentLocation,RADIUS,otherLocation,obj.poll.radius);
 
-    _items.map((item) => print(item.poll.timestamp));
+      
+      // Check if the circles overlap
+      if (overlap == true) {
+        
+        debugPrint("true");
+        _items.add(obj);
+      }
+      
+    }
+    
+    print(_items);
+    _items = _items.toList();
+     
+    _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
+
+    
 
     notifyListeners();
   }
 
-  Future<void> fetchMore(int limit) async {
-    try {
-      final position =
-          await PositionAdapter.getFromSharedPreferences("location");
-      final double userLat = position!.latitude;
-      final double userLong = position.latitude;
-      final currentLocation = GeoPoint(userLat, userLong);
+  // Future<void> fetchMore(int limit) async {
+  //   try {
+  //     final position =
+  //         await PositionAdapter.getFromSharedPreferences("location");
+  //     final double userLat = position!.latitude;
+  //     final double userLong = position.longitude;
+  //     final currentLocation = GeoPoint(userLat, userLong);
 
-      print("Fetcjing more");
-      final lastDocId = _items.lastWhere((item) => item != null).pollId;
-      final lastDoc = await FirebaseFirestore.instance
-          .collection("Poll")
-          .doc(lastDocId)
-          .get();
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('Poll')
-          .where('locationData',
-              isGreaterThan: GeoPoint(
-                userLat - RADIUS,
-                userLong - RADIUS,
-              ))
-          .where('locationData',
-              isLessThan: GeoPoint(
-                userLat + RADIUS,
-                userLong + RADIUS,
-              ))
-          .orderBy("locationData", descending: true)
-          .startAfterDocument(lastDoc)
-          .limit(limit)
-          .get();
-      final newItems = querySnapshot.docs
-          .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-          .toList();
+  //     print("Fetcjing more");
+  //     final lastDocId = _items.lastWhere((item) => item != null).pollId;
+  //     final lastDoc = await FirebaseFirestore.instance.collection("Poll").doc(lastDocId).get();
+  //     final snapshot = await FirebaseFirestore.instance
+  //     .collection('Poll')
+  //     .where('locationData',
+  //         isGreaterThan: GeoPoint(
+  //           userLat - latIncrement(userLat, userLong),
+  //           userLong - longIncrement(userLat, userLong),
+  //         ))
+  //     .where('locationData',
+  //         isLessThan: GeoPoint(
+  //           userLat + latIncrement(userLat, userLong),
+  //           userLong + longIncrement(userLat, userLong),
+  //         ))
+      
+  //     .orderBy("locationData", descending: true)
+  //     .orderBy("timestamp", descending: true)
+  //     .startAfter(lastDoc)
+  //     .limit(limit)
+  //     .get();
+          
+      
+  //     final newItems = snapshot.docs
+  //         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
+  //         .toList();
+      
+      
+  //     if (newItems.isEmpty) {
+  //       _moreItemsToLoad = false;
+  //     } else {
+  //       _moreItemsToLoad = true;
+  //     }
+      
+  //     newItems.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
 
-      if (newItems.isEmpty) {
-        _moreItemsToLoad = false;
-      } else {
-        _moreItemsToLoad = true;
-      }
+  //     _items.addAll(newItems);
 
-      _items.addAll(newItems);
+  //     // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
 
-      // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
-
-      notifyListeners();
-    } catch (e) {
-      debugPrint("No polls in database");
-      return;
-    }
-  }
+  //     notifyListeners();
+  //   } catch (e) {
+  //     print(e);
+  //     debugPrint("No polls in database");
+  //     return;
+  //   }
+  // }
 }
 
 class LocationData {
@@ -173,12 +179,13 @@ class _FeedPageState extends State<FeedPage> {
   final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
+  
 
   Future<LocationData> _getCurrentLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(prefs.getDouble('Latitiude') ?? position!.latitude,
-        prefs.getDouble('Longitude') ?? position!.longitude);
+    _userLocation = LatLng( position!.latitude,
+        position.longitude);
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -197,31 +204,31 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      _fetchMore();
-    }
-  }
+  // void _onScroll() {
+  //   if (_scrollController.position.pixels ==
+  //       _scrollController.position.maxScrollExtent) {
+  //     _fetchMore();
+  //   }
+  // }
 
-  Future<void> _fetchMore() async {
-    // Fetch new items
-    await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
-  }
+  // Future<void> _fetchMore() async {
+  //   // Fetch new items
+  //   await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
+  // }
 
   @override
   initState() {
     super.initState();
 
-    _scrollController.addListener(_onScroll);
+    // _scrollController.addListener(_onScroll);
 
-    // _getCurrentLocation();
+    
   }
 
   @override
   void dispose() {
     // Your own implementation
-    _scrollController.removeListener(_onScroll);
+    // _scrollController.removeListener(_onScroll);
     super.dispose(); // Call super method
   }
 
@@ -242,7 +249,7 @@ class _FeedPageState extends State<FeedPage> {
                     return RefreshIndicator(
                       triggerMode: RefreshIndicatorTriggerMode.onEdge,
                       color: theme.secondaryHeaderColor,
-                      onRefresh: () => provider.fetchInitial(7),
+                      onRefresh: () => provider.fetchInitial(100),
                       child: ListView.builder(
                         controller: _scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),

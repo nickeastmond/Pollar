@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:latlong2/latlong.dart';
@@ -14,17 +15,17 @@ Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final position = await PositionAdapter.getFromSharedPreferences("location");
-  userLocation = LatLng(prefs.getDouble('Latitiude') ?? position!.latitude,
-      prefs.getDouble('Longitude') ?? position!.longitude);
+  userLocation = LatLng( position!.latitude,
+       position.longitude);
   debugPrint("setting state to $userLocation");
   return LocationData(latLng: userLocation);
 }
 
-Future<void> storeMapsData(int var1, double var2, double var3) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setInt('Radius', var1);
-  prefs.setDouble('Longitude', var2);
-  prefs.setDouble('Latitiude', var3);
+Future<void> storeMapsData(int radius, double long, double lat) async {
+  print("new Postion: ${lat} ${long}");
+  Position newPosition = Position(accuracy: 0, latitude: lat, longitude: long, altitude: 0, speed: 0,heading: 0,speedAccuracy: 0,timestamp: DateTime.now());
+  PositionAdapter.saveToSharedPreferences("location", newPosition);
+  
 }
 
 class CreateMapPage extends StatefulWidget {

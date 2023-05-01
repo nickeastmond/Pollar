@@ -141,7 +141,7 @@ class NavigationPageState extends State<NavigationPage> {
           //children: const [FeedPage(), ProfilePage()],
           children: [
             ChangeNotifierProvider(
-                create: (_) => FeedProvider()..fetchInitial(7),
+                create: (_) => FeedProvider()..fetchInitial(100),
                 child: const FeedPage()),
             const ProfilePage(),
           ],
