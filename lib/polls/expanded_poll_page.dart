@@ -236,6 +236,20 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 vote = i;
                                 canVote = false;
                                 counters[i]++;
+                                List<Map<String, dynamic>> answers = [];
+                                for (int i = 0;
+                                    i <
+                                        widget.pollFeedObj.poll
+                                            .pollData["answers"].length;
+                                    i++) {
+                                  String answer = widget.pollFeedObj.poll
+                                      .pollData["answers"][i]["text"];
+
+                                  answers.add(
+                                      {"text": answer, "count": counters[i]});
+                                }
+                                widget.pollFeedObj.poll.pollData["answers"] =
+                                    answers;
                               });
                             }
                           },
