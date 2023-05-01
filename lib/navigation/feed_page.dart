@@ -14,7 +14,7 @@ import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
-const double RADIUS = 5.0; // MILES
+const double RADIUS = 20.0; // MILES
 
 class PollFeedObject {
   Poll poll;
@@ -40,11 +40,12 @@ class FeedProvider extends ChangeNotifier {
       p1.latitude, p1.longitude, p2.latitude, p2.longitude);
 
   // Calculate the sum of the radii
-  double radiusSum = r1 + r2;
+    double radiusSumInMeters = (r1 * 1609.344) + (r2 * 1609.344);
+
   print(distance);
-  print(radiusSum);
+  print(radiusSumInMeters);
   // Check if the distance is less than or equal to the sum of the radii
-  return distance <= radiusSum;
+  return distance <= radiusSumInMeters;
 }
 
 
@@ -167,7 +168,10 @@ class LocationData {
 class FeedPage extends StatefulWidget {
   const FeedPage({
     super.key,
+    required refresh
   });
+
+  
 
   @override
   State<FeedPage> createState() => _FeedPageState();
@@ -180,8 +184,13 @@ class _FeedPageState extends State<FeedPage> {
 
   final ScrollController _scrollController = ScrollController();
   
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+   
+  }
   Future<LocationData> _getCurrentLocation() async {
+    
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
     _userLocation = LatLng( position!.latitude,
