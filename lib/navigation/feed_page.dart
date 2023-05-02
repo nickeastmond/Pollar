@@ -19,7 +19,6 @@ const double RADIUS = 20.0; // MILES
 class PollFeedObject {
   Poll poll;
   String pollId;
-  
 
   PollFeedObject(this.poll, this.pollId);
 }
@@ -27,74 +26,73 @@ class PollFeedObject {
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
   bool _moreItemsToLoad = false;
-  
-
-
-
 
   List<PollFeedObject> get items => _items;
   Future<bool> geoPointsOverlap(
-    Position p1, double r1, Position p2, double r2) async {
-  // Calculate the distance between the two points
-  double distance = Geolocator.distanceBetween(
-      p1.latitude, p1.longitude, p2.latitude, p2.longitude);
+      Position p1, double r1, Position p2, double r2) async {
+    // Calculate the distance between the two points
+    double distance = Geolocator.distanceBetween(
+        p1.latitude, p1.longitude, p2.latitude, p2.longitude);
 
-  // Calculate the sum of the radii
+    // Calculate the sum of the radii
     double radiusSumInMeters = (r1 * 1609.344) + (r2 * 1609.344);
 
-  print(distance);
-  print(radiusSumInMeters);
-  // Check if the distance is less than or equal to the sum of the radii
-  return distance <= radiusSumInMeters;
-}
-
-
-
-
-
-
-
+    print(distance);
+    print(radiusSumInMeters);
+    // Check if the distance is less than or equal to the sum of the radii
+    return distance <= radiusSumInMeters;
+  }
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
     // Define the user's current location
-    
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    final double userLat = position!.latitude;
-    final double userLong = position.longitude;
-    final currentLocation = Position(latitude: userLat, longitude: userLong,timestamp: DateTime.now(),accuracy: 0,altitude: 0,heading: 0,speed: 0,speedAccuracy: 0);
+    final double userLat = prefs.getDouble('Latitude') ?? position!.latitude;
+    final double userLong = prefs.getDouble('Longitude') ?? position!.longitude;
+    final currentLocation = Position(
+        latitude: userLat,
+        longitude: userLong,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0);
 
-    final snapshot = await FirebaseFirestore.instance
-      .collection('Poll')
-      .limit(limit)
-      .get();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('Poll').limit(limit).get();
     _items = [];
-    
+
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
       PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);
       GeoPoint locationData = doc.data()['locationData'];
-      final otherLocation = Position(latitude: locationData.latitude, longitude: locationData.longitude,timestamp: DateTime(9),accuracy: 0,altitude: 0,heading: 0,speed: 0,speedAccuracy: 0);
-      
-     final bool overlap =  await geoPointsOverlap(currentLocation,RADIUS,otherLocation,obj.poll.radius);
+      final otherLocation = Position(
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+          timestamp: DateTime(9),
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0);
 
-      
+      final bool overlap = await geoPointsOverlap(
+          currentLocation, RADIUS, otherLocation, obj.poll.radius);
+
       // Check if the circles overlap
       if (overlap == true) {
-        
         debugPrint("true");
         _items.add(obj);
       }
-      
     }
-    
+
     print(_items);
     _items = _items.toList();
-     
-    _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
 
-    
+    _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
 
     notifyListeners();
   }
@@ -122,25 +120,23 @@ class FeedProvider extends ChangeNotifier {
   //           userLat + latIncrement(userLat, userLong),
   //           userLong + longIncrement(userLat, userLong),
   //         ))
-      
+
   //     .orderBy("locationData", descending: true)
   //     .orderBy("timestamp", descending: true)
   //     .startAfter(lastDoc)
   //     .limit(limit)
   //     .get();
-          
-      
+
   //     final newItems = snapshot.docs
   //         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
   //         .toList();
-      
-      
+
   //     if (newItems.isEmpty) {
   //       _moreItemsToLoad = false;
   //     } else {
   //       _moreItemsToLoad = true;
   //     }
-      
+
   //     newItems.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
 
   //     _items.addAll(newItems);
@@ -166,12 +162,7 @@ class LocationData {
 }
 
 class FeedPage extends StatefulWidget {
-  const FeedPage({
-    super.key,
-    required refresh
-  });
-
-  
+  const FeedPage({super.key, required refresh});
 
   @override
   State<FeedPage> createState() => _FeedPageState();
@@ -183,18 +174,17 @@ class _FeedPageState extends State<FeedPage> {
   final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-   
   }
+
   Future<LocationData> _getCurrentLocation() async {
-    
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng( position!.latitude,
-        position.longitude);
+    _userLocation = LatLng(prefs.getDouble('Latitude') ?? position!.latitude,
+        prefs.getDouble('Longitude') ?? position!.longitude);
     _mapController.move(_userLocation, 13);
     debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -230,8 +220,6 @@ class _FeedPageState extends State<FeedPage> {
     super.initState();
 
     // _scrollController.addListener(_onScroll);
-
-    
   }
 
   @override
