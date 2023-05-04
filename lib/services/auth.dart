@@ -66,10 +66,9 @@ static void resetPassword() async {
 }
 
 // Sends an email with verification link
-static void verifyEmail() async {
+static void sendVerification() async {
   await FirebaseAuth.instance.currentUser!
     .sendEmailVerification();
-  signOut();
 }
 
 

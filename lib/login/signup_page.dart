@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../services/auth.dart';
@@ -136,7 +137,6 @@ class SignUpPageState extends State<SignUpPage> {
                                   ),
                                   autovalidateMode:
                                       AutovalidateMode.onUserInteraction,
-                                  // still need to check if email is legit/exists
                                   validator: (email) {
                                     if (email == null ||
                                         !EmailValidator.validate(email)) {
@@ -312,32 +312,46 @@ class SignUpPageState extends State<SignUpPage> {
                                     String error = '';
                                     if (passwordController.text ==
                                         confirmPasswordController.text) {
+                                      
                                       error =
                                           await FirebaseSignup.firebaseUserSignup(
                                         emailController.text,
                                         passwordController.text,
                                       );
+
+                                      var snackBar = const SnackBar(
+                                        duration: Duration(seconds: 3),
+                                        backgroundColor: Colors.green,
+                                        content: Text(
+                                          "Account created! We have sent a verification link to your inbox.",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 15),
+                                        ),
+                                      );                                     
                                       
                                       if (context.mounted &&
                                           PollarAuth.isUserSignedIn()) {
-                                            
+                                        PollarAuth.sendVerification();
                                         Navigator.pop(context);
+                                        ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                        PollarAuth.signOut(); 
                                       }
                                     } else {
                                       error = 'Passwords do not match';
                                     }
-                                    var snackBar = SnackBar(
-                                      duration: const Duration(seconds: 3),
-                                      backgroundColor: Colors.red,
-                                      content: Text(
-                                        error,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(fontSize: 15),
-                                      ),
-                                    );
-                                    if (context.mounted && error.isNotEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
+                                      var snackBar = SnackBar(
+                                        duration: const Duration(seconds: 3),
+                                        backgroundColor: Colors.red,
+                                        content: Text(
+                                          error,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(fontSize: 15),
+                                        ),
+                                      );
+                                      if (context.mounted && error.isNotEmpty) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
                                     }
                                   }
                                   ,
