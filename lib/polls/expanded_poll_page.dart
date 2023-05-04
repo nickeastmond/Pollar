@@ -8,6 +8,7 @@ import 'package:pollar/polls/bar_graph.dart';
 import '../model/Poll/database/voting.dart';
 import '../polls_theme.dart';
 import '../user/main_profile_circle.dart';
+import '../comments/comment_section_page.dart';
 
 class ExpandedPollPage extends StatefulWidget {
   ExpandedPollPage({
@@ -129,7 +130,22 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
             Padding(
               padding: const EdgeInsets.only(right: 17),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet<void>(
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(25.0)),
+                    ),
+                    elevation: 0,
+                    builder: (BuildContext context) {
+                      return ClipRRect(
+                          borderRadius: BorderRadius.circular(30.0),
+                          child: CommentSectionPage(widget.pollFeedObj.poll));
+                    },
+                  );
+                },
                 child: const Icon(
                   Icons.message_outlined,
                   color: Colors.white,
