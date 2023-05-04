@@ -69,6 +69,7 @@ class NavigationPageState extends State<NavigationPage> {
                     refresh = !refresh;
                   });
                 }
+               
                 debugPrint("fck + $success");
                 final prefs = await SharedPreferences.getInstance();
                 double? long, lat;
@@ -153,8 +154,8 @@ class NavigationPageState extends State<NavigationPage> {
           //children: const [FeedPage(), ProfilePage()],
           children: [
             ChangeNotifierProvider(
-                create: (_) => FeedProvider()..fetchInitial(7),
-                child: const FeedPage()),
+                create: (_) => FeedProvider()..fetchInitial(100),
+                child:  FeedPage(refresh: refresh,)),
             const ProfilePage(),
           ],
         ),
