@@ -26,7 +26,7 @@ class FeedProvider extends ChangeNotifier {
   bool _moreItemsToLoad = false;
 
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsDistance(Position p1, Position p2, double r2) async {
+  Future<bool> geoPointsDistance(Position p1, Position p2, int r2) async {
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
@@ -42,6 +42,7 @@ class FeedProvider extends ChangeNotifier {
     final position = await PositionAdapter.getFromSharedPreferences("location");
     final double userLat = prefs.getDouble('Latitude') ?? position!.latitude;
     final double userLong = prefs.getDouble('Longitude') ?? position!.longitude;
+    final int userRad = prefs.getInt('Radius') ?? 5; // MILES
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -71,8 +72,8 @@ class FeedProvider extends ChangeNotifier {
           speed: 0,
           speedAccuracy: 0);
 
-      final bool overlap = await geoPointsDistance(
-          currentLocation, otherLocation, obj.poll.radius);
+      final bool overlap =
+          await geoPointsDistance(currentLocation, otherLocation, userRad);
 
       // Check if the circles overlap
       if (overlap == true) {
