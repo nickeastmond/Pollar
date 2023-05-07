@@ -15,17 +15,24 @@ Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final position = await PositionAdapter.getFromSharedPreferences("location");
-  userLocation = LatLng( position!.latitude,
-       position.longitude);
+  userLocation = LatLng(prefs.getDouble('Latitude') ?? position!.latitude,
+      prefs.getDouble('Longitude') ?? position!.longitude);
   debugPrint("setting state to $userLocation");
   return LocationData(latLng: userLocation);
 }
 
-Future<void> storeMapsData(int radius, double long, double lat) async {
-  print("new Postion: ${lat} ${long}");
-  Position newPosition = Position(accuracy: 0, latitude: lat, longitude: long, altitude: 0, speed: 0,heading: 0,speedAccuracy: 0,timestamp: DateTime.now());
-  PositionAdapter.saveToSharedPreferences("location", newPosition);
-  
+// Future<void> storeMapsData(int radius, double long, double lat) async {
+//   print("new Postion: ${lat} ${long}");
+//   Position newPosition = Position(accuracy: 0, latitude: lat, longitude: long, altitude: 0, speed: 0,heading: 0,speedAccuracy: 0,timestamp: DateTime.now());
+//   PositionAdapter.saveToSharedPreferences("location", newPosition);
+
+// }
+
+Future<void> storeMapsData(int var1, double var2, double var3) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setInt('Radius', var1);
+  prefs.setDouble('Longitude', var2);
+  prefs.setDouble('Latitude', var3);
 }
 
 class CreateMapPage extends StatefulWidget {
@@ -104,8 +111,8 @@ class CreateMapPageState extends State<CreateMapPage> {
                       onPicked: (pickedData) {
                         setState(() {
                           storeMapsData(_value, pickedData.latLong.longitude,
-                              pickedData.latLong.latitude).then((_) =>  Navigator.pop(context,true));
-
+                                  pickedData.latLong.latitude)
+                              .then((_) => Navigator.pop(context, true));
                         });
                       }),
                 )
