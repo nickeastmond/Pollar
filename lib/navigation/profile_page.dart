@@ -57,10 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return TextButton(
       onPressed: () {
         updateEmoji(emoji);
-        setState(() {
-          emojiBoxHeight = 0;
-          
-        });
       },
       child: Text(
         emoji,
@@ -103,7 +99,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         TextButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStatePropertyAll(
-                                  Colors.black.withOpacity(0.2))),
+                                  Colors.black.withOpacity(0.2))
+                          ),
                           child: Text(
                               changeEmojiText,
                               style: const TextStyle(
@@ -116,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 emojiBoxHeight = 0;
                                 changeEmojiText = "Change Profile Emoji  ▲";
                                } else {
-                                emojiBoxHeight = 100;
+                                emojiBoxHeight = 140;
                                 changeEmojiText = "Change Profile Emoji  ▼";
                                }
                             });
@@ -127,16 +124,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           height: emojiBoxHeight,
                           color: Colors.black.withOpacity(0.2),
                           padding:
-                              const EdgeInsets.symmetric(horizontal: 25),
-                          child: Flex(
-                            direction: Axis.horizontal,
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
-                            children: [
-                              emojiOption(defaultEmoji),
-                              emojiOption('😂'),
-                              emojiOption('😍'),
-                            ],
+                              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: Wrap(
+                              direction: Axis.horizontal,
+                              alignment: WrapAlignment.center,
+                              clipBehavior: Clip.hardEdge,
+                              children: [
+                                emojiOption(defaultEmoji),
+                                emojiOption('😂'),
+                                emojiOption('😍'),
+                                emojiOption('🤣'),
+                                emojiOption('😘'),
+                                emojiOption('🗿'),
+                              ],
+                            ),
                           ),
                         ),
 
