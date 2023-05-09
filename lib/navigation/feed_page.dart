@@ -14,8 +14,6 @@ import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
-const double RADIUS = 20.0; // MILES
-
 class PollFeedObject {
   Poll poll;
   String pollId;
@@ -28,19 +26,13 @@ class FeedProvider extends ChangeNotifier {
   bool _moreItemsToLoad = false;
 
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsOverlap(
-      Position p1, double r1, Position p2, double r2) async {
+  Future<bool> geoPointsDistance(Position p1, Position p2, int r2) async {
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
 
-    // Calculate the sum of the radii
-    double radiusSumInMeters = (r1 * 1609.344) + (r2 * 1609.344);
-
-    print(distance);
-    print(radiusSumInMeters);
-    // Check if the distance is less than or equal to the sum of the radii
-    return distance <= radiusSumInMeters;
+    // Check if the distance is less than or equal to the radius
+    return distance <= r2;
   }
 
   Future<void> fetchInitial(int limit) async {
@@ -50,6 +42,7 @@ class FeedProvider extends ChangeNotifier {
     final position = await PositionAdapter.getFromSharedPreferences("location");
     final double userLat = prefs.getDouble('Latitude') ?? position!.latitude;
     final double userLong = prefs.getDouble('Longitude') ?? position!.longitude;
+    final int userRad = prefs.getInt('Radius') ?? 5; // MILES
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -79,8 +72,8 @@ class FeedProvider extends ChangeNotifier {
           speed: 0,
           speedAccuracy: 0);
 
-      final bool overlap = await geoPointsOverlap(
-          currentLocation, RADIUS, otherLocation, obj.poll.radius);
+      final bool overlap =
+          await geoPointsDistance(currentLocation, otherLocation, userRad);
 
       // Check if the circles overlap
       if (overlap == true) {
