@@ -26,13 +26,17 @@ class FeedProvider extends ChangeNotifier {
   bool _moreItemsToLoad = false;
 
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsDistance(Position p1, Position p2, int r2) async {
+  Future<bool> geoPointsDistance(Position p1, Position p2, double? r1, double r2) async {
+    double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
+    print(p1);
+    print(p2);
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-
+    print((distance * metersToMilesFactor));
+    print((r1! + r2));
     // Check if the distance is less than or equal to the radius
-    return distance <= r2;
+    return (distance * metersToMilesFactor) <= (r1 + r2);
   }
 
   Future<void> fetchInitial(int limit) async {
@@ -40,9 +44,10 @@ class FeedProvider extends ChangeNotifier {
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    final double userLat = prefs.getDouble('Latitude') ?? position!.latitude;
-    final double userLong = prefs.getDouble('Longitude') ?? position!.longitude;
-    final int userRad = prefs.getInt('Radius') ?? 5; // MILES
+    final double userLat = position!.latitude;
+    final double userLong = position.longitude;
+    final double? userRad = prefs.getDouble('Radius');// MILES
+    print("radius is: ${userRad}");
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -65,19 +70,21 @@ class FeedProvider extends ChangeNotifier {
       final otherLocation = Position(
           latitude: locationData.latitude,
           longitude: locationData.longitude,
-          timestamp: DateTime(9),
+          timestamp: DateTime.now(),
           accuracy: 0,
           altitude: 0,
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
 
+      print("feed page: ");
+      print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
       final bool overlap =
-          await geoPointsDistance(currentLocation, otherLocation, userRad);
+          await geoPointsDistance(currentLocation, otherLocation, userRad,obj.poll.radius);
 
       // Check if the circles overlap
-      if (overlap == true) {
-        debugPrint("true");
+      if (overlap)
+      {
         _items.add(obj);
       }
     }
@@ -176,15 +183,14 @@ class _FeedPageState extends State<FeedPage> {
   Future<LocationData> _getCurrentLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(prefs.getDouble('Latitude') ?? position!.latitude,
-        prefs.getDouble('Longitude') ?? position!.longitude);
+    _userLocation = LatLng(position!.latitude,
+        position.longitude);
     _mapController.move(_userLocation, 13);
-    debugPrint("setting state to $_userLocation");
     List<Placemark> placemark = await placemarkLocation(_userLocation);
     return LocationData(
         latLng: _userLocation,
         placemarks: placemark,
-        radius: prefs.getInt('Radius') ?? 5);
+        radius: prefs.getDouble('Radius')!.toInt());
   }
 
   Future<List<Placemark>> placemarkLocation(LatLng location) async {
@@ -312,7 +318,7 @@ class _FeedPageState extends State<FeedPage> {
                                                     ),
                                                   ],
                                                 ),
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5"} Mi',
                                               ),
                                             ],
                                           ),

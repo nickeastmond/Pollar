@@ -15,10 +15,9 @@ class LocationData {
 
 Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
-  SharedPreferences prefs = await SharedPreferences.getInstance();
   final position = await PositionAdapter.getFromSharedPreferences("location");
-  userLocation = LatLng(prefs.getDouble('Latitude') ?? position!.latitude,
-      prefs.getDouble('Longitude') ?? position!.longitude);
+  userLocation = LatLng(position!.latitude,
+      position.longitude);
   debugPrint("setting state to $userLocation");
   return LocationData(latLng: userLocation);
 }
@@ -30,11 +29,22 @@ Future<LocationData> _getCurrentLocation() async {
 
 // }
 
-Future<void> storeMapsData(int var1, double var2, double var3) async {
+Future<void> storeMapsData(int var1, double long, double lat) async {
+  print(var1);
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setInt('Radius', var1);
-  prefs.setDouble('Longitude', var2);
-  prefs.setDouble('Latitude', var3);
+  prefs.setDouble('Radius', var1.toDouble());
+   final currentLocation = Position(
+        latitude: lat,
+        longitude: long,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0);
+
+    PositionAdapter.saveToSharedPreferences("location", currentLocation);
+
 }
 
 class CreateMapPage extends StatefulWidget {
@@ -55,7 +65,7 @@ class CreateMapPageState extends State<CreateMapPage> {
   Future<void> _getValue() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _value = prefs.getInt('Radius') ?? 5;
+      _value = prefs.getDouble('Radius')!.toInt();
     });
   }
 
@@ -119,14 +129,6 @@ class CreateMapPageState extends State<CreateMapPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height - 115,
                     child: OpenStreetMapSearchAndPick(
-                        onGetCurrentLocationPressed: () async {
-                          debugPrint("");
-                          final position =
-                              await PositionAdapter.getFromSharedPreferences(
-                                  "location");
-                          if (position == null) {}
-                          return LatLng(position!.latitude, position.longitude);
-                        },
                         center: LatLong(currentLocation.latLng.latitude,
                             currentLocation.latLng.longitude),
                         buttonColor: theme.primaryColor,
