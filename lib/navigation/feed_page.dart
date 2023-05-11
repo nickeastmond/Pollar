@@ -307,11 +307,6 @@ class _FeedPageState extends State<FeedPage> {
                                                     'c'
                                                   ],
                                                 ),
-<<<<<<< HEAD
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5"} Mi',
-                                              ),
-                                            ],
-=======
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.all(5.5),
@@ -353,7 +348,6 @@ class _FeedPageState extends State<FeedPage> {
                                               bottom: 0),
                                           child: PollCard(
                                             poll: pollItem,
->>>>>>> 8cb1e8bb7cfeb2455590c9d09fbc0a51df97ef7c
                                           ),
                                         ),
                                       ],

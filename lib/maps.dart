@@ -18,7 +18,6 @@ Future<LocationData> _getCurrentLocation() async {
   final position = await PositionAdapter.getFromSharedPreferences("location");
   userLocation = LatLng(position!.latitude,
       position.longitude);
-  debugPrint("setting state to $userLocation");
   return LocationData(latLng: userLocation);
 }
 
