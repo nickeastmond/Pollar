@@ -119,6 +119,14 @@ class CreateMapPageState extends State<CreateMapPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height - 115,
                     child: OpenStreetMapSearchAndPick(
+                        onGetCurrentLocationPressed: () async {
+                          debugPrint("");
+                          final position =
+                              await PositionAdapter.getFromSharedPreferences(
+                                  "location");
+                          if (position == null) {}
+                          return LatLng(position!.latitude, position.longitude);
+                        },
                         center: LatLong(currentLocation.latLng.latitude,
                             currentLocation.latLng.longitude),
                         buttonColor: theme.primaryColor,
