@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:pollar/polls_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+
+import 'open_street_map_search_and_pick.dart';
 
 class LocationData {
   final LatLng latLng;
@@ -64,59 +66,74 @@ class CreateMapPageState extends State<CreateMapPage> {
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapchat) {
         if (snapchat.hasData) {
           final LocationData currentLocation = snapchat.data;
-          return Scaffold(
-              appBar: AppBar(
-                title: const Text('Map'),
-                backgroundColor: Colors.green,
-              ),
-              body: SingleChildScrollView(
-                  child: Column(children: [
-                SizedBox(
-                    height: 60,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          const Icon(
-                            Icons.add_location_alt,
-                            size: 40,
-                          ),
-                          Expanded(
-                              child: Slider(
-                                  value: _value.toDouble(),
-                                  min: 1.0,
-                                  max: 20.0,
-                                  divisions: 10,
-                                  activeColor: Colors.green,
-                                  inactiveColor: Colors.orange,
-                                  label: 'Set radius value',
-                                  onChanged: (double newValue) {
-                                    setState(() {
-                                      _value = newValue.round();
-                                    });
-                                  },
-                                  semanticFormatterCallback: (double newValue) {
-                                    return '${newValue.round()} miles';
-                                  })),
-                        ])),
-                SizedBox(height: 40, child: Text("Radius (mi): $_value")),
-                SizedBox(
-                  height: 630,
-                  child: OpenStreetMapSearchAndPick(
-                      center: LatLong(currentLocation.latLng.latitude,
-                          currentLocation.latLng.longitude),
-                      buttonColor: Colors.green,
-                      locationPinIconColor: Colors.green,
-                      buttonText: 'Set Current Location',
-                      onPicked: (pickedData) {
-                        setState(() {
-                          storeMapsData(_value, pickedData.latLong.longitude,
-                                  pickedData.latLong.latitude)
-                              .then((_) => Navigator.pop(context, true));
-                        });
-                      }),
-                )
-              ])));
+          return PollsTheme(builder: (context, theme) {
+            return Scaffold(
+                appBar: AppBar(
+                  elevation: 2,
+                  title: const Text('Map'),
+                  backgroundColor: theme.primaryColor,
+                ),
+                body: SingleChildScrollView(
+                    child: Column(children: [
+                  Container(
+                      color: Colors.white,
+                      child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          // mainAxisSize: MainAxisSize.max,
+                          children: [
+                            // const Icon(
+                            //   Icons.add_location_alt,
+                            //   size: 40,
+                            // ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            const Text(
+                              "Radius:",
+                              style: TextStyle(
+                                height: 1.4,
+                                color: Colors.black,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                            Expanded(
+                                child: Slider(
+                                    value: _value.toDouble(),
+                                    min: 1.0,
+                                    max: 20.0,
+                                    divisions: 10,
+                                    activeColor: theme.primaryColor,
+                                    inactiveColor: theme.secondaryHeaderColor,
+                                    label: "$_value mi",
+                                    onChanged: (double newValue) {
+                                      setState(() {
+                                        _value = newValue.round();
+                                      });
+                                    },
+                                    semanticFormatterCallback:
+                                        (double newValue) {
+                                      return '${newValue.round()} miles';
+                                    })),
+                          ])),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - 115,
+                    child: OpenStreetMapSearchAndPick(
+                        center: LatLong(currentLocation.latLng.latitude,
+                            currentLocation.latLng.longitude),
+                        buttonColor: theme.primaryColor,
+                        locationPinIconColor: theme.primaryColor,
+                        buttonText: 'Set Feed Location',
+                        onPicked: (pickedData) {
+                          setState(() {
+                            storeMapsData(_value, pickedData.latLong.longitude,
+                                    pickedData.latLong.latitude)
+                                .then((_) => Navigator.pop(context, true));
+                          });
+                        }),
+                  )
+                ])));
+          });
         }
         return const Center(child: CircularProgressIndicator());
       },
