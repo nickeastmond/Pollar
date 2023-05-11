@@ -237,108 +237,200 @@ class _FeedPageState extends State<FeedPage> {
                   future: _getCurrentLocation(),
                   builder: (context, snapshot) {
                     return RefreshIndicator(
-                      triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                      color: theme.secondaryHeaderColor,
-                      onRefresh: () => provider.fetchInitial(100),
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        shrinkWrap: false,
-                        itemCount: provider.items.length,
-                        itemBuilder: (_, int index) {
-                          if (index == provider.items.length - 1 &&
-                              provider._moreItemsToLoad) {
-                            // declare the boolean and return loading indicator
-                            return const Center(
-                              heightFactor: 3,
-                              child: CircularProgressIndicator(),
-                            );
-                          }
+                        triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                        color: theme.secondaryHeaderColor,
+                        onRefresh: () => provider.fetchInitial(100),
+                        child: provider.items.isNotEmpty
+                            ? ListView.builder(
+                                controller: _scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                shrinkWrap: false,
+                                itemCount: provider.items.length,
+                                itemBuilder: (_, int index) {
+                                  if (index == provider.items.length - 1 &&
+                                      provider._moreItemsToLoad) {
+                                    // declare the boolean and return loading indicator
+                                    return const Center(
+                                      heightFactor: 3,
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
 
-                          final pollItem = provider.items[index];
+                                  final pollItem = provider.items[index];
 
-                          if (index == 0) {
-                            return Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 6, bottom: 0, left: 8, right: 8),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: MediaQuery.of(context)
-                                                  .platformBrightness ==
-                                              Brightness.dark
-                                          ? theme.primaryColor
-                                          : theme.cardColor,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 10,
-                                            spreadRadius: 0),
-                                      ],
-                                    ),
-                                    height: 40,
-                                    child: FlutterMap(
-                                      mapController: _mapController,
-                                      options: MapOptions(
-                                        zoom: 13,
-                                        center: snapshot.data?.latLng ??
-                                            LatLng(0, 0),
-                                      ),
+                                  if (index == 0) {
+                                    return Column(
                                       children: [
-                                        TileLayer(
-                                          backgroundColor: Colors.white,
-                                          retinaMode: true,
-                                          urlTemplate:
-                                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                          subdomains: const ['a', 'b', 'c'],
-                                        ),
                                         Padding(
-                                          padding: const EdgeInsets.all(5.5),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 17.5,
-                                                  shadows: [
-                                                    Shadow(
-                                                      blurRadius: 10,
-                                                      color: Colors.black,
-                                                      offset: Offset(1.0, 1.0),
-                                                    ),
+                                          padding: const EdgeInsets.only(
+                                              top: 6,
+                                              bottom: 0,
+                                              left: 8,
+                                              right: 8),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: MediaQuery.of(context)
+                                                          .platformBrightness ==
+                                                      Brightness.dark
+                                                  ? theme.primaryColor
+                                                  : theme.cardColor,
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                    color: Colors.black12,
+                                                    blurRadius: 10,
+                                                    spreadRadius: 0),
+                                              ],
+                                            ),
+                                            height: 40,
+                                            child: FlutterMap(
+                                              mapController: _mapController,
+                                              options: MapOptions(
+                                                zoom: 13,
+                                                center: snapshot.data?.latLng ??
+                                                    LatLng(0, 0),
+                                              ),
+                                              children: [
+                                                TileLayer(
+                                                  backgroundColor: Colors.white,
+                                                  retinaMode: true,
+                                                  urlTemplate:
+                                                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                                  subdomains: const [
+                                                    'a',
+                                                    'b',
+                                                    'c'
                                                   ],
                                                 ),
-                                                '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
-                                              ),
-                                            ],
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.5),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          fontSize: 17.5,
+                                                          shadows: [
+                                                            Shadow(
+                                                              blurRadius: 10,
+                                                              color:
+                                                                  Colors.black,
+                                                              offset: Offset(
+                                                                  1.0, 1.0),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 8.0,
+                                              right: 8.0,
+                                              top: 8,
+                                              bottom: 0),
+                                          child: PollCard(
+                                            poll: pollItem,
                                           ),
                                         ),
                                       ],
+                                    );
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0,
+                                        right: 8.0,
+                                        top: 8,
+                                        bottom: 0),
+                                    child: PollCard(poll: pollItem),
+                                  );
+                                },
+                              )
+                            : SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 6, bottom: 0, left: 8, right: 8),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: MediaQuery.of(context)
+                                                      .platformBrightness ==
+                                                  Brightness.dark
+                                              ? theme.primaryColor
+                                              : theme.cardColor,
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black12,
+                                                blurRadius: 10,
+                                                spreadRadius: 0),
+                                          ],
+                                        ),
+                                        height: 40,
+                                        child: FlutterMap(
+                                          mapController: _mapController,
+                                          options: MapOptions(
+                                            zoom: 13,
+                                            center: snapshot.data?.latLng ??
+                                                LatLng(0, 0),
+                                          ),
+                                          children: [
+                                            TileLayer(
+                                              backgroundColor: Colors.white,
+                                              retinaMode: true,
+                                              urlTemplate:
+                                                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                              subdomains: const ['a', 'b', 'c'],
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.5),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 17.5,
+                                                      shadows: [
+                                                        Shadow(
+                                                          blurRadius: 10,
+                                                          color: Colors.black,
+                                                          offset:
+                                                              Offset(1.0, 1.0),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                    )
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 8.0, right: 8.0, top: 8, bottom: 0),
-                                  child: PollCard(
-                                    poll: pollItem,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8.0, right: 8.0, top: 8, bottom: 0),
-                            child: PollCard(poll: pollItem),
-                          );
-                        },
-                      ),
-                    );
+                              ));
                   }),
             );
           },
