@@ -16,6 +16,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
+  int points = 0;
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   String  notVerifiedText = '⚠ Unverified email. Press for verification link.';
@@ -26,6 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   initState() {
     // need to change to fetch from shared prefs later
     fetchEmoji();
+    fetchPoints();
     super.initState();
   }
 
@@ -35,26 +37,40 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void fetchEmoji() async {
-    String? temp = await getEmoji();
+    String temp = await getEmoji();
 
-    // B/c of await, temp can be temporarily null upon account creation (raises error)
-    if (temp != null) {
-      setState(() {
-        userEmoji = temp;
-      });
-    }
+    setState(() {
+      userEmoji = temp;
+    });
   }
 
-  void updateEmoji(emoji) async {
+  void fetchPoints() async {
+    int temp = await getPoints();
+
+    setState(() {
+      points = temp;
+    });
+  }
+
+  void updateEmoji(String emoji) async {
     setEmoji(emoji);
-    saveUserInfoToSharedPreferences('userEmoji', emoji);
     setState(() {
       userEmoji = emoji;
     });
   } 
 
+  void updatePoints(int num) async {
+    addPoints(num);
+    setState(() {
+      points += num;
+    });
+  } 
+
   Widget emojiOption(String emoji) {
-    return TextButton(
+    //return assets.contains(emoji)
+    //?
+    return 
+    TextButton(
       onPressed: () {
         updateEmoji(emoji);
       },
@@ -63,6 +79,56 @@ class _ProfilePageState extends State<ProfilePage> {
         textScaleFactor: 2.5,
       ),
     );
+    //: Text('?');
+    // : Stack(
+    //     children: [
+    //       TextButton(
+    //         onPressed: () async {
+    //           if (await getPoints() < 50) {
+    //             var snackBar = const SnackBar(
+    //               duration: Duration(seconds: 3),
+    //               backgroundColor: Colors.red,
+    //               content: Text(
+    //                 'Not enough points',
+    //                 textAlign: TextAlign.center,
+    //                 ),
+    //             );
+    //             if (context.mounted) {
+    //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //             }
+    //           } else {
+    //             //buyEmoji(50, emoji);
+                
+
+    //           }
+    //         },
+    //         child:Text(
+    //           emoji,
+    //           textScaleFactor: 2.5,
+    //           style: TextStyle(
+    //             color: Colors.black.withOpacity(0.2)
+    //           ),
+    //         ),
+    //       ),
+    //       const Positioned(
+    //         // bottom: 18,
+    //         // left: 20,
+    //         child: Icon(
+    //         Icons.lock
+    //         ),
+    //       ),
+    //       const Positioned(
+    //         bottom: 10,
+    //         right: 10,
+    //         child: Text(
+    //           '50P',
+    //           style: TextStyle(
+    //             color: Colors.white,
+    //           ),
+    //         ),
+    //       ),
+    //     ],
+    //   );
   }
 
   @override
@@ -155,9 +221,36 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fontSize: 17,
                               ),
                             ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Points: $points',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                              ),
+                            ),
                           ],
                         ),
+
+                        const SizedBox(height: 25),
+                        TextButton(
+                          onPressed: () {
+                            updatePoints(1);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(
+                                Colors.black.withOpacity(0.2)), 
+                          ),
+                          child: const Text(
+                            'FREE POINT BUTTON',
+                            style: TextStyle(
+                              color: Colors.white
+                            )
+                          ),
+                        ),
+
                         const SizedBox(height: 20),
+                        
                         // change email
                         TextButton(
                           style: ButtonStyle(

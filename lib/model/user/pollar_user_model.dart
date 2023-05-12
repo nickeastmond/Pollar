@@ -90,6 +90,27 @@ Future<bool> setEmoji(String emoji) async {
   }
 }
 
+Future<int> getPoints() async {
+  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  return user.points; 
+}
+
+Future<bool> addPoints(int num) async {
+  int currentPoints = await getPoints();
+  try {
+  
+  await FirebaseFirestore.instance
+      .collection('User')
+      .doc(PollarAuth.getUid()!)
+      .set({"points": currentPoints + num}, SetOptions(merge: true));
+      print('gave user $num points. user now has ${await getPoints()} points');
+      return true;
+  
+  } catch (e) {
+    debugPrint("failed to give user points");
+    return false;
+  }
+}
 
 Stream<PollarUser> subscribePollarUser(String uid) async* {
   final snapshots =
@@ -97,48 +118,4 @@ Stream<PollarUser> subscribePollarUser(String uid) async* {
   await for (final snapshot in snapshots) {
     yield PollarUser.fromDoc(snapshot);
   }
-}
-
-Future<String> getFromSharedPreferences(String key) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? val = prefs.getString(key);
-  if (val != null) {
-    return val;
-  } else if (key == 'emoji') {
-    saveUserInfoToSharedPreferences('userEmoji', defaultEmoji);
-    return defaultEmoji;
-  }
-  print('No value found for key: $key');
-  return '';
-}
-
-Future<bool> saveUserInfoToSharedPreferences(String key, var value) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  switch (value) {
-    case String: 
-      return prefs.setString(key, value);
-    case Color: {
-      //case for color
-      return true;
-    }
-    case int: {
-      return prefs.setString(key, value); 
-    }
-    default: {
-      return true;
-    }
-  }
-
-}
-
-// For now, only emoji gets saved in shared prefs
-// can add more if desired
-void fetchFromFirebaseToSharedPreferences() async {
-  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
-  saveUserInfoToSharedPreferences('userId', user.id);
-  saveUserInfoToSharedPreferences('userEmail', user.emailAddress);
-  saveUserInfoToSharedPreferences('userEmoji', user.emoji);
-  saveUserInfoToSharedPreferences('userInnerColor', user.innerColor);
-  saveUserInfoToSharedPreferences('userEmoji', user.outerColor);
-  saveUserInfoToSharedPreferences('userEmoji', user.points);  //saveToSharedPreferences("emoji", emoji);
 }
