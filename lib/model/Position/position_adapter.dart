@@ -37,5 +37,6 @@ class PositionAdapter {
       String key, Position position) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, encode(position));
+
   }
 }

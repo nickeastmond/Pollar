@@ -22,9 +22,10 @@ Future<bool> getLocation() async {
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
-
+    debugPrint("SETTING CUR LOCATIOn");
     PositionAdapter.saveToSharedPreferences("location", position);
     final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble("Radius", 5.0);
     print("Geolocation is: ");
     print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
     return true;

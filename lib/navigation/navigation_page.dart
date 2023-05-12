@@ -31,7 +31,6 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
-
     //fetchFromFirebaseToSharedPreferences();
 
     checkLocationEnabled(context);
@@ -69,13 +68,6 @@ class NavigationPageState extends State<NavigationPage> {
                     refresh = !refresh;
                   });
                 }
-               
-                debugPrint("fck + $success");
-                final prefs = await SharedPreferences.getInstance();
-                double? long, lat;
-                long = prefs.getDouble("Longitude");
-                lat = prefs.getDouble("Latitude");
-                debugPrint("returned from map with long $long and lat $lat");
               }),
             ),
           ),
