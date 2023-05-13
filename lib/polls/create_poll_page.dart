@@ -86,7 +86,6 @@ class CreatePollPageState extends State<CreatePollPage> {
                       final prefs = await SharedPreferences.getInstance();
                       if (context.mounted && success) {
                         Navigator.pop(context);
-                        print("curr points from voting page: $points");
                         prefs.setInt('points', sprefPoints + Constants.CREATE_POLL_POINTS);
                         sprefPoints = prefs.getInt('points')!;
                         points = sprefPoints;

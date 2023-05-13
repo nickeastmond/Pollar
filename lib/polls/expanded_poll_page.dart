@@ -257,9 +257,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 vote = i;
                                 canVote = false;
                                 counters[i]++;
-                                
-                                print("curr points from voting page: $points");
-                                prefs.setInt('points', sprefPoints + Constants.VOTE_POINTS);
+                                prefs.setInt('points', sprefPoints + Constants.VOTE_POINTS); 
                                 sprefPoints = prefs.getInt('points')!;
                                 points = sprefPoints;
                                 addPoints(Constants.VOTE_POINTS);
