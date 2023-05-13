@@ -22,7 +22,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
-  String  notVerifiedText = '⚠ Unverified email. Press for verification link.';
   bool unverifiedTextVisibility = true;
   bool resetPassSent = false;
 
@@ -66,22 +65,24 @@ class _ProfilePageState extends State<ProfilePage> {
   void updatePoints(int num) async {
     final prefs = await SharedPreferences.getInstance();
     sprefPoints = prefs.getInt('points')!;
-
     // new user
     if (sprefPoints == -1) {
       prefs.setInt('points', 0);
-
     // existing user
     } else if (num > 0) {
       addPoints(num);
       prefs.setInt('points', sprefPoints + num);
     }
-
     setState(() {
       sprefPoints = prefs.getInt('points')!;
       points = sprefPoints;
     });
   } 
+
+  int setStateFromAnotherPagePoints() {
+    updatePoints(0);
+    return points;
+  }
 
   Widget emojiOption(String emoji) {
     //return assets.contains(emoji)
@@ -240,30 +241,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              'Points: $points',
+                              'Points: ${setStateFromAnotherPagePoints()}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 17,
                               ),
                             ),
                           ],
-                        ),
-
-                        const SizedBox(height: 25),
-                        TextButton(
-                          onPressed: () {
-                            updatePoints(1);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Colors.black.withOpacity(0.2)), 
-                          ),
-                          child: const Text(
-                            'FREE POINT BUTTON',
-                            style: TextStyle(
-                              color: Colors.white
-                            )
-                          ),
                         ),
 
                         const SizedBox(height: 20),
