@@ -5,7 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pollar/model/constans.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:pollar/navigation/profile_page.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 
 import '../model/Poll/database/add_poll_firestore.dart';
 import '../model/Poll/poll_model.dart';
@@ -79,8 +83,15 @@ class CreatePollPageState extends State<CreatePollPage> {
                       print(data["locationData"]);
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
+                      final prefs = await SharedPreferences.getInstance();
                       if (context.mounted && success) {
                         Navigator.pop(context);
+                        print("curr points from voting page: $points");
+                        prefs.setInt('points', sprefPoints + Constants.CREATE_POLL_POINTS);
+                        sprefPoints = prefs.getInt('points')!;
+                        points = sprefPoints;
+                        addPoints(Constants.CREATE_POLL_POINTS);
+                        print("updated points from voting page: $points");
                       }
                     } catch (e) {
                       debugPrint(e.toString());

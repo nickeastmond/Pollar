@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/services/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/user/database/get_user_db.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/login/login_page.dart';
 import '../polls_theme.dart';
+
+int points = 0;
+int sprefPoints = -1;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -16,7 +20,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
-  int points = 0;
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   String  notVerifiedText = '⚠ Unverified email. Press for verification link.';
@@ -27,7 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
   initState() {
     // need to change to fetch from shared prefs later
     fetchEmoji();
-    fetchPoints();
+    updatePoints(0);
     super.initState();
   }
 
@@ -50,6 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       points = temp;
     });
+
   }
 
   void updateEmoji(String emoji) async {
@@ -60,9 +64,22 @@ class _ProfilePageState extends State<ProfilePage> {
   } 
 
   void updatePoints(int num) async {
-    addPoints(num);
+    final prefs = await SharedPreferences.getInstance();
+    sprefPoints = prefs.getInt('points')!;
+
+    // new user
+    if (sprefPoints == -1) {
+      prefs.setInt('points', 0);
+
+    // existing user
+    } else if (num > 0) {
+      addPoints(num);
+      prefs.setInt('points', sprefPoints + num);
+    }
+
     setState(() {
-      points += num;
+      sprefPoints = prefs.getInt('points')!;
+      points = sprefPoints;
     });
   } 
 
