@@ -20,6 +20,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
+  String sprefEmoji = 'null';
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   bool unverifiedTextVisibility = true;
@@ -28,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   initState() {
     // need to change to fetch from shared prefs later
-    fetchEmoji();
+    updateEmoji('');
     updatePoints(0);
     super.initState();
   }
@@ -56,9 +57,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void updateEmoji(String emoji) async {
-    setEmoji(emoji);
+    final prefs = await SharedPreferences.getInstance();
+    sprefEmoji = prefs.getString('emoji')!;
+    print('spref emoji: $sprefEmoji');
+    // new user
+    if (sprefEmoji == 'null') {
+      prefs.setString('emoji', defaultEmoji);
+    // existing user
+    } else if (emoji != ''){
+      setEmoji(emoji);
+      prefs.setString('emoji', emoji);
+    }
     setState(() {
-      userEmoji = emoji;
+      sprefEmoji = prefs.getString('emoji')!;
+      userEmoji = sprefEmoji;
     });
   } 
 

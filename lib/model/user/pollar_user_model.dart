@@ -71,7 +71,6 @@ class PollarUser {
 
 Future<String> getEmoji() async  {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
-  
   return user.emoji;
 }
 
@@ -118,4 +117,14 @@ Stream<PollarUser> subscribePollarUser(String uid) async* {
   await for (final snapshot in snapshots) {
     yield PollarUser.fromDoc(snapshot);
   }
+}
+
+// Note: if retrieving emoji is acting up (gives user the previous user's selected emoji), it is probably
+//       because the profile page built before the line could complete
+Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('emoji', await getEmoji()); // retrieve set emoji
+  prefs.setInt('points', await getPoints()); // retrieve points
+  print('fetching from db: points: ${await getPoints()},  emoji:${await getEmoji()}');
+
 }
