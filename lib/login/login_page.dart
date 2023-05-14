@@ -221,14 +221,18 @@ class LoginPageState extends State<LoginPage> {
                                         passwordController.text);
                                 debugPrint(error);
 
-                                if (error.isEmpty && PollarAuth.isVerified() == null) {
-                                  error = 'Internal error';
-                                  debugPrint('verification status is null');
-                                  PollarAuth.signOut();
-                                } else if (error.isEmpty && !PollarAuth.isVerified()!) {
-                                  error = 'Email is not verified. We have sent you another link for you to verify your email to log in.';
-                                  PollarAuth.sendVerification();
-                                  PollarAuth.signOut();
+                                if (error.isEmpty) {
+                                  if (PollarAuth.isVerified() == null) {
+                                    error = 'Internal error';
+                                    debugPrint('verification status is null');
+                                    PollarAuth.signOut();
+                                  } else if (!PollarAuth.isVerified()!) {
+                                    error = 'Email is not verified. We have sent you another link for you to verify your email to log in.';
+                                    PollarAuth.sendVerification();
+                                    PollarAuth.signOut();
+                                  } else {
+                                    await fetchUserInfoFromFirebaseToSharedPrefs();
+                                  }
                                 }
 
                                 var snackBar = SnackBar(

@@ -8,6 +8,7 @@ import 'package:pollar/model/user/database/get_user_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultEmoji = "🤪";
+const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
 final defaultInnerColor = Colors.blue.value;
 final defaultOuterColor = Colors.red.value;
 
@@ -18,6 +19,7 @@ class PollarUser {
   final Color innerColor;
   final Color outerColor;
   final int points;
+  final List<String> unlocked;
 
   const PollarUser({
     required this.id,
@@ -26,6 +28,7 @@ class PollarUser {
     required this.innerColor,
     required this.outerColor,
     required this.points,
+    required this.unlocked,
   });
 
   factory PollarUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -42,6 +45,7 @@ class PollarUser {
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
       points: data['points'] ?? 0,
+      unlocked: data['unlocked'] ?? defaultUnlocked,
     );
   }
   factory PollarUser.asBasic(String id, String emailAddress) {
@@ -51,7 +55,8 @@ class PollarUser {
       emoji: defaultEmoji,
       innerColor: Color( defaultInnerColor),
       outerColor: Color(defaultOuterColor),
-      points:0,
+      points: 0,
+      unlocked: defaultUnlocked,
     );
   }
 
@@ -71,7 +76,6 @@ class PollarUser {
 
 Future<String> getEmoji() async  {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
-  
   return user.emoji;
 }
 
@@ -90,6 +94,32 @@ Future<bool> setEmoji(String emoji) async {
   }
 }
 
+Future<int> getPoints() async {
+  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  return user.points; 
+}
+
+Future<bool> addPoints(int num) async {
+  int currentPoints = await getPoints();
+  try {
+  
+  await FirebaseFirestore.instance
+      .collection('User')
+      .doc(PollarAuth.getUid()!)
+      .set({"points": currentPoints + num}, SetOptions(merge: true));
+      print('gave user $num points. user now has ${await getPoints()} points');
+      return true;
+  
+  } catch (e) {
+    debugPrint("failed to give user points");
+    return false;
+  }
+}
+
+Future<List<String>> getUnlockedAssets() async {
+  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  return user.unlocked;
+}
 
 Stream<PollarUser> subscribePollarUser(String uid) async* {
   final snapshots =
@@ -99,46 +129,12 @@ Stream<PollarUser> subscribePollarUser(String uid) async* {
   }
 }
 
-Future<String> getFromSharedPreferences(String key) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? val = prefs.getString(key);
-  if (val != null) {
-    return val;
-  } else if (key == 'emoji') {
-    saveUserInfoToSharedPreferences('userEmoji', defaultEmoji);
-    return defaultEmoji;
-  }
-  print('No value found for key: $key');
-  return '';
-}
+// Note: if retrieving emoji is acting up (gives user the previous user's selected emoji), it is probably
+//       because the profile page built before the line could complete
+Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('emoji', await getEmoji()); // retrieve set emoji
+  prefs.setInt('points', await getPoints()); // retrieve points
+  print('fetching from db: points: ${await getPoints()},  emoji:${await getEmoji()}');
 
-Future<bool> saveUserInfoToSharedPreferences(String key, var value) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  switch (value) {
-    case String: 
-      return prefs.setString(key, value);
-    case Color: {
-      //case for color
-      return true;
-    }
-    case int: {
-      return prefs.setString(key, value); 
-    }
-    default: {
-      return true;
-    }
-  }
-
-}
-
-// For now, only emoji gets saved in shared prefs
-// can add more if desired
-void fetchFromFirebaseToSharedPreferences() async {
-  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
-  saveUserInfoToSharedPreferences('userId', user.id);
-  saveUserInfoToSharedPreferences('userEmail', user.emailAddress);
-  saveUserInfoToSharedPreferences('userEmoji', user.emoji);
-  saveUserInfoToSharedPreferences('userInnerColor', user.innerColor);
-  saveUserInfoToSharedPreferences('userEmoji', user.outerColor);
-  saveUserInfoToSharedPreferences('userEmoji', user.points);  //saveToSharedPreferences("emoji", emoji);
 }
