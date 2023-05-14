@@ -21,6 +21,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
   String sprefEmoji = 'null';
+  List<String> unlockedAssets = [];
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   bool unverifiedTextVisibility = true;
@@ -31,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // need to change to fetch from shared prefs later
     updateEmoji('');
     updatePoints(0);
+    fetchAssets();
     super.initState();
   }
 
@@ -54,6 +56,15 @@ class _ProfilePageState extends State<ProfilePage> {
       points = temp;
     });
 
+  }
+
+  void fetchAssets() async {
+    List<String> temp = await getUnlockedAssets();
+
+    setState(() {
+      unlockedAssets = temp;
+    });
+    print('UNLOCKED: $unlockedAssets');
   }
 
   void updateEmoji(String emoji) async {
@@ -97,9 +108,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget emojiOption(String emoji) {
-    //return assets.contains(emoji)
-    //?
-    return 
+    return unlockedAssets.contains(emoji)
+    ?
+    //return 
     TextButton(
       onPressed: () {
         updateEmoji(emoji);
@@ -108,57 +119,57 @@ class _ProfilePageState extends State<ProfilePage> {
         emoji,
         textScaleFactor: 2.5,
       ),
-    );
+    )
     //: Text('?');
-    // : Stack(
-    //     children: [
-    //       TextButton(
-    //         onPressed: () async {
-    //           if (await getPoints() < 50) {
-    //             var snackBar = const SnackBar(
-    //               duration: Duration(seconds: 3),
-    //               backgroundColor: Colors.red,
-    //               content: Text(
-    //                 'Not enough points',
-    //                 textAlign: TextAlign.center,
-    //                 ),
-    //             );
-    //             if (context.mounted) {
-    //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    //             }
-    //           } else {
-    //             //buyEmoji(50, emoji);
+    : Stack(
+        children: [
+          TextButton(
+            onPressed: () async {
+              if (points < 50) {
+                var snackBar = const SnackBar(
+                  duration: Duration(seconds: 3),
+                  backgroundColor: Colors.red,
+                  content: Text(
+                    'Not enough points',
+                    textAlign: TextAlign.center,
+                    ),
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
+              } else {
+                //buyEmoji(50, emoji);
                 
 
-    //           }
-    //         },
-    //         child:Text(
-    //           emoji,
-    //           textScaleFactor: 2.5,
-    //           style: TextStyle(
-    //             color: Colors.black.withOpacity(0.2)
-    //           ),
-    //         ),
-    //       ),
-    //       const Positioned(
-    //         // bottom: 18,
-    //         // left: 20,
-    //         child: Icon(
-    //         Icons.lock
-    //         ),
-    //       ),
-    //       const Positioned(
-    //         bottom: 10,
-    //         right: 10,
-    //         child: Text(
-    //           '50P',
-    //           style: TextStyle(
-    //             color: Colors.white,
-    //           ),
-    //         ),
-    //       ),
-    //     ],
-    //   );
+              }
+            },
+            child:Text(
+              emoji,
+              textScaleFactor: 2.5,
+              style: TextStyle(
+                color: Colors.black.withOpacity(0.2)
+              ),
+            ),
+          ),
+          const Positioned(
+            // bottom: 18,
+            // left: 20,
+            child: Icon(
+            Icons.lock
+            ),
+          ),
+          const Positioned(
+            bottom: 10,
+            right: 10,
+            child: Text(
+              '50P',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      );
   }
 
   @override
@@ -231,6 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 emojiOption(defaultEmoji),
                                 emojiOption('😂'),
                                 emojiOption('😍'),
+                                emojiOption('😄'),
                                 emojiOption('🤣'),
                                 emojiOption('😘'),
                                 emojiOption('🗿'),

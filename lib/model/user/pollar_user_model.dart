@@ -8,6 +8,7 @@ import 'package:pollar/model/user/database/get_user_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultEmoji = "🤪";
+const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
 final defaultInnerColor = Colors.blue.value;
 final defaultOuterColor = Colors.red.value;
 
@@ -18,6 +19,7 @@ class PollarUser {
   final Color innerColor;
   final Color outerColor;
   final int points;
+  final List<String> unlocked;
 
   const PollarUser({
     required this.id,
@@ -26,6 +28,7 @@ class PollarUser {
     required this.innerColor,
     required this.outerColor,
     required this.points,
+    required this.unlocked,
   });
 
   factory PollarUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -42,6 +45,7 @@ class PollarUser {
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
       points: data['points'] ?? 0,
+      unlocked: data['unlocked'] ?? defaultUnlocked,
     );
   }
   factory PollarUser.asBasic(String id, String emailAddress) {
@@ -51,7 +55,8 @@ class PollarUser {
       emoji: defaultEmoji,
       innerColor: Color( defaultInnerColor),
       outerColor: Color(defaultOuterColor),
-      points:0,
+      points: 0,
+      unlocked: defaultUnlocked,
     );
   }
 
@@ -109,6 +114,11 @@ Future<bool> addPoints(int num) async {
     debugPrint("failed to give user points");
     return false;
   }
+}
+
+Future<List<String>> getUnlockedAssets() async {
+  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  return user.unlocked;
 }
 
 Stream<PollarUser> subscribePollarUser(String uid) async* {
