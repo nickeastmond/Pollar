@@ -8,7 +8,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
-import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 
 import '../model/Poll/database/add_poll_firestore.dart';
@@ -90,7 +89,6 @@ class CreatePollPageState extends State<CreatePollPage> {
                         sprefPoints = prefs.getInt('points')!;
                         points = sprefPoints;
                         addPoints(Constants.CREATE_POLL_POINTS);
-                        print("updated points from voting page: $points");
                       }
                     } catch (e) {
                       debugPrint(e.toString());

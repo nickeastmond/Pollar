@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/services/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pollar/model/user/database/get_user_db.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/login/login_page.dart';
 import '../polls_theme.dart';
-
-int points = 0;
-int sprefPoints = -1;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -21,7 +17,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
   String sprefEmoji = 'null';
-  List<String> unlockedAssets = [];
+  List<dynamic> unlockedAssets = [];
   String changeEmojiText = 'Change Profile Emoji  ▲';
   double? emojiBoxHeight = 0;
   bool unverifiedTextVisibility = true;
@@ -30,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   initState() {
     // need to change to fetch from shared prefs later
-    updateEmoji('');
+    updateMyEmoji('');
     updatePoints(0);
     fetchAssets();
     super.initState();
@@ -59,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void fetchAssets() async {
-    List<String> temp = await getUnlockedAssets();
+    List<dynamic> temp = await getUnlockedAssets();
 
     setState(() {
       unlockedAssets = temp;
@@ -67,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
     print('UNLOCKED: $unlockedAssets');
   }
 
-  void updateEmoji(String emoji) async {
+  void updateMyEmoji(String emoji) async {
     final prefs = await SharedPreferences.getInstance();
     sprefEmoji = prefs.getString('emoji')!;
     print('spref emoji: $sprefEmoji');
@@ -107,17 +103,25 @@ class _ProfilePageState extends State<ProfilePage> {
     return points;
   }
 
+  String setStateFromThisPageEmoji() {
+    updateMyEmoji('');
+    return userEmoji;
+  }
+
+
   Widget emojiOption(String emoji) {
     return unlockedAssets.contains(emoji)
-    ?
-    //return 
-    TextButton(
+    ? TextButton(
       onPressed: () {
-        updateEmoji(emoji);
+        updateMyEmoji(emoji);
       },
-      child: Text(
+      child: SizedBox(
+        height: 50,
+        width: 50,
+        child: Text(
         emoji,
         textScaleFactor: 2.5,
+      ),
       ),
     )
     //: Text('?');
@@ -138,9 +142,46 @@ class _ProfilePageState extends State<ProfilePage> {
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               } else {
-                //buyEmoji(50, emoji);
-                
+                // confirmation to buy emoji
+                showDialog(
+                  context: context,
+                  builder: (BuildContext c) {
+                    return AlertDialog(
+                      title: const Text('Purchase Confirmation'),
+                      content: Text(
+                        'Are you sure you want to purchase $emoji ?',
+                        textScaleFactor: 1,
+                      ),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              buyEmoji(50, emoji);
+                              Navigator.of(context).pop();
 
+
+                              var snackBar = const SnackBar(
+                                duration: Duration(seconds: 3),
+                                backgroundColor: Colors.green,
+                                content: Text(
+                                  'Purchase successful!',
+                                  textAlign: TextAlign.center,
+                                  ),
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              }  
+                            },
+                            child: const Text('Yes')),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('No'))
+                      ]
+
+                    );
+                  }
+                );
               }
             },
             child:Text(
@@ -203,6 +244,31 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 13),
                         // Change emoji functionality
 
+
+
+                        Column(
+                          children: [
+                            Text(
+                              '${PollarAuth.getEmail()}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Points: ${setStateFromAnotherPagePoints()}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 15),
+
                         TextButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStatePropertyAll(
@@ -226,6 +292,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             });
                           },
                         ),
+
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 250),
                           height: emojiBoxHeight,
@@ -251,31 +318,19 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
 
-                        const SizedBox(height: 25),
-                        // account details
-
-                        Column(
-                          children: [
-                            Text(
-                              '${PollarAuth.getEmail()}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              'Points: ${setStateFromAnotherPagePoints()}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-
                         const SizedBox(height: 20),
-                        
+
+                        TextButton(
+                          onPressed: () {
+                            addPoints(10);
+                            updatePoints(10);
+                          }, 
+                          child: const Text(
+                            'FREE 10 POINTS'
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
                         // change email
                         TextButton(
                           style: ButtonStyle(
@@ -340,6 +395,26 @@ class _ProfilePageState extends State<ProfilePage> {
                           onPressed: () async {
                             PollarAuth.signOut();
                             Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                            
+                          },
+                        ),
+
+                        // For testing purposes
+                        const SizedBox(height: 50),
+                        TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStatePropertyAll(
+                                Colors.black.withOpacity(0.2)),
+                          ),
+                          child: const Text("Delete Account",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 17,
+                              )),
+                          onPressed: () async {
+                            
+                            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                            PollarAuth.deleteUser();
                             
                           },
                         ),
