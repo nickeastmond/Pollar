@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/comments/comment_card.dart';
+import 'package:pollar/model/Comment/comment_model.dart';
+import 'package:pollar/navigation/feed_page.dart';
+import 'package:uuid/uuid.dart';
 
 import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
@@ -10,7 +14,7 @@ class CommentSectionPage extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  final Poll poll;
+  final PollFeedObject poll;
 
   @override
   State<CommentSectionPage> createState() => _CommentSectionPageState();
@@ -28,7 +32,13 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(0, 0, 0, 0),
-      body: SizedBox(
+      body: FutureBuilder<List<Comment>>(
+                  future: getComments(widget.poll.pollId),
+                  builder: (commentContext, commentSnapshot) {
+         
+
+        final List<Comment> comments = commentSnapshot.data ?? [];
+        return SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
@@ -38,41 +48,16 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                 constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height / 2),
                 child: Column(
-                  children: const [
+                  children: [
+                    for (int i = 0; i < comments.length; i++)
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: CommentCard(
                           roundedTop: true,
                           comment:
-                              'this is the UI for the comment section and the comment cards for now'),
+                              comments[i].text),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8, bottom: 8.0),
-                      child: CommentCard(
-                          roundedTop: false, comment: 'Short comment'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8, bottom: 8.0),
-                      child: CommentCard(
-                          roundedTop: false,
-                          comment:
-                              'This is an example of a medium sized comment'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8, bottom: 8.0),
-                      child: CommentCard(
-                          roundedTop: false,
-                          comment:
-                              'Now this will be a long comment. I will use the rest of this comment to tell you that I hope you are having an amazing week and you are all incredibly cool software developers'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8, bottom: 8.0),
-                      child: CommentCard(
-                          roundedTop: false,
-                          comment:
-                              'this is the UI for the comment section and the comment cards for now'),
-                    ),
-                    SizedBox(
+                    const SizedBox(
                       height: 115,
                     ),
                   ],
@@ -133,7 +118,24 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                             right: 0,
                             bottom: 30,
                             child: GestureDetector(
-                              onTap: (() async {}),
+                              onTap: (() async {
+                                debugPrint("Creating comment");
+                                // Creating a comment locally
+                                Map<String, dynamic> data = {};
+                                Uuid uuid = const Uuid();
+                                String v4 = uuid.v4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+                                data["uid"] = v4;
+                                String id = FirebaseAuth.instance.currentUser!.uid;
+                                data["pollId"] = widget.poll.pollId;
+                                data["text"] = commentTextEditorController.text;
+                                data["timestamp"] = DateTime.now();
+                                Comment newComment = Comment.fromData(id, data);
+                                bool success = await createComment(newComment);
+                                if (!success)
+                                {
+                                  debugPrint("Error creating comment");
+                                }
+                              }),
                               child: Icon(
                                 Icons.send,
                                 size: 27.5,
@@ -154,7 +156,8 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
             ),
           ],
         ),
-      ),
+      );}
+      )
     );
   }
 }

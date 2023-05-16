@@ -1,4 +1,5 @@
-import 'dart:math';
+import 'dart:core';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,10 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
-import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
@@ -29,14 +28,10 @@ class FeedProvider extends ChangeNotifier {
   Future<bool> geoPointsDistance(Position p1, Position p2, double? r1, double r2) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
-    print(p1);
-    print(p2);
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-    print((distance * metersToMilesFactor));
-    print((r1! + r2));
     // Check if the distance is less than or equal to the radius
-    return (distance * metersToMilesFactor) <= (r1 + r2);
+    return (distance * metersToMilesFactor) <= (r1! + r2);
   }
 
   Future<void> fetchInitial(int limit) async {
@@ -47,7 +42,6 @@ class FeedProvider extends ChangeNotifier {
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius');// MILES
-    print("radius is: ${userRad}");
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -76,9 +70,6 @@ class FeedProvider extends ChangeNotifier {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
-
-      print("feed page: ");
-      print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
       final bool overlap =
           await geoPointsDistance(currentLocation, otherLocation, userRad,obj.poll.radius);
 
@@ -88,8 +79,6 @@ class FeedProvider extends ChangeNotifier {
         _items.add(obj);
       }
     }
-
-    print(_items);
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
@@ -181,6 +170,7 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Future<LocationData> _getCurrentLocation() async {
+    debugPrint("executing get location");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
     _userLocation = LatLng(position!.latitude,

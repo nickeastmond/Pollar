@@ -61,6 +61,7 @@ dependencies:
   provider: ^6.0.5
   rxdart: ^0.27.7
   flutter_compass: ^0.7.0
+  uuid: ^3.0.7
 
 dev_dependencies:
   flutter_test:
