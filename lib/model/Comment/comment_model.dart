@@ -106,6 +106,7 @@ Future<bool> deleteComment(String uid ) async {
   return false;
 }
 
+//TODO: sort by timestamp
 Future<List<Comment>> getComments(String pollId) async {
   debugPrint("getting comments");
   List<Comment> comments = [];
@@ -115,6 +116,7 @@ Future<List<Comment>> getComments(String pollId) async {
   await FirebaseFirestore.instance
       .collection('Comment')
       .where("pollId", isEqualTo: pollId)
+      .orderBy("timestamp",descending: true)
       .get()
       .then((val) {
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in val.docs) {
