@@ -355,16 +355,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
                         const SizedBox(height: 20),
 
-                        // TextButton(
-                        //   onPressed: () {
-                        //     addPoints(10);
-                        //     updatePoints(10);
-                        //   }, 
-                        //   child: const Text(
-                        //     'FREE 10 POINTS'
-                        //   ),
-                        // ),
-                        // const SizedBox(height: 20),
+                        // testing use only
+                        TextButton(
+                          onPressed: () {
+                            addPoints(10);
+                            updatePoints(10);
+                          }, 
+                          child: const Text(
+                            'FREE 10 POINTS'
+                          ),
+                        ),
+                        const SizedBox(height: 20),
 
                         // change email
                         TextButton(
