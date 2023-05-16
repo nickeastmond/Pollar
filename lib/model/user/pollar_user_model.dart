@@ -12,6 +12,9 @@ const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
 final defaultInnerColor = Colors.blue.value;
 final defaultOuterColor = Colors.red.value;
 
+int points = 0;
+int sprefPoints = -1;
+
 class PollarUser {
   final String id;
   final String emailAddress;
@@ -19,7 +22,7 @@ class PollarUser {
   final Color innerColor;
   final Color outerColor;
   final int points;
-  final List<String> unlocked;
+  final List<dynamic> unlocked;
 
   const PollarUser({
     required this.id,
@@ -66,7 +69,8 @@ class PollarUser {
         "email": emailAddress,
         "innerColor": innerColor.value,
         "outterColor": outerColor.value,
-        "points": points
+        "points": points,
+        "unlocked": unlocked,
     };
   }
 }
@@ -107,17 +111,18 @@ Future<bool> addPoints(int num) async {
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"points": currentPoints + num}, SetOptions(merge: true));
-      print('gave user $num points. user now has ${await getPoints()} points');
       return true;
   
   } catch (e) {
     debugPrint("failed to give user points");
+    print(e);
     return false;
   }
 }
 
-Future<List<String>> getUnlockedAssets() async {
+Future<List<dynamic>> getUnlockedAssets() async {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+
   return user.unlocked;
 }
 
@@ -138,3 +143,38 @@ Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
   print('fetching from db: points: ${await getPoints()},  emoji:${await getEmoji()}');
 
 }
+
+Future<bool> buyEmoji(int cost, String emoji) async {
+  final prefs = await SharedPreferences.getInstance();
+  try {
+  
+  await FirebaseFirestore.instance
+      .collection('User')
+      .doc(PollarAuth.getUid()!)
+      .set({"unlocked": FieldValue.arrayUnion([emoji])}, SetOptions(merge: true));
+
+
+    try {
+      await FirebaseFirestore.instance
+        .collection('User')
+        .doc(PollarAuth.getUid()!)
+        .set({"points": sprefPoints - cost}, SetOptions(merge: true));
+
+        // setting new value of points for display
+        prefs.setInt('points', sprefPoints - cost);
+        sprefPoints = prefs.getInt('points')!;
+        points = sprefPoints;
+    } catch (e) {
+      debugPrint("failed deducting points for exchange");
+      return false;
+    }
+
+      return true;
+  
+  } catch (e) {
+    debugPrint("failed buying emoji");
+    print(e);
+    return false;
+  }
+}
+

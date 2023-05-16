@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/navigation/feed_page.dart';
-import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/polls/bar_graph.dart';
 import '../model/Poll/database/voting.dart';
 import '../polls_theme.dart';
@@ -261,7 +260,6 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 sprefPoints = prefs.getInt('points')!;
                                 points = sprefPoints;
                                 addPoints(Constants.VOTE_POINTS);
-                                print("updated points from voting page: $points");
 
                                 List<Map<String, dynamic>> answers = [];
                                 for (int i = 0;
