@@ -22,6 +22,7 @@ class CommentSectionPage extends StatefulWidget {
 
 class _CommentSectionPageState extends State<CommentSectionPage> {
   final commentTextEditorController = TextEditingController();
+  bool refresh = false;
 
   @override
   void initState() {
@@ -32,13 +33,8 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(0, 0, 0, 0),
-      body: FutureBuilder<List<Comment>>(
-                  future: getComments(widget.poll.pollId),
-                  builder: (commentContext, commentSnapshot) {
-         
-
-        final List<Comment> comments = commentSnapshot.data ?? [];
-        return SizedBox(
+      body:
+        SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
@@ -47,20 +43,27 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                     minHeight: MediaQuery.of(context).size.height / 2),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < comments.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CommentCard(
-                          roundedTop: true,
-                          comment:
-                              comments[i].text),
-                    ),
-                    const SizedBox(
-                      height: 115,
-                    ),
-                  ],
+                child: FutureBuilder<List<Comment>>(
+                  future: getComments(widget.poll.pollId),
+                  builder: (commentContext, commentSnapshot) {
+
+                    final List<Comment> comments = commentSnapshot.data ?? [];
+                    return Column(
+                      children: [
+                        for (int i = 0; i < comments.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CommentCard(
+                              roundedTop: true,
+                              comment:
+                                  comments[i].text),
+                        ),
+                        const SizedBox(
+                          height: 115,
+                        ),
+                      ],
+                    );
+                  }
                 ),
               ),
             ),
@@ -135,6 +138,10 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 {
                                   debugPrint("Error creating comment");
                                 }
+                                setState(() {
+                                  refresh = !refresh;
+                                  commentTextEditorController.text = "";
+                                });
                               }),
                               child: Icon(
                                 Icons.send,
@@ -156,7 +163,6 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
             ),
           ],
         ),
-      );}
       )
     );
   }
