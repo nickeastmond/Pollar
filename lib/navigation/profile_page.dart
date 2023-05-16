@@ -42,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       unlockedAssets = temp;
     });
-    print('UNLOCKED: $unlockedAssets');
+    print('unlockedAssets: $unlockedAssets');
   }
 
   void updateMyEmoji(String emoji) async {
@@ -104,11 +104,11 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () {
                 String successText = 'Purchase successful!';
-                var snackBar = const SnackBar(
-                  duration: Duration(seconds: 3),
+                var snackBar = SnackBar(
+                  duration: const Duration(seconds: 3),
                   backgroundColor: Colors.green,
                   content: Text(
-                    'Purchase successful!',
+                    successText,
                     textAlign: TextAlign.center,
                     ),
                 );
@@ -123,6 +123,46 @@ class _ProfilePageState extends State<ProfilePage> {
                   debugPrint('$successText: $e');
                 }
                 Navigator.of(context).pop();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
+              },
+              child: const Text('Yes')),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No')
+            )
+          ]
+        );
+      }
+    );
+  }
+
+  void deleteAccountConfirmation() {
+      showDialog(
+      context: context,
+      builder: (BuildContext c) {
+        return AlertDialog(
+          title: const Text('Deletion Confirmation'),
+          content: const Text(
+            'Are you sure you want to permanently delete your Pollar account?',
+            textScaleFactor: 1,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                var snackBar = const SnackBar(
+                  duration: Duration(seconds: 3),
+                  backgroundColor: Colors.green,
+                  content: Text(
+                    'Account deleted',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                PollarAuth.deleteUser();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
@@ -315,16 +355,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
                         const SizedBox(height: 20),
 
-                        TextButton(
-                          onPressed: () {
-                            addPoints(10);
-                            updatePoints(10);
-                          }, 
-                          child: const Text(
-                            'FREE 10 POINTS'
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     addPoints(10);
+                        //     updatePoints(10);
+                        //   }, 
+                        //   child: const Text(
+                        //     'FREE 10 POINTS'
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 20),
 
                         // change email
                         TextButton(
@@ -407,10 +447,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fontSize: 17,
                               )),
                           onPressed: () async {
-                            
-                            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
-                            PollarAuth.deleteUser();
-                            
+                            deleteAccountConfirmation();
                           },
                         ),
                       ],
