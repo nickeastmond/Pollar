@@ -25,7 +25,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   initState() {
-    // need to change to fetch from shared prefs later
     updateMyEmoji('');
     updatePoints(0);
     fetchAssets();
@@ -35,23 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void fetchEmoji() async {
-    String temp = await getEmoji();
-
-    setState(() {
-      userEmoji = temp;
-    });
-  }
-
-  void fetchPoints() async {
-    int temp = await getPoints();
-
-    setState(() {
-      points = temp;
-    });
-
   }
 
   void fetchAssets() async {
@@ -108,108 +90,122 @@ class _ProfilePageState extends State<ProfilePage> {
     return userEmoji;
   }
 
-
-  Widget emojiOption(String emoji) {
-    return unlockedAssets.contains(emoji)
-    ? TextButton(
-      onPressed: () {
-        updateMyEmoji(emoji);
-      },
-      child: SizedBox(
-        height: 50,
-        width: 50,
-        child: Text(
-        emoji,
-        textScaleFactor: 2.5,
-      ),
-      ),
-    )
-    //: Text('?');
-    : Stack(
-        children: [
-          TextButton(
-            onPressed: () async {
-              if (points < 50) {
+  void confirmationAndPurchase(String emoji) { 
+    showDialog(
+      context: context,
+      builder: (BuildContext c) {
+        return AlertDialog(
+          title: const Text('Purchase Confirmation'),
+          content: Text(
+            'Are you sure you want to purchase $emoji ?',
+            textScaleFactor: 1,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                String successText = 'Purchase successful!';
                 var snackBar = const SnackBar(
                   duration: Duration(seconds: 3),
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.green,
                   content: Text(
-                    'Not enough points',
+                    'Purchase successful!',
                     textAlign: TextAlign.center,
                     ),
                 );
+                try {
+                  buyEmoji(50, emoji);
+                  setState(() {
+                    unlockedAssets.add(emoji);
+                  });
+                  debugPrint(successText);
+                } catch (e) {
+                  successText = 'Purchase unsuccessful';
+                  debugPrint('$successText: $e');
+                }
+                Navigator.of(context).pop();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
-              } else {
-                // confirmation to buy emoji
-                showDialog(
-                  context: context,
-                  builder: (BuildContext c) {
-                    return AlertDialog(
-                      title: const Text('Purchase Confirmation'),
-                      content: Text(
-                        'Are you sure you want to purchase $emoji ?',
-                        textScaleFactor: 1,
-                      ),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              buyEmoji(50, emoji);
-                              Navigator.of(context).pop();
+              },
+              child: const Text('Yes')),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No')
+            )
+          ]
+        );
+      }
+    );
+  }
 
 
-                              var snackBar = const SnackBar(
-                                duration: Duration(seconds: 3),
-                                backgroundColor: Colors.green,
-                                content: Text(
-                                  'Purchase successful!',
-                                  textAlign: TextAlign.center,
-                                  ),
-                              );
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                              }  
-                            },
-                            child: const Text('Yes')),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('No'))
-                      ]
-
-                    );
-                  }
-                );
-              }
-            },
-            child:Text(
-              emoji,
-              textScaleFactor: 2.5,
-              style: TextStyle(
-                color: Colors.black.withOpacity(0.2)
-              ),
-            ),
-          ),
-          const Positioned(
-            // bottom: 18,
-            // left: 20,
-            child: Icon(
-            Icons.lock
-            ),
-          ),
-          const Positioned(
-            bottom: 10,
-            right: 10,
+  Widget emojiOption(String emoji) {
+    return Container(
+      child: unlockedAssets.contains(emoji)
+      ? TextButton(
+          onPressed: () {
+            updateMyEmoji(emoji);
+          },
+          child: SizedBox(
+            height: 50,
+            width: 50,
             child: Text(
-              '50P',
-              style: TextStyle(
-                color: Colors.white,
-              ),
+            emoji,
+            textScaleFactor: 2.5,
             ),
           ),
-        ],
+        )
+      : TextButton(
+          onPressed: () async {
+            if (points < 50) {
+              var snackBar = const SnackBar(
+                duration: Duration(seconds: 3),
+                backgroundColor: Colors.red,
+                content: Text(
+                  'Not enough points',
+                  textAlign: TextAlign.center,
+                  ),
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
+            } else {
+              confirmationAndPurchase(emoji);
+            }
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              Text(
+                  emoji,
+                  textScaleFactor: 2.5,
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.2)
+                  ),
+                ),
+              const Positioned(
+                bottom: 22,
+                right: 25,
+                child: Icon(
+                  Icons.lock,
+                  color: Color.fromARGB(255, 114, 114, 114),
+                ),
+              ),
+              const Positioned(
+                top: 22,
+                left: 25,
+                child: Text(
+                  '50P',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          )
+        )
       );
   }
 
@@ -243,8 +239,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(height: 13),
                         // Change emoji functionality
-
-
 
                         Column(
                           children: [
@@ -310,9 +304,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 emojiOption('😂'),
                                 emojiOption('😍'),
                                 emojiOption('😄'),
-                                emojiOption('🤣'),
+                                emojiOption('🙄'),
                                 emojiOption('😘'),
-                                emojiOption('🗿'),
+                                emojiOption('🥺'),
+                                emojiOption('😎'),
                               ],
                             ),
                           ),
