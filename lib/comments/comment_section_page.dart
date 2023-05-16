@@ -61,17 +61,8 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                         const SizedBox(
                           height: 115,
                         ),
-                      ],
-                    );
-                  }
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: PollsTheme(
+             
+              PollsTheme(
                 builder: (context, theme) {
                   return Container(
                     height: 110,
@@ -160,7 +151,14 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                   );
                 },
               ),
+          
+                      ],
+                    );
+                  }
+                ),
+              ),
             ),
+            
           ],
         ),
       )
