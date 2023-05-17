@@ -109,7 +109,11 @@ class _OpenStreetMapSearchAndPickState
         var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes))
             as Map<dynamic, dynamic>;
 
-        _searchController.text = decodedResponse['display_name'];
+        if (_searchController.text.isNotEmpty)
+        {
+                  _searchController.text = decodedResponse['display_name'];
+
+        }
         setState(() {});
       }
     });

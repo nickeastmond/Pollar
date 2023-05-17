@@ -22,7 +22,41 @@ class PollFeedObject {
 
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
+    LatLng _userLocation = LatLng(0, 0);
+      final MapController _mapController = MapController();
+
+
+  LocationData? _locationData; // Store the location data here
+  LocationData? get locationData => _locationData; // Add getter for _locationData
+
+  set locationData(LocationData? value) {
+    _locationData = value;
+    notifyListeners(); // Notify listeners when _locationData changes
+  }
+
   bool _moreItemsToLoad = false;
+  Future<LocationData> _getCurrentLocation() async {
+    debugPrint("executing get location");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    _userLocation = LatLng(position!.latitude,
+        position.longitude);
+    _mapController.move(_userLocation, 13);
+    List<Placemark> placemark = await placemarkLocation(_userLocation);
+    return LocationData(
+        latLng: _userLocation,
+        placemarks: placemark,
+        radius: prefs.getDouble('Radius')!.toInt());
+  }
+
+  Future<List<Placemark>> placemarkLocation(LatLng location) async {
+    try {
+      return await placemarkFromCoordinates(
+          location.latitude, location.longitude);
+    } catch (e) {
+      return [Placemark()];
+    }
+  }
 
   List<PollFeedObject> get items => _items;
   Future<bool> geoPointsDistance(Position p1, Position p2, double? r1, double r2) async {
@@ -36,6 +70,9 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
+    _getCurrentLocation().then((locationData) {
+        _locationData = locationData; // Set the initial location data
+    });
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
@@ -105,36 +142,11 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  LatLng _userLocation = LatLng(0, 0);
   String locality = '';
-  final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
 
 
-
-  Future<LocationData> _getCurrentLocation() async {
-    debugPrint("executing get location");
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(position!.latitude,
-        position.longitude);
-    _mapController.move(_userLocation, 13);
-    List<Placemark> placemark = await placemarkLocation(_userLocation);
-    return LocationData(
-        latLng: _userLocation,
-        placemarks: placemark,
-        radius: prefs.getDouble('Radius')!.toInt());
-  }
-
-  Future<List<Placemark>> placemarkLocation(LatLng location) async {
-    try {
-      return await placemarkFromCoordinates(
-          location.latitude, location.longitude);
-    } catch (e) {
-      return [Placemark()];
-    }
-  }
 
 
   @override
@@ -162,14 +174,11 @@ class _FeedPageState extends State<FeedPage> {
                   MediaQuery.of(context).platformBrightness == Brightness.light
                       ? Colors.white
                       : const Color.fromARGB(255, 25, 25, 25),
-              body: FutureBuilder<LocationData>(
-                  future: _getCurrentLocation(),
-                  builder: (context, snapshot) {
-                    return RefreshIndicator(
+              body: RefreshIndicator(
                         triggerMode: RefreshIndicatorTriggerMode.onEdge,
                         color: theme.secondaryHeaderColor,
                         onRefresh: () => provider.fetchInitial(100),
-                        child: provider.items.isNotEmpty
+                        child: provider.items.isNotEmpty && provider._locationData != null 
                             ? ListView.builder(
                                 controller: _scrollController,
                                 physics: const AlwaysScrollableScrollPhysics(),
@@ -212,11 +221,10 @@ class _FeedPageState extends State<FeedPage> {
                                             ),
                                             height: 40,
                                             child: FlutterMap(
-                                              mapController: _mapController,
+                                              mapController: provider._mapController,
                                               options: MapOptions(
                                                 zoom: 13,
-                                                center: snapshot.data?.latLng ??
-                                                    LatLng(0, 0),
+                                                center: provider._locationData!.latLng 
                                               ),
                                               children: [
                                                 TileLayer(
@@ -254,7 +262,7 @@ class _FeedPageState extends State<FeedPage> {
                                                             ),
                                                           ],
                                                         ),
-                                                        '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                        '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5 Mi"} Mi',
                                                       ),
                                                     ],
                                                   ),
@@ -308,11 +316,10 @@ class _FeedPageState extends State<FeedPage> {
                                         ),
                                         height: 40,
                                         child: FlutterMap(
-                                          mapController: _mapController,
+                                          mapController: provider._mapController,
                                           options: MapOptions(
                                             zoom: 13,
-                                            center: snapshot.data?.latLng ??
-                                                LatLng(0, 0),
+                                            center: provider._locationData?.latLng
                                           ),
                                           children: [
                                             TileLayer(
@@ -344,7 +351,7 @@ class _FeedPageState extends State<FeedPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                    '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5"} Mi',
                                                   ),
                                                 ],
                                               ),
@@ -359,8 +366,7 @@ class _FeedPageState extends State<FeedPage> {
                                     )
                                   ],
                                 ),
-                              ));
-                  }),
+                              ))
             );
           },
         );

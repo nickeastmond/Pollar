@@ -74,6 +74,7 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width - 90,
                             child: TextField(
+                              
                               keyboardType: TextInputType.text,
                               textInputAction: TextInputAction.done,
                               controller: commentTextEditorController,
