@@ -1,4 +1,5 @@
-import 'dart:math';
+import 'dart:core';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,10 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
-import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../model/Poll/database/delete_all.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 
@@ -23,31 +22,63 @@ class PollFeedObject {
 
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
+    LatLng _userLocation = LatLng(0, 0);
+      final MapController _mapController = MapController();
+
+
+  LocationData? _locationData; // Store the location data here
+  LocationData? get locationData => _locationData; // Add getter for _locationData
+
+  set locationData(LocationData? value) {
+    _locationData = value;
+    notifyListeners(); // Notify listeners when _locationData changes
+  }
+
   bool _moreItemsToLoad = false;
+  Future<LocationData> _getCurrentLocation() async {
+    debugPrint("executing get location");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final position = await PositionAdapter.getFromSharedPreferences("location");
+    _userLocation = LatLng(position!.latitude,
+        position.longitude);
+    _mapController.move(_userLocation, 13);
+    List<Placemark> placemark = await placemarkLocation(_userLocation);
+    return LocationData(
+        latLng: _userLocation,
+        placemarks: placemark,
+        radius: prefs.getDouble('Radius')!.toInt());
+  }
+
+  Future<List<Placemark>> placemarkLocation(LatLng location) async {
+    try {
+      return await placemarkFromCoordinates(
+          location.latitude, location.longitude);
+    } catch (e) {
+      return [Placemark()];
+    }
+  }
 
   List<PollFeedObject> get items => _items;
   Future<bool> geoPointsDistance(Position p1, Position p2, double? r1, double r2) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
-    print(p1);
-    print(p2);
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
-    print((distance * metersToMilesFactor));
-    print((r1! + r2));
     // Check if the distance is less than or equal to the radius
-    return (distance * metersToMilesFactor) <= (r1 + r2);
+    return (distance * metersToMilesFactor) <= (r1! + r2);
   }
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
+    _getCurrentLocation().then((locationData) {
+        _locationData = locationData; // Set the initial location data
+    });
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius');// MILES
-    print("radius is: ${userRad}");
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -76,9 +107,6 @@ class FeedProvider extends ChangeNotifier {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
-
-      print("feed page: ");
-      print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
       final bool overlap =
           await geoPointsDistance(currentLocation, otherLocation, userRad,obj.poll.radius);
 
@@ -88,68 +116,13 @@ class FeedProvider extends ChangeNotifier {
         _items.add(obj);
       }
     }
-
-    print(_items);
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
-
+    print("notifyling listerners");
     notifyListeners();
   }
 
-  // Future<void> fetchMore(int limit) async {
-  //   try {
-  //     final position =
-  //         await PositionAdapter.getFromSharedPreferences("location");
-  //     final double userLat = position!.latitude;
-  //     final double userLong = position.longitude;
-  //     final currentLocation = GeoPoint(userLat, userLong);
-
-  //     print("Fetcjing more");
-  //     final lastDocId = _items.lastWhere((item) => item != null).pollId;
-  //     final lastDoc = await FirebaseFirestore.instance.collection("Poll").doc(lastDocId).get();
-  //     final snapshot = await FirebaseFirestore.instance
-  //     .collection('Poll')
-  //     .where('locationData',
-  //         isGreaterThan: GeoPoint(
-  //           userLat - latIncrement(userLat, userLong),
-  //           userLong - longIncrement(userLat, userLong),
-  //         ))
-  //     .where('locationData',
-  //         isLessThan: GeoPoint(
-  //           userLat + latIncrement(userLat, userLong),
-  //           userLong + longIncrement(userLat, userLong),
-  //         ))
-
-  //     .orderBy("locationData", descending: true)
-  //     .orderBy("timestamp", descending: true)
-  //     .startAfter(lastDoc)
-  //     .limit(limit)
-  //     .get();
-
-  //     final newItems = snapshot.docs
-  //         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-  //         .toList();
-
-  //     if (newItems.isEmpty) {
-  //       _moreItemsToLoad = false;
-  //     } else {
-  //       _moreItemsToLoad = true;
-  //     }
-
-  //     newItems.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
-
-  //     _items.addAll(newItems);
-
-  //     // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
-
-  //     notifyListeners();
-  //   } catch (e) {
-  //     print(e);
-  //     debugPrint("No polls in database");
-  //     return;
-  //   }
-  // }
 }
 
 class LocationData {
@@ -169,50 +142,12 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  LatLng _userLocation = LatLng(0, 0);
   String locality = '';
-  final MapController _mapController = MapController();
 
   final ScrollController _scrollController = ScrollController();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
 
-  Future<LocationData> _getCurrentLocation() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(position!.latitude,
-        position.longitude);
-    _mapController.move(_userLocation, 13);
-    List<Placemark> placemark = await placemarkLocation(_userLocation);
-    return LocationData(
-        latLng: _userLocation,
-        placemarks: placemark,
-        radius: prefs.getDouble('Radius')!.toInt());
-  }
 
-  Future<List<Placemark>> placemarkLocation(LatLng location) async {
-    try {
-      return await placemarkFromCoordinates(
-          location.latitude, location.longitude);
-    } catch (e) {
-      return [Placemark()];
-    }
-  }
-
-  // void _onScroll() {
-  //   if (_scrollController.position.pixels ==
-  //       _scrollController.position.maxScrollExtent) {
-  //     _fetchMore();
-  //   }
-  // }
-
-  // Future<void> _fetchMore() async {
-  //   // Fetch new items
-  //   await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
-  // }
 
   @override
   initState() {
@@ -239,14 +174,11 @@ class _FeedPageState extends State<FeedPage> {
                   MediaQuery.of(context).platformBrightness == Brightness.light
                       ? Colors.white
                       : const Color.fromARGB(255, 25, 25, 25),
-              body: FutureBuilder<LocationData>(
-                  future: _getCurrentLocation(),
-                  builder: (context, snapshot) {
-                    return RefreshIndicator(
+              body: RefreshIndicator(
                         triggerMode: RefreshIndicatorTriggerMode.onEdge,
                         color: theme.secondaryHeaderColor,
                         onRefresh: () => provider.fetchInitial(100),
-                        child: provider.items.isNotEmpty
+                        child: provider.items.isNotEmpty && provider._locationData != null 
                             ? ListView.builder(
                                 controller: _scrollController,
                                 physics: const AlwaysScrollableScrollPhysics(),
@@ -289,11 +221,10 @@ class _FeedPageState extends State<FeedPage> {
                                             ),
                                             height: 40,
                                             child: FlutterMap(
-                                              mapController: _mapController,
+                                              mapController: provider._mapController,
                                               options: MapOptions(
                                                 zoom: 13,
-                                                center: snapshot.data?.latLng ??
-                                                    LatLng(0, 0),
+                                                center: provider._locationData!.latLng 
                                               ),
                                               children: [
                                                 TileLayer(
@@ -331,7 +262,7 @@ class _FeedPageState extends State<FeedPage> {
                                                             ),
                                                           ],
                                                         ),
-                                                        '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                        '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5 Mi"} Mi',
                                                       ),
                                                     ],
                                                   ),
@@ -385,11 +316,10 @@ class _FeedPageState extends State<FeedPage> {
                                         ),
                                         height: 40,
                                         child: FlutterMap(
-                                          mapController: _mapController,
+                                          mapController: provider._mapController,
                                           options: MapOptions(
                                             zoom: 13,
-                                            center: snapshot.data?.latLng ??
-                                                LatLng(0, 0),
+                                            center: provider._locationData?.latLng
                                           ),
                                           children: [
                                             TileLayer(
@@ -421,7 +351,7 @@ class _FeedPageState extends State<FeedPage> {
                                                         ),
                                                       ],
                                                     ),
-                                                    '${snapshot.data?.placemarks.first.locality ?? "loading..."}  📍 • ${snapshot.data?.radius ?? "5 Mi"} Mi',
+                                                    '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5"} Mi',
                                                   ),
                                                 ],
                                               ),
@@ -436,8 +366,7 @@ class _FeedPageState extends State<FeedPage> {
                                     )
                                   ],
                                 ),
-                              ));
-                  }),
+                              ))
             );
           },
         );

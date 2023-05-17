@@ -36,7 +36,7 @@ Future<bool> getLocation() async {
   }
 
 
-void checkLocationEnabled(BuildContext context) async {
+Future<bool> checkLocationEnabled(BuildContext context) async {
   bool locationEnabled = await getLocation();
   if (!locationEnabled && context.mounted) {
     showDialog(
@@ -64,4 +64,5 @@ void checkLocationEnabled(BuildContext context) async {
       },
     );
   }
+  return locationEnabled;
 }
