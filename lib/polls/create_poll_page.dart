@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pollar/model/constans.dart';
+import 'package:pollar/navigation/feed_page.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 import 'package:pollar/navigation/profile_page.dart';
@@ -17,7 +19,9 @@ import '../polls_theme.dart';
 import 'bar_graph.dart';
 
 class CreatePollPage extends StatefulWidget {
-  const CreatePollPage({super.key});
+  const CreatePollPage({Key? key, required this.feedProvider}) : super(key: key);
+  final FeedProvider feedProvider;
+
 
   @override
   State<CreatePollPage> createState() => CreatePollPageState();
@@ -84,6 +88,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
                       final prefs = await SharedPreferences.getInstance();
+                      await widget.feedProvider.fetchInitial(100);
                       if (context.mounted && success) {
                         Navigator.pop(context);
                         prefs.setInt('points', sprefPoints + Constants.CREATE_POLL_POINTS);

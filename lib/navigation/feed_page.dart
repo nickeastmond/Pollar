@@ -82,63 +82,10 @@ class FeedProvider extends ChangeNotifier {
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
-
+    print("notifyling listerners");
     notifyListeners();
   }
 
-  // Future<void> fetchMore(int limit) async {
-  //   try {
-  //     final position =
-  //         await PositionAdapter.getFromSharedPreferences("location");
-  //     final double userLat = position!.latitude;
-  //     final double userLong = position.longitude;
-  //     final currentLocation = GeoPoint(userLat, userLong);
-
-  //     print("Fetcjing more");
-  //     final lastDocId = _items.lastWhere((item) => item != null).pollId;
-  //     final lastDoc = await FirebaseFirestore.instance.collection("Poll").doc(lastDocId).get();
-  //     final snapshot = await FirebaseFirestore.instance
-  //     .collection('Poll')
-  //     .where('locationData',
-  //         isGreaterThan: GeoPoint(
-  //           userLat - latIncrement(userLat, userLong),
-  //           userLong - longIncrement(userLat, userLong),
-  //         ))
-  //     .where('locationData',
-  //         isLessThan: GeoPoint(
-  //           userLat + latIncrement(userLat, userLong),
-  //           userLong + longIncrement(userLat, userLong),
-  //         ))
-
-  //     .orderBy("locationData", descending: true)
-  //     .orderBy("timestamp", descending: true)
-  //     .startAfter(lastDoc)
-  //     .limit(limit)
-  //     .get();
-
-  //     final newItems = snapshot.docs
-  //         .map((doc) => PollFeedObject(Poll.fromDoc(doc), doc.id))
-  //         .toList();
-
-  //     if (newItems.isEmpty) {
-  //       _moreItemsToLoad = false;
-  //     } else {
-  //       _moreItemsToLoad = true;
-  //     }
-
-  //     newItems.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
-
-  //     _items.addAll(newItems);
-
-  //     // THIS COULD GET BAD IF THERE ARE A LOT OF POLLS, WE CAN CHANGE LATER
-
-  //     notifyListeners();
-  //   } catch (e) {
-  //     print(e);
-  //     debugPrint("No polls in database");
-  //     return;
-  //   }
-  // }
 }
 
 class LocationData {
@@ -164,10 +111,7 @@ class _FeedPageState extends State<FeedPage> {
 
   final ScrollController _scrollController = ScrollController();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
+
 
   Future<LocationData> _getCurrentLocation() async {
     debugPrint("executing get location");
@@ -192,17 +136,6 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
-  // void _onScroll() {
-  //   if (_scrollController.position.pixels ==
-  //       _scrollController.position.maxScrollExtent) {
-  //     _fetchMore();
-  //   }
-  // }
-
-  // Future<void> _fetchMore() async {
-  //   // Fetch new items
-  //   await Provider.of<FeedProvider>(context, listen: false).fetchMore(6);
-  // }
 
   @override
   initState() {
