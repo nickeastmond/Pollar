@@ -30,7 +30,7 @@ class Poll {
       userId: id,
       locationData: data["locationData"],
       pollData: data["pollData"],
-      radius: data["radius"] ?? 3.0,
+      radius: data["radius"] ?? 0.0,
       votes: data["votes"] ?? 0,
       timestamp: data["timestamp"],
       numComments: data["numComments"] ?? 0
@@ -42,7 +42,7 @@ class Poll {
       userId: id,
       locationData: data["locationData"],
       pollData: data["pollData"],
-      radius: data["radius"] ?? 3.0,
+      radius: data["radius"] ?? 0.0,
       votes: data["votes"] ?? 0,
       timestamp: data["timestamp"].toDate(),
       numComments: data["numComments"] ?? 0
