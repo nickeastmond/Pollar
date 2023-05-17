@@ -1,5 +1,6 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:provider/provider.dart';
@@ -32,8 +33,12 @@ class NavigationPageState extends State<NavigationPage> {
   initState() {
     super.initState();
     //fetchFromFirebaseToSharedPreferences();
-
-    checkLocationEnabled(context);
+    checkLocationEnabled(context).then((val){
+      debugPrint("location enabled = ${val}");
+      setState(() {
+        refresh = !refresh;
+      });
+    });
   }
 
   @override
