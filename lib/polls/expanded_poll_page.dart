@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
+import 'package:pollar/polls/delete_report_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
@@ -159,7 +160,27 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
             Padding(
               padding: const EdgeInsets.only(right: 20.0),
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet<void>(
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(25.0)),
+                    ),
+                    elevation: 2,
+                    builder: (BuildContext context) {
+                      return DeleteReportMenu(
+                        // counters is the return list to update feed once user has voted. just keeping this to avoid errors because feed is expecting them
+                        counters: counters,
+                        delete: false,
+                        callback: () {
+                          debugPrint("Poll has been reported");
+                        },
+                      );
+                    },
+                  );
+                },
                 child: const Icon(
                   Icons.report_outlined,
                   size: 34.0,
@@ -251,12 +272,14 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             if (success) {
-                              final prefs = await SharedPreferences.getInstance();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
                               setState(() {
                                 vote = i;
                                 canVote = false;
                                 counters[i]++;
-                                prefs.setInt('points', sprefPoints + Constants.VOTE_POINTS); 
+                                prefs.setInt('points',
+                                    sprefPoints + Constants.VOTE_POINTS);
                                 sprefPoints = prefs.getInt('points')!;
                                 points = sprefPoints;
                                 addPoints(Constants.VOTE_POINTS);
