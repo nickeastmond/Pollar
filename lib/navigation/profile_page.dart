@@ -18,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String userEmoji = defaultEmoji;
   String sprefEmoji = 'null';
   List<dynamic> unlockedAssets = [];
-  String changeEmojiText = 'Change Profile Emoji  ▲';
+  String dropdownState = '▲';
   double? emojiBoxHeight = 0;
   bool unverifiedTextVisibility = true;
   bool resetPassSent = false;
@@ -42,7 +42,6 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       unlockedAssets = temp;
     });
-    print('unlockedAssets: $unlockedAssets');
   }
 
   void updateMyEmoji(String emoji) async {
@@ -233,13 +232,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: Color.fromARGB(255, 114, 114, 114),
                 ),
               ),
-              const Positioned(
+              Positioned(
                 top: 22,
                 left: 25,
                 child: Text(
                   '50P',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: MediaQuery.of(context).platformBrightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.grey.shade800,
                   ),
                 ),
               ),
@@ -254,7 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return PollsTheme( 
       builder:(context, theme) => Scaffold (
         body: Container(
-          color: theme.primaryColor,
+          color: theme.scaffoldBackgroundColor,
           alignment: Alignment.center,
           child: Flex(
             direction: Axis.vertical,
@@ -264,192 +265,259 @@ class _ProfilePageState extends State<ProfilePage> {
                   scrollDirection: Axis.vertical,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 50, horizontal: 40),
+                        vertical: 25),
                     child: Column(
                       children: [
-                        // emoji pfp
-                        SizedBox(
-                          height: 100,
-                          child: 
-                          //if no saved emoji:
-                          Text(
-                            userEmoji,
-                            textScaleFactor: 6,
-                          ),
+                        //Title
+                        Text(
+                          'My Profile',
+                          textScaleFactor: 2,
+                          style: TextStyle(
+                            color: theme.indicatorColor,
+                            fontWeight: FontWeight.bold,
+                          )
                         ),
-                        const SizedBox(height: 13),
-                        // Change emoji functionality
-
-                        Column(
-                          children: [
-                            Text(
-                              '${PollarAuth.getEmail()}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Points: ${setStateFromAnotherPagePoints()}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 15),
-
-                        TextButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(
-                                  Colors.black.withOpacity(0.2))
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 40, horizontal: 50
                           ),
-                          child: Text(
-                              changeEmojiText,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              )),
-                          onPressed: () {
-                            setState(() {
-                              if (emojiBoxHeight! > 0) {
-                                emojiBoxHeight = 0;
-                                changeEmojiText = "Change Profile Emoji  ▲";
-                               } else {
-                                emojiBoxHeight = 140;
-                                changeEmojiText = "Change Profile Emoji  ▼";
-                               }
-                            });
-                          },
-                        ),
-
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          height: emojiBoxHeight,
-                          color: Colors.black.withOpacity(0.2),
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Wrap(
-                              direction: Axis.horizontal,
-                              alignment: WrapAlignment.center,
-                              clipBehavior: Clip.hardEdge,
-                              children: [
-                                emojiOption(defaultEmoji),
-                                emojiOption('😂'),
-                                emojiOption('😍'),
-                                emojiOption('😄'),
-                                emojiOption('🙄'),
-                                emojiOption('😘'),
-                                emojiOption('🥺'),
-                                emojiOption('😎'),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // testing use only
-                        TextButton(
-                          onPressed: () {
-                            addPoints(10);
-                            updatePoints(10);
-                          }, 
-                          child: const Text(
-                            'FREE 10 POINTS'
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // change email
-                        TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Colors.black.withOpacity(0.2)),
-                          ),
-                          child: const Text(
-                            "Change Email",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                            ),
-                          ),
-                          onPressed: () {
-                            // prompt for password
-                            // send emai
-                          },
-                        ),
-                        const SizedBox(height: 25),
-                        //change password button
-                        // ISSUE: 1st pass reset email gets sent to spam, need to connect email to custom domain
-                        TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Colors.black.withOpacity(0.2)),
-                          ),
-                          child: const Text(
-                            "Reset Password",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                            ),
-                          ),
-                          onPressed: () async{
-                            PollarAuth.resetPassword();
-                            var passResetSnackBar = const SnackBar(
-                              duration: Duration(seconds: 3),
-                              backgroundColor: Colors.red,
-                              content: Text(
-                                'Password reset link sent to email',
-                                textAlign: TextAlign.center,
+                          child: Column(
+                            children: [
+                              // emoji pfp & dropdown
+                              TextButton(
+                                style: ButtonStyle(
+                                  shape: const MaterialStatePropertyAll(StadiumBorder()),
+                                  padding: const MaterialStatePropertyAll(EdgeInsets.all(5)),
+                                  overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                    (Set<MaterialState> states) {
+                                      return Colors.black.withOpacity(0);
+                                  }),
+                                  shadowColor: const MaterialStatePropertyAll(Colors.black12),
                                 ),
-                            );
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(passResetSnackBar);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 25),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    SizedBox(
+                                      height: 100,
+                                      child: Text(
+                                        userEmoji,
+                                        textScaleFactor: 6,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 70,
+                                      left: 80,
+                                      child: Container(
+                                        height: 30,
+                                        width: 41,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.rectangle,
+                                          borderRadius: BorderRadius.circular(100),
+                                          color: Colors.white,
+                                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 0)],
+                                        ),
+                                        child: Stack(
+                                          children: [
+                                            const Positioned(
+                                              top: 3,
+                                              left: 5,
+                                                child: Icon(
+                                                Icons.create_outlined,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Positioned(
+                                               top: 8,
+                                               left: 22,
+                                              child: 
+                                              Text(
+                                                dropdownState,
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    if (emojiBoxHeight! > 0) {
+                                      emojiBoxHeight = 0;
+                                      dropdownState = "▲";
+                                    } else {
+                                      emojiBoxHeight = 140;
+                                      dropdownState = "▼";
+                                    }
+                                  });
+                                },
+                              ),
 
-                        // sign out button
-                        TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Colors.black.withOpacity(0.2)),
-                          ),
-                          child: const Text("Sign out",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                              )),
-                          onPressed: () async {
-                            PollarAuth.signOut();
-                            Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
-                            
-                          },
-                        ),
+                              const SizedBox(height: 5),
 
-                        // For testing purposes
-                        const SizedBox(height: 50),
-                        TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Colors.black.withOpacity(0.2)),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                height: emojiBoxHeight,
+                                color: Colors.black.withOpacity(0.1),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: Wrap(
+                                    direction: Axis.horizontal,
+                                    alignment: WrapAlignment.center,
+                                    clipBehavior: Clip.hardEdge,
+                                    children: [
+                                      emojiOption(defaultEmoji),
+                                      emojiOption('😂'),
+                                      emojiOption('😍'),
+                                      emojiOption('😄'),
+                                      emojiOption('🙄'),
+                                      emojiOption('😘'),
+                                      emojiOption('🥺'),
+                                      emojiOption('😎'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 5),
+
+                              Column(
+                                children: [
+                                  Text(
+                                    '${PollarAuth.getEmail()}',
+                                    style: TextStyle(
+                                      color: theme.indicatorColor,
+                                      fontSize: 20,
+                                      //fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    'Points: ${setStateFromAnotherPagePoints()}',
+                                    style: TextStyle(
+                                      color: theme.indicatorColor,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 25),
+
+
+                              // Change emoji functionality
+                              // TextButton(
+                              //   child: Text(
+                              //       dropdownState,
+                              //       style: const TextStyle(
+                              //         color: Colors.white,
+                              //         fontSize: 16,
+                              //       )),
+                              //   onPressed: () {
+                              //     setState(() {
+                              //       if (emojiBoxHeight! > 0) {
+                              //         emojiBoxHeight = 0;
+                              //         dropdownState = "Change Profile Emoji  ▲";
+                              //       } else {
+                              //         emojiBoxHeight = 140;
+                              //         dropdownState = "Change Profile Emoji  ▼";
+                              //       }
+                              //     });
+                              //   },
+                              // ),
+
+                              // testing use only
+                              // TextButton(
+                              //   onPressed: () {
+                              //     addPoints(10);
+                              //     updatePoints(10);
+                              //   }, 
+                              //   child: const Text(
+                              //     'FREE 10 POINTS'
+                              //   ),
+                              // ),
+
+                              // change email
+                              // TextButton(
+                              //   style: ButtonStyle(
+                              //     backgroundColor: MaterialStatePropertyAll(
+                              //         Colors.black.withOpacity(0.2)),
+                              //   ),
+                              //   child: const Text(
+                              //     "Change Email",
+                              //     style: TextStyle(
+                              //       color: Colors.white,
+                              //       fontSize: 17,
+                              //     ),
+                              //   ),
+                              //   onPressed: () {
+                              //     // prompt for password
+                              //     // send emai
+                              //   },
+                              // ),
+
+                              // const SizedBox(height: 20),
+
+                              //change password button
+                              // ISSUE: 1st pass reset email gets sent to spam, need to connect email to custom domain
+                              TextButton(
+                                child: Text(
+                                  "Reset Password",
+                                  style: TextStyle(
+                                    color: theme.indicatorColor,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                                onPressed: () async{
+                                  PollarAuth.resetPassword();
+                                  var passResetSnackBar = const SnackBar(
+                                    duration: Duration(seconds: 3),
+                                    backgroundColor: Colors.red,
+                                    content: Text(
+                                      'Password reset link sent to email',
+                                      textAlign: TextAlign.center,
+                                      ),
+                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(passResetSnackBar);
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 15),
+
+                              // sign out button
+                              TextButton(
+                                child: Text("Sign out",
+                                    style: TextStyle(
+                                      color: theme.indicatorColor,
+                                      fontSize: 17,
+                                    )),
+                                onPressed: () async {
+                                  PollarAuth.signOut();
+                                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
+                                  
+                                },
+                              ),
+
+                              // For testing purposes
+                              const SizedBox(height: 50),
+                              TextButton(
+                                child: const Text("Delete Account",
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 17,
+                                    )),
+                                onPressed: () async {
+                                  deleteAccountConfirmation();
+                                },
+                              ),
+                            ],
                           ),
-                          child: const Text("Delete Account",
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 17,
-                              )),
-                          onPressed: () async {
-                            deleteAccountConfirmation();
-                          },
                         ),
                       ],
                     ),
