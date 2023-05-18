@@ -56,7 +56,7 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                           child: CommentCard(
                               roundedTop: true,
                               comment:
-                                  comments[i].text),
+                                  comments[i]),
                         ),
                         const SizedBox(
                           height: 115,

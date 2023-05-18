@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/polls_theme.dart';
 
+import '../model/Comment/comment_model.dart';
+import '../polls/poll_card.dart';
 import '../user/main_profile_circle.dart';
 
 class CommentCard extends StatefulWidget {
@@ -9,7 +11,7 @@ class CommentCard extends StatefulWidget {
     required this.roundedTop,
     Key? key,
   }) : super(key: key);
-  final String comment;
+  final Comment comment;
   final bool roundedTop;
 
   @override
@@ -68,7 +70,7 @@ class _CommentCardState extends State<CommentCard> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 100,
                     child: Text(
-                      widget.comment,
+                      widget.comment.text,
                       style: TextStyle(
                         height: 1.4,
                         color: theme.indicatorColor,
@@ -90,7 +92,7 @@ class _CommentCardState extends State<CommentCard> {
                     width: 65,
                   ),
                   Text(
-                    "24 min ago",
+                    pollText(widget.comment.timestamp),
                     style: TextStyle(
                       height: 1.4,
                       color: theme.indicatorColor,
