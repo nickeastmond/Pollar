@@ -280,6 +280,7 @@ class _FeedPageState extends State<FeedPage> {
                                               bottom: 0),
                                           child: PollCard(
                                             poll: pollItem,
+                                            feedProvider: provider
                                           ),
                                         ),
                                       ],
@@ -291,7 +292,7 @@ class _FeedPageState extends State<FeedPage> {
                                         right: 8.0,
                                         top: 8,
                                         bottom: 0),
-                                    child: PollCard(poll: pollItem),
+                                    child: PollCard(poll: pollItem, feedProvider: provider,),
                                   );
                                 },
                               )

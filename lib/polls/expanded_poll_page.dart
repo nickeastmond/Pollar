@@ -15,11 +15,13 @@ import '../user/main_profile_circle.dart';
 import '../comments/comment_section_page.dart';
 
 class ExpandedPollPage extends StatefulWidget {
-  ExpandedPollPage({
+  const ExpandedPollPage({
     super.key,
     required this.pollFeedObj,
+    required this.feedProvider
   });
   final PollFeedObject pollFeedObj;
+  final FeedProvider feedProvider;
   // Output: [5, 2, 3]
 
   @override
@@ -173,8 +175,8 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                       return DeleteReportMenu(
                         // counters is the return list to update feed once user has voted. just keeping this to avoid errors because feed is expecting them
                         counters: counters,
-                        delete: false,
                         pollObj: widget.pollFeedObj,
+                        feedProvider: widget.feedProvider,
                         callback: () {
                           debugPrint("Poll has been reported");
                         },

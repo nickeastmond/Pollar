@@ -14,5 +14,5 @@ Future<bool> deletePoll(String pollId) async {
     debugPrint("Error deleting poll firestore $e");
     return false;
   }
-  return false;
+  return true;
 }
