@@ -1,6 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:pollar/services/auth.dart';
 
 void deleteUserFirestore() async {
@@ -13,3 +13,24 @@ void deleteUserFirestore() async {
     );
     PollarAuth.deleteUser();
 }
+
+
+
+bool deleteAllUser() {
+  try {
+    FirebaseFirestore.instance.collection('User').get().then((querySnapshot) {
+  querySnapshot.docs.forEach((doc) {
+    doc.reference.delete();
+  });
+
+  return true;
+});
+   
+  }
+  catch (e) {
+    debugPrint(e.toString());
+    return false;
+  }
+  return true;
+}
+  

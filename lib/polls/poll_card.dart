@@ -24,6 +24,7 @@ class PollCard extends StatefulWidget {
 class _PollCardState extends State<PollCard> {
   bool canVote = true;
   int totalVotes = 0;
+  int totalComments = 0;
   List<int> counters = [0, 0, 0, 0, 0];
 
   @override
@@ -33,6 +34,8 @@ class _PollCardState extends State<PollCard> {
       counters = widget.poll.poll.pollData["answers"]
           .map<int>((e) => int.parse(e["count"].toString()))
           .toList();
+      totalComments = widget.poll.poll.numComments;
+      print(totalComments);
       totalVotes = widget.poll.poll.votes;
     });
     super.initState();

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 
+import 'navigation/feed_page.dart';
 import 'open_street_map_search_and_pick.dart';
 
 class LocationData {
@@ -47,7 +48,8 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
 }
 
 class CreateMapPage extends StatefulWidget {
-  const CreateMapPage({super.key});
+  const CreateMapPage({Key? key, required this.feedProvider}) : super(key: key);
+  final FeedProvider feedProvider;
   @override
   State<CreateMapPage> createState() => CreateMapPageState();
 }
@@ -135,10 +137,12 @@ class CreateMapPageState extends State<CreateMapPage> {
                         buttonText: 'Set Feed Location',
                         onPicked: (pickedData) {
                           setState(() {
+                            
                             storeMapsData(_value, pickedData.latLong.longitude,
                                     pickedData.latLong.latitude)
-                                .then((_) => Navigator.pop(context, true));
+                                .then((_) => widget.feedProvider.fetchInitial(100).then((_) => Navigator.pop(context, true)));
                           });
+                          
                         }),
                   )
                 ])));
