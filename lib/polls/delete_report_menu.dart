@@ -1,14 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls_theme.dart';
+
+import '../model/Report/report_model.dart';
 
 class DeleteReportMenu extends StatelessWidget {
   const DeleteReportMenu(
       {Key? key,
       required this.delete,
+      required this.pollObj,
       required this.callback,
       required this.counters})
       : super(key: key);
+  final PollFeedObject pollObj;
   final bool delete;
   final VoidCallback callback;
   final List<int> counters;
@@ -81,6 +87,16 @@ class DeleteReportMenu extends StatelessWidget {
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () async {
+               Map<String, dynamic> data = {};
+              String id = FirebaseAuth.instance.currentUser!.uid;
+              data["pollId"] = pollObj.pollId;
+              data["timestamp"] = DateTime.now();
+              Report newReport = Report.fromData(id, data);
+              bool success = await createReport(newReport);
+              if (!success)
+              {
+                debugPrint("Error creating report");
+              }
               callback();
               Navigator.pop(context);
               Navigator.pop(context);

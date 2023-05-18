@@ -174,6 +174,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                         // counters is the return list to update feed once user has voted. just keeping this to avoid errors because feed is expecting them
                         counters: counters,
                         delete: false,
+                        pollObj: widget.pollFeedObj,
                         callback: () {
                           debugPrint("Poll has been reported");
                         },
