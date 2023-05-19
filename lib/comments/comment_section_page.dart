@@ -10,11 +10,13 @@ import '../polls_theme.dart';
 
 class CommentSectionPage extends StatefulWidget {
   const CommentSectionPage(
-    this.poll, {
+    this.poll,
+    this.feedProvider, {
     Key? key,
   }) : super(key: key);
 
   final PollFeedObject poll;
+  final FeedProvider feedProvider;
 
   @override
   State<CommentSectionPage> createState() => _CommentSectionPageState();
@@ -130,6 +132,7 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 {
                                   debugPrint("Error creating comment");
                                 }
+                                await widget.feedProvider.fetchInitial(100);
                                 setState(() {
                                   refresh = !refresh;
                                   commentTextEditorController.text = "";

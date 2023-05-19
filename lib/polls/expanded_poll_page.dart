@@ -148,7 +148,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                     builder: (BuildContext context) {
                       return ClipRRect(
                           borderRadius: BorderRadius.circular(30.0),
-                          child: CommentSectionPage(widget.pollFeedObj));
+                          child: CommentSectionPage(widget.pollFeedObj, widget.feedProvider));
                     },
                   );
                 },
