@@ -1,5 +1,6 @@
 //  Created by Nicholas Eastmond on 10/5/22.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:pollar/login/firebase_user_login.dart';
 import 'package:pollar/login/signup_page.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/navigation_page.dart';
+import 'package:pollar/polls/bar_graph.dart';
 import 'package:pollar/services/auth.dart';
 
 import '../polls_theme.dart';
@@ -26,6 +28,23 @@ class LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   int tabSelected = 0; // initially tab selected is poll feed
+  int sinVal = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    updateSinValue();
+    super.initState();
+  }
+
+  void updateSinValue() {
+    Timer.periodic(Duration(milliseconds: 200), (timer) {
+      sinVal = ((sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) / 15)
+          .toInt();
+      print(sinVal); // Replace this with your desired logic
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +246,8 @@ class LoginPageState extends State<LoginPage> {
                                     debugPrint('verification status is null');
                                     PollarAuth.signOut();
                                   } else if (!PollarAuth.isVerified()!) {
-                                    error = 'Email is not verified. We have sent you another link for you to verify your email to log in.';
+                                    error =
+                                        'Email is not verified. We have sent you another link for you to verify your email to log in.';
                                     PollarAuth.sendVerification();
                                     PollarAuth.signOut();
                                   } else {
@@ -249,7 +269,11 @@ class LoginPageState extends State<LoginPage> {
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(snackBar);
                                 } else if (context.mounted) {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NavigationPage()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const NavigationPage()));
                                 }
                               }),
                         ),
@@ -260,6 +284,40 @@ class LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+            Positioned(
+                bottom: 0,
+                left: 10,
+                child: BarGraph(
+                  height: 275,
+                  width: MediaQuery.of(context).size.width / 2,
+                  counters: [
+                    10 + sinVal.abs(),
+                    20 - 2 * sinVal.abs(),
+                    13 + sinVal.abs(),
+                    25 - 3 * sinVal.abs(),
+                    35 - (4 * sinVal.abs()),
+                  ],
+                  numBars: 5,
+                  spacing: 20,
+                  circleBorder: 0,
+                )),
+            Positioned(
+                bottom: 0,
+                right: 10,
+                child: BarGraph(
+                  height: 225,
+                  width: MediaQuery.of(context).size.width / 2,
+                  counters: [
+                    35 - 5 * sinVal.abs(),
+                    23 - 2 * sinVal.abs(),
+                    13 + sinVal.abs(),
+                    20 + 3 * sinVal.abs(),
+                    10 + 4 * sinVal.abs(),
+                  ],
+                  numBars: 5,
+                  spacing: 20,
+                  circleBorder: 0,
+                )),
             Positioned(
               bottom: 30,
               width: MediaQuery.of(context).size.width,
