@@ -9,8 +9,8 @@ typedef PollsThemeBuilder = Widget Function(
 class PollsTheme extends StatefulWidget {
   static final lightTheme = ThemeData(
     scaffoldBackgroundColor: Colors.white,
-    primaryColor: Colors.teal,
-    secondaryHeaderColor: const Color.fromARGB(255, 248, 182, 82),
+    primaryColor: Color(0xFFFF5F6D),
+    secondaryHeaderColor: Color(0xFFFFC371),
     unselectedWidgetColor: Colors.white,
     cardColor: Colors.white,
     indicatorColor: Colors.grey.shade800,

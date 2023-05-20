@@ -31,7 +31,7 @@ class BarGraph extends StatefulWidget {
 class BarGraphState extends State<BarGraph> {
   int largest = 1;
   bool displayData = true;
-  
+
   void setHighest() {
     for (int i = 0; i < widget.counters.length; i++) {
       if (widget.counters[i] > largest) {
@@ -42,7 +42,8 @@ class BarGraphState extends State<BarGraph> {
 
   @override
   void initState() {
-      debugPrint("Counters ${widget.counters.toString()} length: ${widget.counters.length}");
+    debugPrint(
+        "Counters ${widget.counters.toString()} length: ${widget.counters.length}");
     super.initState();
     setHighest();
     displayData = widget.initalDisplayData;
@@ -58,11 +59,11 @@ class BarGraphState extends State<BarGraph> {
   }
 
   static const _colors = [
-    Color.fromARGB(255, 243, 92, 81),
-    Color.fromARGB(255, 96, 142, 240),
-    Color.fromARGB(255, 248, 182, 82),
-    Colors.teal,
-    Color.fromARGB(255, 159, 121, 226),
+    Color(0xFFFF5F6D),
+    Color(0xFF01B9CC),
+    Color(0xFFFFC371),
+    Color.fromARGB(255, 173, 129, 231),
+    Color.fromARGB(255, 88, 196, 136),
   ];
 
   @override
