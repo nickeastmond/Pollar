@@ -26,20 +26,11 @@ class NavigationPage extends StatefulWidget {
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 32;
   static double elevation = 2.5;
-  bool refresh = false;
   int tabSelected = 0; // initially tab selected is poll feed
-  
 
   @override
   initState() {
     super.initState();
-    //fetchFromFirebaseToSharedPreferences();
-    checkLocationEnabled(context).then((val){
-      debugPrint("location enabled = ${val}");
-      setState(() {
-        refresh = !refresh;
-      });
-    });
   }
 
   @override
@@ -50,115 +41,102 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => FeedProvider()..fetchInitial(100), // Create a single instance of FeedProvider
-      builder: (context,child) {
-        return PollsTheme(
-          builder: (context, theme) => Scaffold(
-            appBar: AppBar(
-              //Top bar with app logo
-              automaticallyImplyLeading: false,
-              elevation: elevation,
-              backgroundColor: theme.primaryColor,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 18.0),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.map_outlined,
-                    size: iconSize,
-                  ),
-                  onPressed: ((){
-                  FeedProvider feedProvider = Provider.of<FeedProvider>(context, listen: false);
-                   Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => CreateMapPage(feedProvider: feedProvider),
-                        ),
-                      );
-                  
-                  }),
-                ),
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+        create: (_) => FeedProvider()
+          ..fetchInitial(100), // Create a single instance of FeedProvider
+        builder: (context, child) {
+          return PollsTheme(
+            builder: (context, theme) => Scaffold(
+              appBar: AppBar(
+                //Top bar with app logo
+                automaticallyImplyLeading: false,
+                elevation: elevation,
+                backgroundColor: theme.primaryColor,
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 18.0),
                   child: IconButton(
                     icon: Icon(
-                      Icons.add_chart,
+                      Icons.map_outlined,
                       size: iconSize,
                     ),
                     onPressed: (() {
-                      FeedProvider feedProvider = Provider.of<FeedProvider>(context, listen: false);
+                      FeedProvider feedProvider =
+                          Provider.of<FeedProvider>(context, listen: false);
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => CreatePollPage(feedProvider: feedProvider),
+                          builder: (context) =>
+                              CreateMapPage(feedProvider: feedProvider),
                         ),
                       );
                     }),
                   ),
                 ),
-              ],
-              title: Icon(
-                Icons.bar_chart,
-                size: iconSize,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add_chart,
+                        size: iconSize,
+                      ),
+                      onPressed: (() {
+                        FeedProvider feedProvider =
+                            Provider.of<FeedProvider>(context, listen: false);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CreatePollPage(feedProvider: feedProvider),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+                title: Icon(
+                  Icons.bar_chart,
+                  size: iconSize,
+                ),
               ),
-            ),
-            bottomNavigationBar: Container(
-              // decoration: const BoxDecoration(
-              //   boxShadow: <BoxShadow>[
-              //     BoxShadow(
-              //       color: Colors.black38,
-              //       blurRadius: 4,
-              //       spreadRadius: 2,
-              //     ),
-              //   ],
-              // ),
-              child: BottomNavigationBar(
-                //Navigation bar that contains feed, poll, and profile page icons
-                elevation: 25,
-                backgroundColor: theme.primaryColor,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                selectedItemColor: theme.unselectedWidgetColor,
-                unselectedItemColor: theme.unselectedWidgetColor.withAlpha(100),
-                currentIndex: tabSelected,
-                onTap: (int tab) => setState(() => tabSelected = tab),
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      //Icons.table_rows_outlined,
-                      Icons.assessment_outlined,
-                      size: iconSize,
+              bottomNavigationBar: Container(
+                child: BottomNavigationBar(
+                  //Navigation bar that contains feed, poll, and profile page icons
+                  elevation: 25,
+                  backgroundColor: theme.primaryColor,
+                  showSelectedLabels: false,
+                  showUnselectedLabels: false,
+                  selectedItemColor: theme.unselectedWidgetColor,
+                  unselectedItemColor:
+                      theme.unselectedWidgetColor.withAlpha(100),
+                  currentIndex: tabSelected,
+                  onTap: (int tab) => setState(() => tabSelected = tab),
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.assessment_outlined,
+                        size: iconSize,
+                      ),
+                      label: 'Feed Page',
                     ),
-                    label: 'Feed Page',
-                  ),
-                  // BottomNavigationBarItem(
-                  //   icon: Icon(
-                  //     Icons.assessment_outlined,
-                  //     size: iconSize,
-                  //   ),
-                  //   label: 'Poll Page',
-                  // ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.person_outline,
-                      size: iconSize,
+                    BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.person_outline,
+                        size: iconSize,
+                      ),
+                      label: 'Profile Page',
                     ),
-                    label: 'Profile Page',
+                  ],
+                ),
+              ),
+              body: IndexedStack(
+                index: tabSelected,
+                children: [
+                  FeedPage(
+                    refresh: true,
                   ),
+                  const ProfilePage(),
                 ],
               ),
             ),
-            body: IndexedStack(
-              index: tabSelected,
-              //const [FeedPage(), ReceivePollPage(), ProfilePage()],
-              //children: const [FeedPage(), ProfilePage()],
-              children: [
-                  FeedPage(refresh: refresh,),
-                const ProfilePage(),
-              ],
-            ),
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 }
