@@ -96,9 +96,7 @@ class LoginPageState extends State<LoginPage>
 
   void updateSinValue() {
     Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      sinVal = ((sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) / 15)
-          .toInt();
-      print(sinVal); // Replace this with your desired logic
+      sinVal = (sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) ~/ 15;
       setState(() {});
     });
   }
