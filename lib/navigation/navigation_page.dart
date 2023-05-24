@@ -27,10 +27,18 @@ class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 32;
   static double elevation = 2.5;
   int tabSelected = 0; // initially tab selected is poll feed
+  bool refresh =  false;
 
   @override
   initState() {
     super.initState();
+    //fetchFromFirebaseToSharedPreferences();
+    checkLocationEnabled(context).then((val){
+      debugPrint("location enabled = ${val}");
+      setState(() {
+        refresh = !refresh;
+      });
+    });
   }
 
   @override
@@ -130,7 +138,7 @@ class NavigationPageState extends State<NavigationPage> {
                 index: tabSelected,
                 children: [
                   FeedPage(
-                    refresh: true,
+                    refresh: refresh,
                   ),
                   const ProfilePage(),
                 ],
