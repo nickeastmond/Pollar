@@ -56,6 +56,7 @@ class NavigationPageState extends State<NavigationPage> {
           builder: (context, theme) => Scaffold(
             appBar: AppBar(
               //Top bar with app logo
+              centerTitle: true,
               automaticallyImplyLeading: false,
               elevation: elevation,
               backgroundColor: theme.primaryColor,

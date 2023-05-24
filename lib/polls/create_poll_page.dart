@@ -86,13 +86,9 @@ class CreatePollPageState extends State<CreatePollPage> {
                       print(data["locationData"]);
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
-                      final prefs = await SharedPreferences.getInstance();
                       await widget.feedProvider.fetchInitial(100);
                       if (context.mounted && success) {
                         Navigator.pop(context);
-                        prefs.setInt('points', sprefPoints + Constants.CREATE_POLL_POINTS);
-                        sprefPoints = prefs.getInt('points')!;
-                        points = sprefPoints;
                         addPoints(Constants.CREATE_POLL_POINTS);
                       }
                     } catch (e) {

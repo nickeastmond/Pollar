@@ -273,16 +273,10 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             if (success) {
-                              final prefs =
-                                  await SharedPreferences.getInstance();
                               setState(() {
                                 vote = i;
                                 canVote = false;
                                 counters[i]++;
-                                prefs.setInt('points',
-                                    sprefPoints + Constants.VOTE_POINTS);
-                                sprefPoints = prefs.getInt('points')!;
-                                points = sprefPoints;
                                 addPoints(Constants.VOTE_POINTS);
 
                                 List<Map<String, dynamic>> answers = [];

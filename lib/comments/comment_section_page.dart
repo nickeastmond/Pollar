@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/comments/comment_card.dart';
 import 'package:pollar/model/Comment/comment_model.dart';
+import 'package:pollar/model/constans.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/feed_page.dart';
 import 'package:uuid/uuid.dart';
 
@@ -133,6 +135,7 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 setState(() {
                                   refresh = !refresh;
                                   commentTextEditorController.text = "";
+                                  addPoints(Constants.COMMENT_POINTS);
                                 });
                               }),
                               child: Icon(

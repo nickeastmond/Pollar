@@ -279,7 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                            vertical: 40, horizontal: 50
+                            vertical: 30, horizontal: 50
                           ),
                           child: Column(
                             children: [
@@ -492,11 +492,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
                               // sign out button
                               TextButton(
-                                child: Text("Sign out",
-                                    style: TextStyle(
-                                      color: theme.indicatorColor,
-                                      fontSize: 17,
-                                    )),
+                                child: Text(
+                                  "Sign out",
+                                  style: TextStyle(
+                                    color: theme.indicatorColor,
+                                    fontSize: 17,
+                                  )),
                                 onPressed: () async {
                                   PollarAuth.signOut();
                                   Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
