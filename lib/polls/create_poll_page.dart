@@ -102,7 +102,6 @@ class CreatePollPageState extends State<CreatePollPage> {
                         widget.feedProvider.notifyListeners();
                       }
                     } catch (e) {
-                      debugPrint("fuck");
                       debugPrint(e.toString());
                     }
                     //Poll newPoll = Poll.fromData(PollarAuth.getUid()!,data );
