@@ -52,10 +52,21 @@ class CreatePollPageState extends State<CreatePollPage> {
                 child: GestureDetector(
                   onTap: () async {
                     try {
+                      
+                      // Cant post poll if location isnt granted
+                      bool? locationGranted = await PositionAdapter.getLocationStatus("locationGranted");
+                      if ( locationGranted== false && context.mounted)
+                      {
+                        debugPrint("CAnnot Post Poll - You need to enable your location");
+                        Navigator.pop(context);
+                        return;
+                      }
                       Map<String, dynamic> data = {};
+
+                  
                       Position? cur =
                           await PositionAdapter.getFromSharedPreferences(
-                              "location");
+                              "physicalLocation");
                       if (pollQuestionController.text.isEmpty) {
                         debugPrint("Please don't leave the question empty");
                         throw Exception(

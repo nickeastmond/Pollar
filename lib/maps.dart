@@ -16,7 +16,7 @@ class LocationData {
 
 Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
-  final position = await PositionAdapter.getFromSharedPreferences("location");
+  final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
   userLocation = LatLng(position!.latitude,
       position.longitude);
   return LocationData(latLng: userLocation);
@@ -43,7 +43,7 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
         speed: 0,
         speedAccuracy: 0);
 
-    PositionAdapter.saveToSharedPreferences("location", currentLocation);
+    PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
 
 }
 

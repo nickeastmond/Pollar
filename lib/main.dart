@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pollar/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
  Future<bool> checkPermission() async {
@@ -44,7 +45,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.clear();
   bool locationGranted =  await checkPermission();
+  
   if (!locationGranted) {
     SystemNavigator.pop();
   }
