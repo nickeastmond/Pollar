@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:ffi';
 import 'dart:math';
 
@@ -95,8 +97,12 @@ class CreatePollPageState extends State<CreatePollPage> {
                         sprefPoints = prefs.getInt('points')!;
                         points = sprefPoints;
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        //This seemed to work not having the UI in feed have a seizure
+                        // ignore: invalid_use_of_visible_for_testing_member
+                        widget.feedProvider.notifyListeners();
                       }
                     } catch (e) {
+                      debugPrint("fuck");
                       debugPrint(e.toString());
                     }
                     //Poll newPoll = Poll.fromData(PollarAuth.getUid()!,data );
