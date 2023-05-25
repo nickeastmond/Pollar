@@ -292,10 +292,7 @@ class _OpenStreetMapSearchAndPickState
                               if (kDebugMode) {
                               }
                               //CUSTOM CODE
-                              decodedResponse.sort((b, a) {
-                                return a['importance'].compareTo(b['importance']);
-                              });
-                              print(decodedResponse[0]);
+                              
                               _options = decodedResponse.map((e) {
                                   String final_str= "";
                                   final_str += e["address"].values.toList()[0];
