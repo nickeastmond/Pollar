@@ -6,39 +6,57 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
-  try {
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        // Handle the case where the user has not granted permission
-        return false;
-      }
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+  LocationPermission permission = await Geolocator.requestPermission();
+  print("PERMISSION IS: $permission");
+  if (permission == LocationPermission.denied ||
+      permission == LocationPermission.deniedForever) {
+    // Handle the case where the user has not granted permission
+    debugPrint("Permission Denied");
+    final position = Position(
+      latitude: 0,
+      longitude: 0,
+      timestamp: DateTime.now(),
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
     );
-    debugPrint("SETTING CUR LOCATIOn");
-    PositionAdapter.saveToSharedPreferences("location", position);
+    PositionAdapter.saveToSharedPreferences("virtualLocation", position);
+    PositionAdapter.savePermissionToSharedPreferences("locationGranted", false);
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble("Radius", 5.0);
-    print("Geolocation is: ");
-    print(prefs.getString("location") ?? "THERE IS NO CURREnt LOCATION!!");
-    return true;
-    }
-    catch (e) {
-        return false;
-    }
+    print("Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
+    return false;
   }
+
+  //DEVICE DOESNT SUPPORT LOCATION SERVICES
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    debugPrint("Location service is disabled");
+    return false;
+  }
+
+  Position position = await Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.high,
+  );
+  debugPrint("Setting current location");
+  PositionAdapter.saveToSharedPreferences("virtualLocation", position);
+  PositionAdapter.saveToSharedPreferences("physicalLocation", position);
+  PositionAdapter.savePermissionToSharedPreferences("locationGranted", true);
+
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setDouble("Radius", 5.0);
+  print("Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
+  return true;
+}
+
 
 
 Future<bool> checkLocationEnabled(BuildContext context) async {
   bool locationEnabled = await getLocation();
-  if (!locationEnabled && context.mounted) {
+ 
+  if (!locationEnabled && context.mounted ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -49,7 +67,9 @@ Future<bool> checkLocationEnabled(BuildContext context) async {
             TextButton(
               child: const Text("Cancel"),
               onPressed: () {
-              SystemNavigator.pop();
+              
+                Navigator.pop(context); // Close the dialog
+              
             }
               
             ),
@@ -57,6 +77,7 @@ Future<bool> checkLocationEnabled(BuildContext context) async {
               child: const Text("Settings"),
               onPressed: () async {
                 await Geolocator.openLocationSettings();
+                Navigator.pop(context); // Close the dialog
               },
             ),
           ],
@@ -64,5 +85,6 @@ Future<bool> checkLocationEnabled(BuildContext context) async {
       },
     );
   }
+  
   return locationEnabled;
 }

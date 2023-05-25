@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:provider/provider.dart';
 import '../model/Poll/database/delete_all.dart';
+import '../model/user/database/delete_user_db.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
@@ -30,13 +31,8 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
-    //fetchFromFirebaseToSharedPreferences();
-    checkLocationEnabled(context).then((val){
-      debugPrint("location enabled = ${val}");
-      setState(() {
-        refresh = !refresh;
-      });
-    });
+    
+
   }
 
   @override
@@ -135,9 +131,11 @@ class NavigationPageState extends State<NavigationPage> {
               ),
               body: IndexedStack(
                 index: tabSelected,
+                
                 children: [
+                  
                   FeedPage(
-                    refresh: refresh,
+                    feedProvider: Provider.of<FeedProvider>(context, listen: false),
                   ),
                   const ProfilePage(),
                 ],
