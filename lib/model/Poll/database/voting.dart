@@ -1,17 +1,53 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
+Future<bool> geoPointsDistance(Position p1, Position p2, double r1) async {
+  double metersToMilesFactor = 0.000621371;
+  // Calculate the distance between the two points
+  double distance = Geolocator.distanceBetween(
+      p1.latitude, p1.longitude, p2.latitude, p2.longitude);
+  // Check if the distance is less than or equal to the radius
+  return (distance * metersToMilesFactor) <= (r1);
+}
 
 // There is a cloud function that deletes all interaections upon poll deletion
-Future<bool> pollInteraction(int vote, String userId, String pollId) async {
+Future<bool> pollInteraction(int vote, String userId, String pollId,
+    GeoPoint location, double radius) async {
+  final pollLocation = Position(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timestamp: DateTime.now(),
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0);
+
+  bool? locationGranted =
+      await PositionAdapter.getLocationStatus("locationGranted");
   bool canVote = await hasUserVoted(pollId, userId);
-  if (canVote == false) {
-    debugPrint("Already Voted");
+  Position? physicalLocation =
+      await PositionAdapter.getFromSharedPreferences("physicalLocation");
+  final bool inRange =
+      await geoPointsDistance(physicalLocation!, pollLocation, radius);
+
+  if (locationGranted == true && canVote && (inRange || radius == 0.0)) {
+    voteOnPoll(pollId, userId, vote);
+    debugPrint("Voted");
+  } else {
+    if (locationGranted == false) {
+      debugPrint("Permissions not Granted");
+    } else if (canVote == false) {
+      debugPrint("Already Voted");
+    } else if (inRange == false) {
+      debugPrint("Out of Range");
+    }
     return false;
   }
-
-  voteOnPoll(pollId, userId, vote);
-  debugPrint("Voted");
-
   return true;
 }
 

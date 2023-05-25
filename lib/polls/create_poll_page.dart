@@ -39,6 +39,7 @@ class CreatePollPageState extends State<CreatePollPage> {
     TextEditingController()
   ];
   int numBars = 5;
+  double _sliderValue = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,6 @@ class CreatePollPageState extends State<CreatePollPage> {
                 child: GestureDetector(
                   onTap: () async {
                     try {
-                    
                       Map<String, dynamic> data = {};
                       Position? cur =
                           await PositionAdapter.getFromSharedPreferences(
@@ -87,6 +87,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;
                       data["timestamp"] = DateTime.now();
+                      data["radius"] = _sliderValue;
                       print(data["locationData"]);
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
@@ -174,6 +175,43 @@ class CreatePollPageState extends State<CreatePollPage> {
                       borderSide: BorderSide(color: Colors.blue, width: 0.33),
                     ),
                     border: const UnderlineInputBorder(),
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
+                  'Select a Radius',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17.5,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 200,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
+                    overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+                    activeTrackColor: Colors.blue,
+                    inactiveTrackColor: Colors.grey,
+                    thumbColor: Colors.blue,
+                    overlayColor: Colors.blue.withOpacity(0.2),
+                  ),
+                  child: Slider(
+                    value: _sliderValue,
+                    min: 0.0,
+                    max: 20.0,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _sliderValue = newValue;
+                      });
+                    },
+                    label: _sliderValue == 0.0
+                        ? 'Global'
+                        : "Poll Radius: ${_sliderValue.toStringAsFixed(1)}",
+                    divisions: 10,
                   ),
                 ),
               ),

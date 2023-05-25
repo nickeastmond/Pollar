@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/polls/delete_report_menu.dart';
@@ -269,7 +270,9 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                             bool success = await pollInteraction(
                                 i,
                                 FirebaseAuth.instance.currentUser!.uid,
-                                widget.pollFeedObj.pollId);
+                                widget.pollFeedObj.pollId,
+                                widget.pollFeedObj.poll.locationData,
+                                widget.pollFeedObj.poll.radius);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             if (success) {
