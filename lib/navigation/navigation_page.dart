@@ -8,8 +8,6 @@ import '../model/Poll/database/delete_all.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
-import 'package:pollar/model/user/pollar_user_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';

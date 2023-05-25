@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pollar/navigation/poll_history.dart';
 import 'package:pollar/services/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
@@ -442,26 +443,21 @@ class _ProfilePageState extends State<ProfilePage> {
                               //   ),
                               // ),
 
-                              // change email
-                              // TextButton(
-                              //   style: ButtonStyle(
-                              //     backgroundColor: MaterialStatePropertyAll(
-                              //         Colors.black.withOpacity(0.2)),
-                              //   ),
-                              //   child: const Text(
-                              //     "Change Email",
-                              //     style: TextStyle(
-                              //       color: Colors.white,
-                              //       fontSize: 17,
-                              //     ),
-                              //   ),
-                              //   onPressed: () {
-                              //     // prompt for password
-                              //     // send emai
-                              //   },
-                              // ),
+                              // poll history
+                              TextButton(
+                                child: const Text(
+                                  "View Polls History",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const PollHistoryPage()));
+                                },
+                              ),
 
-                              // const SizedBox(height: 20),
+                              const SizedBox(height: 15),
 
                               //change password button
                               // ISSUE: 1st pass reset email gets sent to spam, need to connect email to custom domain
