@@ -61,12 +61,14 @@ class CreatePollPageState extends State<CreatePollPage> {
                         Navigator.pop(context);
                         return;
                       }
+                      Position? physicalLocation = await PositionAdapter.getFromSharedPreferences("physicalLocation");
                       Map<String, dynamic> data = {};
 
                   
                       Position? cur =
                           await PositionAdapter.getFromSharedPreferences(
                               "physicalLocation");
+
                       if (pollQuestionController.text.isEmpty) {
                         debugPrint("Please don't leave the question empty");
                         throw Exception(

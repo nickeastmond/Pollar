@@ -55,10 +55,8 @@ class _OpenStreetMapSearchAndPickState
     double latitude = _mapController.center.latitude;
     double longitude = _mapController.center.longitude;
     if (kDebugMode) {
-      print(latitude);
     }
     if (kDebugMode) {
-      print(longitude);
     }
     String url =
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1';
@@ -67,8 +65,7 @@ class _OpenStreetMapSearchAndPickState
     var decodedResponse =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
 
-    _searchController.text =
-        decodedResponse['display_name'] ?? "MOVE TO CURRENT POSITION";
+    _searchController.text = "";
     setState(() {});
   }
 
@@ -76,10 +73,8 @@ class _OpenStreetMapSearchAndPickState
     double latitude = widget.center.latitude;
     double longitude = widget.center.longitude;
     if (kDebugMode) {
-      print(latitude);
     }
     if (kDebugMode) {
-      print(longitude);
     }
     String url =
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1';
@@ -88,8 +83,7 @@ class _OpenStreetMapSearchAndPickState
     var decodedResponse =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
 
-    _searchController.text =
-        decodedResponse['display_name'] ?? "MOVE TO CURRENT POSITION";
+    _searchController.text = "";
     setState(() {});
   }
 
@@ -111,7 +105,7 @@ class _OpenStreetMapSearchAndPickState
 
         if (_searchController.text.isNotEmpty)
         {
-                  _searchController.text = decodedResponse['display_name'];
+                  _searchController.text = "";
 
         }
         setState(() {});
@@ -124,6 +118,7 @@ class _OpenStreetMapSearchAndPickState
   @override
   void dispose() {
     _mapController.dispose();
+    _debounce?.cancel(); // Cancel the timer if it's active
     super.dispose();
   }
 
@@ -282,7 +277,6 @@ class _OpenStreetMapSearchAndPickState
                           _debounce =
                               Timer(const Duration(milliseconds: 2000), () async {
                             if (kDebugMode) {
-                              print(value);
                             }
                             var client = http.Client();
                             try {
@@ -296,14 +290,39 @@ class _OpenStreetMapSearchAndPickState
                                   jsonDecode(utf8.decode(response.bodyBytes))
                                       as List<dynamic>;
                               if (kDebugMode) {
-                                print(decodedResponse);
                               }
-                              _options = decodedResponse
-                                  .map((e) => OSMdata(
-                                      displayname: e['display_name'],
+                              //CUSTOM CODE
+                              decodedResponse.sort((b, a) {
+                                return a['importance'].compareTo(b['importance']);
+                              });
+                              _options = decodedResponse.map((e) {
+                                  String final_str= "";
+                                  final_str += e["address"].values.toList()[0];
+                                  final_str +=", ";
+                                  if (e["address"]["state"] != null && e["address"]["state"] != e["address"].values.toList()[0])
+                                  {
+                                    final_str += e["address"]["state"];
+                                    final_str +=", ";
+
+                                  }
+                                   if (e["address"]["country"] != null && e["address"]["country"] != e["address"].values.toList()[0])
+                                  {
+                                    final_str += e["address"]["country"];
+                                    final_str +=", ";
+                                  }
+                                  if (final_str.substring(final_str.length-2, final_str.length) == ", ")
+                                  {
+                                    final_str = final_str.substring(0, final_str.length - 2);
+
+                                  }
+                                  print("final str: \n");
+                                  print(final_str);
+                                    return  OSMdata(
+                                      displayname: final_str,
                                       lat: double.parse(e['lat']),
-                                      lon: double.parse(e['lon'])))
-                                  .toList();
+                                      lon: double.parse(e['lon']));
+
+                                  }).toList();
                               setState(() {});
                             } finally {
                               client.close();
@@ -406,7 +425,7 @@ class OSMdata {
   OSMdata({required this.displayname, required this.lat, required this.lon});
   @override
   String toString() {
-    return '$displayname, $lat, $lon';
+    return displayname; //    return '$displayname, $lat, $lon';
   }
 
   @override
