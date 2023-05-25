@@ -104,14 +104,23 @@ Future<int> getPoints() async {
 }
 
 Future<bool> addPoints(int num) async {
-  int currentPoints = await getPoints();
+  final prefs = await SharedPreferences.getInstance();
+
+  // update shared prefs
+  prefs.setInt('points',
+      sprefPoints + num);
+  sprefPoints = prefs.getInt('points')!;
+  points = sprefPoints;
+  debugPrint('gave user $num points');
+
   try {
   
-  await FirebaseFirestore.instance
+    // update for firebase
+    await FirebaseFirestore.instance
       .collection('User')
       .doc(PollarAuth.getUid()!)
-      .set({"points": currentPoints + num}, SetOptions(merge: true));
-      return true;
+      .set({"points": points}, SetOptions(merge: true));
+    return true;
   
   } catch (e) {
     debugPrint("failed to give user points");
