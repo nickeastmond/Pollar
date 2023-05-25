@@ -24,30 +24,53 @@ class PollHistoryPageState extends State<PollHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return PollsTheme(
-      builder: (context, theme) => Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-          elevation: 2.5,
-          backgroundColor: theme.primaryColor,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 30.0,
+      builder: (context, theme) => MaterialApp(
+        home: DefaultTabController(
+          length: 2, 
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: theme.primaryColor,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 30.0,
+                  ),
+                ),
+              ),
+              title: const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 50),
+                  child: Icon(
+                    Icons.bar_chart,
+                    size: 32,
+                  ),
+                ),
+              ),
+              bottom: TabBar(
+                indicatorColor: theme.indicatorColor,
+                tabs: const [
+                  Tab(text: 'My Polls'),
+                  Tab(text: 'Voted'),
+                ]
+              )
+            ),
+            body: Container(
+              color: theme.scaffoldBackgroundColor,
+              child: TabBarView(
+                children: [
+                  // My Poll history page,
+                  // Polls user voted on page
+                ]
               ),
             ),
-          ),
-          title: const Icon(
-            Icons.bar_chart,
-            size: 32,
-          ),
-        ),
+          )
+        )
       ),
     );
   }
