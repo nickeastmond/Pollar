@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:ffi';
 import 'dart:math';
 
@@ -18,9 +20,9 @@ import '../polls_theme.dart';
 import 'bar_graph.dart';
 
 class CreatePollPage extends StatefulWidget {
-  const CreatePollPage({Key? key, required this.feedProvider}) : super(key: key);
+  const CreatePollPage({Key? key, required this.feedProvider})
+      : super(key: key);
   final FeedProvider feedProvider;
-
 
   @override
   State<CreatePollPage> createState() => CreatePollPageState();
@@ -61,16 +63,16 @@ class CreatePollPageState extends State<CreatePollPage> {
                         throw Exception(
                             "Tried to submit without filling out the question");
                       }
-                      
+
                       data.addAll({
-                        "locationData": GeoPoint(cur!.latitude,cur.longitude),
+                        "locationData": GeoPoint(cur!.latitude, cur.longitude),
                         "pollData": {
                           "question": pollQuestionController.text,
-                          "answers": List<Map<String,int>>
+                          "answers": List<Map<String, int>>
                         }
                       });
-                      
-                     List<Map<String,dynamic>> answers = [];
+
+                      List<Map<String, dynamic>> answers = [];
                       for (int i = 0; i < numBars; i++) {
                         String answer = pollChoices[i].text;
                         if (answer.isEmpty) {
@@ -90,6 +92,9 @@ class CreatePollPageState extends State<CreatePollPage> {
                       if (context.mounted && success) {
                         Navigator.pop(context);
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        //This seemed to work not having the UI in feed have a seizure
+                        // ignore: invalid_use_of_visible_for_testing_member
+                        widget.feedProvider.notifyListeners();
                       }
                     } catch (e) {
                       debugPrint(e.toString());
@@ -276,11 +281,11 @@ class CreatePollPageState extends State<CreatePollPage> {
               ),
               Column(
                 children: [
-                  const Color.fromARGB(255, 243, 92, 81),
-                  const Color.fromARGB(255, 96, 142, 240),
-                  const Color.fromARGB(255, 248, 182, 82),
-                  Colors.teal,
-                  const Color.fromARGB(255, 159, 121, 226),
+                  Color(0xFFFF5F6D),
+                  Color(0xFF01B9CC),
+                  Color(0xFFFFC371),
+                  Color.fromARGB(255, 173, 129, 231),
+                  Color.fromARGB(255, 88, 196, 136),
                 ]
                     .sublist(0, numBars)
                     .asMap()

@@ -22,12 +22,12 @@ class PollFeedObject {
 
 class FeedProvider extends ChangeNotifier {
   List<PollFeedObject> _items = [];
-    LatLng _userLocation = LatLng(0, 0);
-      final MapController _mapController = MapController();
-
+  LatLng _userLocation = LatLng(0, 0);
+  final MapController _mapController = MapController();
 
   LocationData? _locationData; // Store the location data here
-  LocationData? get locationData => _locationData; // Add getter for _locationData
+  LocationData? get locationData =>
+      _locationData; // Add getter for _locationData
 
   set locationData(LocationData? value) {
     _locationData = value;
@@ -39,8 +39,7 @@ class FeedProvider extends ChangeNotifier {
     debugPrint("executing get location");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
-    _userLocation = LatLng(position!.latitude,
-        position.longitude);
+    _userLocation = LatLng(position!.latitude, position.longitude);
     _mapController.move(_userLocation, 13);
     List<Placemark> placemark = await placemarkLocation(_userLocation);
     return LocationData(
@@ -59,7 +58,8 @@ class FeedProvider extends ChangeNotifier {
   }
 
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsDistance(Position p1, Position p2, double? r1, double r2) async {
+  Future<bool> geoPointsDistance(
+      Position p1, Position p2, double? r1, double r2) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
@@ -71,14 +71,14 @@ class FeedProvider extends ChangeNotifier {
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
     _getCurrentLocation().then((locationData) {
-        _locationData = locationData; // Set the initial location data
+      _locationData = locationData; // Set the initial location data
     });
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("location");
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
-    final double? userRad = prefs.getDouble('Radius');// MILES
+    final double? userRad = prefs.getDouble('Radius'); // MILES
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,
@@ -107,12 +107,11 @@ class FeedProvider extends ChangeNotifier {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
-      final bool overlap =
-          await geoPointsDistance(currentLocation, otherLocation, userRad,obj.poll.radius);
+      final bool overlap = await geoPointsDistance(
+          currentLocation, otherLocation, userRad, obj.poll.radius);
 
       // Check if the circles overlap
-      if (overlap)
-      {
+      if (overlap) {
         _items.add(obj);
       }
     }
@@ -122,7 +121,6 @@ class FeedProvider extends ChangeNotifier {
     print("notifyling listerners");
     notifyListeners();
   }
-
 }
 
 class LocationData {
@@ -145,10 +143,6 @@ class _FeedPageState extends State<FeedPage> {
   String locality = '';
 
   final ScrollController _scrollController = ScrollController();
-  
-
-
-
 
   @override
   initState() {
@@ -171,132 +165,35 @@ class _FeedPageState extends State<FeedPage> {
         return PollsTheme(
           builder: (context, theme) {
             return Scaffold(
-              backgroundColor:
-                  MediaQuery.of(context).platformBrightness == Brightness.light
-                      ? Colors.white
-                      : const Color.fromARGB(255, 25, 25, 25),
-              body: RefreshIndicator(
-                        triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                        color: theme.secondaryHeaderColor,
-                        onRefresh: () => provider.fetchInitial(100),
-                        child: provider.items.isNotEmpty && provider._locationData != null 
-                            ? ListView.builder(
-                                controller: _scrollController,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                shrinkWrap: false,
-                                itemCount: provider.items.length,
-                                itemBuilder: (_, int index) {
-                                  if (index == provider.items.length - 1 &&
-                                      provider._moreItemsToLoad) {
-                                    // declare the boolean and return loading indicator
-                                    return const Center(
-                                      heightFactor: 3,
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
+                backgroundColor: MediaQuery.of(context).platformBrightness ==
+                        Brightness.light
+                    ? Colors.white
+                    : const Color.fromARGB(255, 25, 25, 25),
+                body: RefreshIndicator(
+                    triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                    color: theme.secondaryHeaderColor,
+                    onRefresh: () => provider.fetchInitial(100),
+                    child: provider.items.isNotEmpty &&
+                            provider._locationData != null
+                        ? ListView.builder(
+                            controller: _scrollController,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            shrinkWrap: false,
+                            itemCount: provider.items.length,
+                            itemBuilder: (_, int index) {
+                              if (index == provider.items.length - 1 &&
+                                  provider._moreItemsToLoad) {
+                                // declare the boolean and return loading indicator
+                                return const Center(
+                                  heightFactor: 3,
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
 
-                                  final pollItem = provider.items[index];
+                              final pollItem = provider.items[index];
 
-                                  if (index == 0) {
-                                    return Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 6,
-                                              bottom: 0,
-                                              left: 8,
-                                              right: 8),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: MediaQuery.of(context)
-                                                          .platformBrightness ==
-                                                      Brightness.dark
-                                                  ? theme.primaryColor
-                                                  : theme.cardColor,
-                                              boxShadow: const [
-                                                BoxShadow(
-                                                    color: Colors.black12,
-                                                    blurRadius: 10,
-                                                    spreadRadius: 0),
-                                              ],
-                                            ),
-                                            height: 40,
-                                            child: FlutterMap(
-                                              mapController: provider._mapController,
-                                              options: MapOptions(
-                                                zoom: 13,
-                                                center: provider._locationData!.latLng 
-                                              ),
-                                              children: [
-                                                TileLayer(
-                                                  backgroundColor: Colors.white,
-                                                  retinaMode: true,
-                                                  urlTemplate:
-                                                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                                  subdomains: const [
-                                                    'a',
-                                                    'b',
-                                                    'c'
-                                                  ],
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5.5),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w400,
-                                                          fontSize: 17.5,
-                                                          shadows: [
-                                                            Shadow(
-                                                              blurRadius: 10,
-                                                              color:
-                                                                  Colors.black,
-                                                              offset: Offset(
-                                                                  1.0, 1.0),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5 Mi"} Mi',
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 8.0,
-                                              right: 8.0,
-                                              top: 8,
-                                              bottom: 0),
-                                          child: PollCard(
-                                            poll: pollItem,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8.0,
-                                        right: 8.0,
-                                        top: 8,
-                                        bottom: 0),
-                                    child: PollCard(poll: pollItem),
-                                  );
-                                },
-                              )
-                            : SingleChildScrollView(
-                                child: Column(
+                              if (index == 0) {
+                                return Column(
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(
@@ -315,13 +212,14 @@ class _FeedPageState extends State<FeedPage> {
                                                 spreadRadius: 0),
                                           ],
                                         ),
-                                        height: 40,
+                                        height: 50,
                                         child: FlutterMap(
-                                          mapController: provider._mapController,
+                                          mapController:
+                                              provider._mapController,
                                           options: MapOptions(
-                                            zoom: 13,
-                                            center: provider._locationData?.latLng
-                                          ),
+                                              zoom: 13,
+                                              center: provider
+                                                  ._locationData!.latLng),
                                           children: [
                                             TileLayer(
                                               backgroundColor: Colors.white,
@@ -333,42 +231,131 @@ class _FeedPageState extends State<FeedPage> {
                                             Padding(
                                               padding:
                                                   const EdgeInsets.all(5.5),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 17.5,
-                                                      shadows: [
-                                                        Shadow(
-                                                          blurRadius: 10,
-                                                          color: Colors.black,
-                                                          offset:
-                                                              Offset(1.0, 1.0),
-                                                        ),
-                                                      ],
+                                              child: Center(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        fontSize: 17.5,
+                                                        shadows: [
+                                                          Shadow(
+                                                            blurRadius: 10,
+                                                            color: Colors.black,
+                                                            offset: Offset(
+                                                                1.0, 1.0),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5 Mi"} Mi',
                                                     ),
-                                                    '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5"} Mi',
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                    )
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 8.0,
+                                          right: 8.0,
+                                          top: 8,
+                                          bottom: 0),
+                                      child: PollCard(
+                                          poll: pollItem,
+                                          feedProvider: provider),
+                                    ),
                                   ],
+                                );
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 8.0, right: 8.0, top: 8, bottom: 0),
+                                child: PollCard(
+                                  poll: pollItem,
+                                  feedProvider: provider,
                                 ),
-                              ))
-            );
+                              );
+                            },
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 6, bottom: 0, left: 8, right: 8),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: MediaQuery.of(context)
+                                                  .platformBrightness ==
+                                              Brightness.dark
+                                          ? theme.primaryColor
+                                          : theme.cardColor,
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: Colors.black12,
+                                            blurRadius: 10,
+                                            spreadRadius: 0),
+                                      ],
+                                    ),
+                                    height: 50,
+                                    child: FlutterMap(
+                                      mapController: provider._mapController,
+                                      options: MapOptions(
+                                          zoom: 13,
+                                          center:
+                                              provider._locationData?.latLng),
+                                      children: [
+                                        TileLayer(
+                                          backgroundColor: Colors.white,
+                                          retinaMode: true,
+                                          urlTemplate:
+                                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                          subdomains: const ['a', 'b', 'c'],
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(5.5),
+                                          child: Center(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 17.5,
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 10,
+                                                        color: Colors.black,
+                                                        offset:
+                                                            Offset(1.0, 1.0),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  '${provider._locationData?.placemarks.first.locality ?? "loading..."}  📍 • ${provider._locationData?.radius ?? "5"} Mi',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: MediaQuery.of(context).size.height,
+                                )
+                              ],
+                            ),
+                          )));
           },
         );
       },

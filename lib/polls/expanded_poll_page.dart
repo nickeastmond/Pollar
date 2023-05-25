@@ -15,11 +15,10 @@ import '../user/main_profile_circle.dart';
 import '../comments/comment_section_page.dart';
 
 class ExpandedPollPage extends StatefulWidget {
-  ExpandedPollPage({
-    super.key,
-    required this.pollFeedObj,
-  });
+  const ExpandedPollPage(
+      {super.key, required this.pollFeedObj, required this.feedProvider});
   final PollFeedObject pollFeedObj;
+  final FeedProvider feedProvider;
   // Output: [5, 2, 3]
 
   @override
@@ -146,7 +145,8 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                     builder: (BuildContext context) {
                       return ClipRRect(
                           borderRadius: BorderRadius.circular(30.0),
-                          child: CommentSectionPage(widget.pollFeedObj));
+                          child: CommentSectionPage(
+                              widget.pollFeedObj, widget.feedProvider));
                     },
                   );
                 },
@@ -173,8 +173,8 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                       return DeleteReportMenu(
                         // counters is the return list to update feed once user has voted. just keeping this to avoid errors because feed is expecting them
                         counters: counters,
-                        delete: false,
                         pollObj: widget.pollFeedObj,
+                        feedProvider: widget.feedProvider,
                         callback: () {
                           debugPrint("Poll has been reported");
                         },
@@ -301,11 +301,11 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                             height: 100,
                             decoration: BoxDecoration(
                               color: [
-                                const Color.fromARGB(255, 243, 92, 81),
-                                const Color.fromARGB(255, 96, 142, 240),
-                                const Color.fromARGB(255, 248, 182, 82),
-                                Colors.teal,
-                                const Color.fromARGB(255, 159, 121, 226),
+                                Color(0xFFFF5F6D),
+                                Color(0xFF01B9CC),
+                                Color(0xFFFFC371),
+                                Color.fromARGB(255, 173, 129, 231),
+                                Color.fromARGB(255, 88, 196, 136),
                               ][i % 5],
                               boxShadow: [
                                 BoxShadow(

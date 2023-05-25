@@ -14,8 +14,10 @@ class PollCard extends StatefulWidget {
   PollCard({
     Key? key,
     required this.poll,
+    required this.feedProvider
   }) : super(key: key);
   PollFeedObject poll;
+  FeedProvider feedProvider;
 
   @override
   _PollCardState createState() => _PollCardState();
@@ -80,6 +82,7 @@ class _PollCardState extends State<PollCard> {
           MaterialPageRoute(
             builder: (context) => ExpandedPollPage(
               pollFeedObj: widget.poll,
+              feedProvider: widget.feedProvider
             ),
           ),
         );
