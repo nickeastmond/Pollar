@@ -59,7 +59,7 @@ class _OpenStreetMapSearchAndPickState
     if (kDebugMode) {
     }
     String url =
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1';
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1&limit=10&importance=1';
 
     var response = await client.post(Uri.parse(url));
     var decodedResponse =
@@ -77,7 +77,7 @@ class _OpenStreetMapSearchAndPickState
     if (kDebugMode) {
     }
     String url =
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1';
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1&limit=10&importance=1';
 
     var response = await client.post(Uri.parse(url));
     var decodedResponse =
@@ -97,7 +97,7 @@ class _OpenStreetMapSearchAndPickState
       if (event is MapEventMoveEnd) {
         var client = http.Client();
         String url =
-            'https://nominatim.openstreetmap.org/reverse?format=json&lat=${event.center.latitude}&lon=${event.center.longitude}&zoom=18&addressdetails=1';
+            'https://nominatim.openstreetmap.org/reverse?format=json&lat=${event.center.latitude}&lon=${event.center.longitude}&zoom=18&addressdetails=1&limit=10&importance=1';
 
         var response = await client.post(Uri.parse(url));
         var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes))
@@ -275,13 +275,13 @@ class _OpenStreetMapSearchAndPickState
                           if (_debounce?.isActive ?? false) _debounce?.cancel();
 
                           _debounce =
-                              Timer(const Duration(milliseconds: 2000), () async {
+                              Timer(const Duration(milliseconds: 500), () async {
                             if (kDebugMode) {
                             }
                             var client = http.Client();
                             try {
                               String url =
-                                  'https://nominatim.openstreetmap.org/search?q=$value&format=json&polygon_geojson=1&addressdetails=1';
+                                  'https://nominatim.openstreetmap.org/search?q=$value&format=json&polygon_geojson=1&addressdetails=1&limit=10&importance=1';
                               if (kDebugMode) {
                                 print(url);
                               }
@@ -295,10 +295,23 @@ class _OpenStreetMapSearchAndPickState
                               decodedResponse.sort((b, a) {
                                 return a['importance'].compareTo(b['importance']);
                               });
+                              print(decodedResponse[0]);
                               _options = decodedResponse.map((e) {
                                   String final_str= "";
                                   final_str += e["address"].values.toList()[0];
                                   final_str +=", ";
+                                  if (e["address"]["road"] != null && e["address"]["road"] != e["address"].values.toList()[0])
+                                  {
+                                    final_str += e["address"]["road"];
+                                    final_str +=", ";
+
+                                  }
+                                  if (e["address"]["road"] != null && e["address"]["county"] != null && e["address"]["county"] != e["address"].values.toList()[0]&& e["address"]["county"] != e["address"]["state"])
+                                  {
+                                    final_str += e["address"]["county"];
+                                    final_str +=", ";
+
+                                  }
                                   if (e["address"]["state"] != null && e["address"]["state"] != e["address"].values.toList()[0])
                                   {
                                     final_str += e["address"]["state"];
@@ -342,6 +355,7 @@ class _OpenStreetMapSearchAndPickState
                             title: Text(_options[index].displayname),
                             subtitle: Text(
                                 '${_options[index].lat},${_options[index].lon}'),
+                            
                             onTap: () {
                               _mapController.move(
                                   LatLng(
@@ -406,7 +420,7 @@ class _OpenStreetMapSearchAndPickState
         _mapController.center.latitude, _mapController.center.longitude);
     var client = http.Client();
     String url =
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${_mapController.center.latitude}&lon=${_mapController.center.longitude}&zoom=18&addressdetails=1';
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${_mapController.center.latitude}&lon=${_mapController.center.longitude}&zoom=18&addressdetails=1&limit=10&importance=1';
 
     var response = await client.post(Uri.parse(url));
     var decodedResponse =
