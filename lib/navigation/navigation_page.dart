@@ -226,10 +226,10 @@ class MySidebar extends StatelessWidget {
                     ],
                   ),
                 ),
-                child: Text(
-                  'Logged in as:\n${PollarAuth.getEmail()}',
+                child: const Text(
+                  '',
                   textAlign: TextAlign.start,
-                  style: const TextStyle(
+                  style: TextStyle(
                     height: 1.5,
                     color: Colors.white,
                     fontSize: 15,
@@ -304,6 +304,24 @@ class MySidebar extends StatelessWidget {
               },
             ),
             const Divider(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 440,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Logged in as:\n${PollarAuth.getEmail()}',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    height: 1.5,
+                    color: MediaQuery.of(context).platformBrightness ==
+                            Brightness.light
+                        ? Colors.black
+                        : Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w200),
+              ),
+            ),
           ],
         ),
       );
