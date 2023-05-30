@@ -6,12 +6,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../polls/poll_card.dart';
 import '../polls_theme.dart';
+import '../services/location/location.dart';
 
 class PollFeedObject {
   Poll poll;
@@ -38,7 +40,7 @@ class FeedProvider extends ChangeNotifier {
   Future<LocationData> _getCurrentLocation() async {
     debugPrint("executing get location");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("location");
+    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
     _userLocation = LatLng(position!.latitude, position.longitude);
     _mapController.move(_userLocation, 13);
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -70,12 +72,13 @@ class FeedProvider extends ChangeNotifier {
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
+    
     _getCurrentLocation().then((locationData) {
       _locationData = locationData; // Set the initial location data
     });
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("location");
+    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius'); // MILES
@@ -133,20 +136,32 @@ class LocationData {
 }
 
 class FeedPage extends StatefulWidget {
-  const FeedPage({super.key, required refresh});
-
+  const FeedPage({super.key, required this.feedProvider});
   @override
   State<FeedPage> createState() => _FeedPageState();
+  final FeedProvider feedProvider;
+  
 }
 
-class _FeedPageState extends State<FeedPage> {
+class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
   String locality = '';
+  bool refresh = false;
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    //fetchFromFirebaseToSharedPreferences();
+    checkLocationEnabled(context).then((val){
+      debugPrint("location enabled = ${val}");
+      setState(() {
+        widget.feedProvider.fetchInitial(100);
+      });
+      
+    });
+    
 
     // _scrollController.addListener(_onScroll);
   }
@@ -155,7 +170,23 @@ class _FeedPageState extends State<FeedPage> {
   void dispose() {
     // Your own implementation
     // _scrollController.removeListener(_onScroll);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose(); // Call super method
+  }
+
+  // check permissions when app is resumed
+  // this is when permissions are changed in app settings outside of app
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkLocationEnabled(context).then((val){
+      debugPrint("location enabled = ${val}");
+      setState(() {
+        widget.feedProvider.fetchInitial(100);
+      });
+      
+    });
+    }
   }
 
   @override

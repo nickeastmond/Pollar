@@ -54,10 +54,12 @@ class CreatePollPageState extends State<CreatePollPage> {
                 child: GestureDetector(
                   onTap: () async {
                     try {
+                    
                       Map<String, dynamic> data = {};
                       Position? cur =
                           await PositionAdapter.getFromSharedPreferences(
-                              "location");
+                              "virtualLocation");
+
                       if (pollQuestionController.text.isEmpty) {
                         debugPrint("Please don't leave the question empty");
                         throw Exception(
