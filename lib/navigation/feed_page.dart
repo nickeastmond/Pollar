@@ -40,7 +40,8 @@ class FeedProvider extends ChangeNotifier {
   Future<LocationData> _getCurrentLocation() async {
     debugPrint("executing get location");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
+    final position =
+        await PositionAdapter.getFromSharedPreferences("virtualLocation");
     _userLocation = LatLng(position!.latitude, position.longitude);
     _mapController.move(_userLocation, 13);
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -60,25 +61,25 @@ class FeedProvider extends ChangeNotifier {
   }
 
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsDistance(
-      Position p1, Position p2, double? r1, double r2) async {
+  Future<bool> geoPointsDistance(Position p1, Position p2, double? r1) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
     // Check if the distance is less than or equal to the radius
-    return (distance * metersToMilesFactor) <= (r1! + r2);
+    return (distance * metersToMilesFactor) <= (r1!);
   }
 
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
-    
+
     _getCurrentLocation().then((locationData) {
       _locationData = locationData; // Set the initial location data
     });
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
+    final position =
+        await PositionAdapter.getFromSharedPreferences("virtualLocation");
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius'); // MILES
@@ -110,8 +111,8 @@ class FeedProvider extends ChangeNotifier {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
-      final bool overlap = await geoPointsDistance(
-          currentLocation, otherLocation, userRad, obj.poll.radius);
+      final bool overlap =
+          await geoPointsDistance(currentLocation, otherLocation, userRad);
 
       // Check if the circles overlap
       if (overlap) {
@@ -140,7 +141,6 @@ class FeedPage extends StatefulWidget {
   @override
   State<FeedPage> createState() => _FeedPageState();
   final FeedProvider feedProvider;
-  
 }
 
 class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
@@ -154,14 +154,12 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     //fetchFromFirebaseToSharedPreferences();
-    checkLocationEnabled(context).then((val){
+    checkLocationEnabled(context).then((val) {
       debugPrint("location enabled = ${val}");
       setState(() {
         widget.feedProvider.fetchInitial(100);
       });
-      
     });
-    
 
     // _scrollController.addListener(_onScroll);
   }
@@ -179,13 +177,12 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      checkLocationEnabled(context).then((val){
-      debugPrint("location enabled = ${val}");
-      setState(() {
-        widget.feedProvider.fetchInitial(100);
+      checkLocationEnabled(context).then((val) {
+        debugPrint("location enabled = ${val}");
+        setState(() {
+          widget.feedProvider.fetchInitial(100);
+        });
       });
-      
-    });
     }
   }
 
