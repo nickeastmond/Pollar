@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultEmoji = "🤪";
 const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
+const defaultEmojiBgColor = Color.fromARGB(255, 255, 186, 82);
 final defaultInnerColor = Colors.blue.value;
 final defaultOuterColor = Colors.red.value;
 
@@ -19,6 +20,7 @@ class PollarUser {
   final String id;
   final String emailAddress;
   final String emoji;
+  final Color emojiBgColor;
   final Color innerColor;
   final Color outerColor;
   final int points;
@@ -28,6 +30,7 @@ class PollarUser {
     required this.id,
     required this.emailAddress,
     required this.emoji,
+    required this.emojiBgColor,
     required this.innerColor,
     required this.outerColor,
     required this.points,
@@ -45,6 +48,7 @@ class PollarUser {
       id: id,
       emailAddress: data["email"],
       emoji: data['emoji'] ?? defaultEmoji,
+      emojiBgColor: data['emojiBgColor'] ?? defaultEmojiBgColor,
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
       points: data['points'] ?? 0,
@@ -56,6 +60,7 @@ class PollarUser {
       id: id,
       emailAddress: emailAddress,
       emoji: defaultEmoji,
+      emojiBgColor: defaultEmojiBgColor,
       innerColor: Color( defaultInnerColor),
       outerColor: Color(defaultOuterColor),
       points: 0,
@@ -96,6 +101,21 @@ Future<bool> setEmoji(String emoji) async {
     debugPrint("failed setting user emoji");
     return false;
   }
+}
+
+Future<bool> setEmojiBgColor(Color color) async {
+  try {
+  
+  await FirebaseFirestore.instance
+      .collection('User')
+      .doc(PollarAuth.getUid()!)
+      .set({"emojiBgColor": color}, SetOptions(merge: true));
+      return true;
+  
+  } catch (e) {
+    debugPrint("failed setting user emoji bg color");
+    return false;
+  }  
 }
 
 Future<int> getPoints() async {

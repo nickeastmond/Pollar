@@ -21,6 +21,8 @@ class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   String userEmoji = defaultEmoji;
   String sprefEmoji = 'null';
+  int userEmojiBgColorVal = defaultEmojiBgColor.value;
+  int sprefEmojiBgColorVal = -1;
   List<dynamic> unlockedAssets = [];
   String dropdownState = '▲';
   double? emojiBoxHeight = 0;
@@ -63,6 +65,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   initState() {
     updateMyEmoji('');
+    updateMyEmojiBgColor(-2);
     updatePoints(0);
     fetchAssets();
     super.initState();
@@ -151,6 +154,25 @@ class _ProfilePageState extends State<ProfilePage>
       sprefEmoji = prefs.getString('emoji')!;
       userEmoji = sprefEmoji;
     });
+  }
+
+  // -2 will be used as input if we just want to update the color and nothing else
+  void updateMyEmojiBgColor(int colorVal) async {
+    final prefs = await SharedPreferences.getInstance();
+    sprefEmojiBgColorVal = prefs.getInt('emojiBgColorVal') ?? -1;
+    // new user
+    if (sprefEmojiBgColorVal == -1) {
+      prefs.setInt('emojiBgColorVal', defaultEmojiBgColor.value);
+      // existing user
+    } else if (colorVal > -1) {
+      setEmojiBgColor(Color(colorVal));
+      prefs.setInt('emojiBgColorVal', colorVal);
+    }
+    setState(() {
+      sprefEmojiBgColorVal = prefs.getInt('emojiBgColorVal')!;
+      userEmojiBgColorVal = sprefEmojiBgColorVal;
+    });
+
   }
 
   void updatePoints(int num) async {
@@ -411,8 +433,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           100),
-                                                  color: const Color.fromARGB(
-                                                      255, 255, 186, 82),
+                                                  color: Color(userEmojiBgColorVal),
                                                 ),
                                                 child: Padding(
                                                   padding:
@@ -597,17 +618,18 @@ class _ProfilePageState extends State<ProfilePage>
                                           // ),
 
                                           // For testing purposes
-                                          // const SizedBox(height: 50),
-                                          // TextButton(
-                                          //   child: const Text("Delete Account",
-                                          //       style: TextStyle(
-                                          //         color: Colors.red,
-                                          //         fontSize: 17,
-                                          //       )),
-                                          //   onPressed: () async {
-                                          //     deleteAccountConfirmation();
-                                          //   },
-                                          // ),
+                                          const SizedBox(height: 50),
+                                          TextButton(
+                                            child: const Text("Delete Account",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 17,
+                                                )),
+                                            onPressed: () async {
+                                              //deleteAccountConfirmation();
+                                              PollarAuth.deleteUser();
+                                            },
+                                          ),
 
                                           AnimatedContainer(
                                             height:
@@ -677,8 +699,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     // Handle color selection here
                                                     Color selectedColor =
                                                         colors[index];
-                                                    debugPrint(
-                                                        'Selected color: $selectedColor');
+                                                    updateMyEmojiBgColor(selectedColor.value);
                                                   },
                                                   child: Container(
                                                     decoration: BoxDecoration(
