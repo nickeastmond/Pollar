@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_protected_member
 
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,9 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pollar/model/constans.dart';
-import 'package:pollar/navigation/feed_page.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 
@@ -22,7 +19,7 @@ import 'bar_graph.dart';
 class CreatePollPage extends StatefulWidget {
   const CreatePollPage({Key? key, required this.feedProvider})
       : super(key: key);
-  final FeedProvider feedProvider;
+  final MainFeedProvider feedProvider;
 
   @override
   State<CreatePollPage> createState() => CreatePollPageState();
@@ -91,13 +88,12 @@ class CreatePollPageState extends State<CreatePollPage> {
                       print(data["locationData"]);
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
-                      await widget.feedProvider.fetchInitial(100);
                       if (context.mounted && success) {
-                        Navigator.pop(context);
+                        await widget.feedProvider.fetchInitial(100);
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        Navigator.pop(context);
                         //This seemed to work not having the UI in feed have a seizure
                         // ignore: invalid_use_of_visible_for_testing_member
-                        widget.feedProvider.notifyListeners();
                       }
                     } catch (e) {
                       debugPrint(e.toString());

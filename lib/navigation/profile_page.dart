@@ -764,6 +764,7 @@ class _ProfilePageState extends State<ProfilePage>
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GestureDetector(
                           onTap: () {
+                            print("fat");
                             // Handle button tap here
                           },
                           child: Container(

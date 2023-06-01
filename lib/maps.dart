@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pollar/polls_theme.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
@@ -49,7 +50,7 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
 
 class CreateMapPage extends StatefulWidget {
   const CreateMapPage({Key? key, required this.feedProvider}) : super(key: key);
-  final FeedProvider feedProvider;
+  final MainFeedProvider feedProvider;
   @override
   State<CreateMapPage> createState() => CreateMapPageState();
 }

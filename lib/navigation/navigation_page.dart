@@ -3,6 +3,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profile_page.dart';
+import 'package:pollar/services/feeds/feed_provider.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:provider/provider.dart';
 import '../login/login_page.dart';
 import '../model/Poll/database/delete_all.dart';
@@ -44,8 +46,8 @@ class NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (_) => FeedProvider()
+    return ChangeNotifierProvider<MainFeedProvider>(
+        create: (_) => MainFeedProvider()
           ..fetchInitial(100), // Create a single instance of FeedProvider
         builder: (context, child) {
           return PollsTheme(
@@ -73,8 +75,8 @@ class NavigationPageState extends State<NavigationPage> {
                             size: iconSize,
                           ),
                           onPressed: (() {
-                            FeedProvider feedProvider =
-                                Provider.of<FeedProvider>(context,
+                            MainFeedProvider feedProvider =
+                                Provider.of<MainFeedProvider>(context,
                                     listen: false);
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -100,8 +102,8 @@ class NavigationPageState extends State<NavigationPage> {
 
                           return;
                         }
-                        FeedProvider feedProvider =
-                            Provider.of<FeedProvider>(context, listen: false);
+                        MainFeedProvider feedProvider =
+                            Provider.of<MainFeedProvider>(context, listen: false);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
@@ -151,7 +153,7 @@ class NavigationPageState extends State<NavigationPage> {
                 children: [
                   FeedPage(
                     feedProvider:
-                        Provider.of<FeedProvider>(context, listen: false),
+                        Provider.of<MainFeedProvider>(context, listen: false),
                   ),
                   const ProfilePage(),
                 ],

@@ -5,10 +5,12 @@ import 'package:pollar/model/Comment/comment_model.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/navigation/feed_page.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
+import '../services/feeds/feed_provider.dart';
 
 class CommentSectionPage extends StatefulWidget {
   const CommentSectionPage(
@@ -18,7 +20,7 @@ class CommentSectionPage extends StatefulWidget {
   }) : super(key: key);
 
   final PollFeedObject poll;
-  final FeedProvider feedProvider;
+  final MainFeedProvider feedProvider;
 
   @override
   State<CommentSectionPage> createState() => _CommentSectionPageState();

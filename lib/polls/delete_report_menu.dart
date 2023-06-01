@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls_theme.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 
 import '../model/Poll/database/delete_poll.dart';
 import '../model/Report/report_model.dart';
+import '../services/feeds/feed_provider.dart';
 
 class DeleteReportMenu extends StatelessWidget {
   const DeleteReportMenu(
@@ -16,7 +17,7 @@ class DeleteReportMenu extends StatelessWidget {
       required this.counters})
       : super(key: key);
   final PollFeedObject pollObj;
-  final FeedProvider feedProvider;
+  final MainFeedProvider feedProvider;
   final VoidCallback callback;
   final List<int> counters;
   @override
