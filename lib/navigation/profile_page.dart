@@ -19,8 +19,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
-  String userEmoji = defaultEmoji;
-  String sprefEmoji = 'null';
+  String? userEmoji = defaultEmoji;
+  String? sprefEmoji = 'null';
   int userEmojiBgColorVal = defaultEmojiBgColor.value;
   int sprefEmojiBgColorVal = -1;
   List<dynamic> unlockedAssets = [];
@@ -184,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage>
       // existing user
     } else if (num > 0) {
       addPoints(num);
-      prefs.setInt('points', sprefPoints + num);
+      prefs.setInt('points', sprefPoints! + num);
     }
     setState(() {
       sprefPoints = prefs.getInt('points')!;
@@ -194,12 +194,12 @@ class _ProfilePageState extends State<ProfilePage>
 
   int setStateFromAnotherPagePoints() {
     updatePoints(0);
-    return points;
+    return points!;
   }
 
   String setStateFromThisPageEmoji() {
     updateMyEmoji('');
-    return userEmoji;
+    return userEmoji!;
   }
 
   void confirmationAndPurchase(String emoji) {
@@ -307,7 +307,7 @@ class _ProfilePageState extends State<ProfilePage>
             )
           : TextButton(
               onPressed: () async {
-                if (points < 50) {
+                if (points! < 50) {
                   var snackBar = const SnackBar(
                     duration: Duration(seconds: 3),
                     backgroundColor: Colors.red,
@@ -443,7 +443,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     child: SizedBox(
                                                       height: 100,
                                                       child: Text(
-                                                        userEmoji,
+                                                        userEmoji!,
                                                         textScaleFactor: 6,
                                                       ),
                                                     ),

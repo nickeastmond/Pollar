@@ -13,8 +13,8 @@ const defaultEmojiBgColor = Color.fromARGB(255, 255, 186, 82);
 final defaultInnerColor = Colors.blue.value;
 final defaultOuterColor = Colors.red.value;
 
-int points = 0;
-int sprefPoints = -1;
+int? points = 0;
+int? sprefPoints = -1;
 
 class PollarUser {
   final String id;
@@ -128,7 +128,7 @@ Future<bool> addPoints(int num) async {
 
   // update shared prefs
   prefs.setInt('points',
-      sprefPoints + num);
+      sprefPoints! + num);
   sprefPoints = prefs.getInt('points')!;
   points = sprefPoints;
   debugPrint('gave user $num points');
@@ -187,10 +187,10 @@ Future<bool> buyEmoji(int cost, String emoji) async {
       await FirebaseFirestore.instance
         .collection('User')
         .doc(PollarAuth.getUid()!)
-        .set({"points": sprefPoints - cost}, SetOptions(merge: true));
+        .set({"points": sprefPoints! - cost}, SetOptions(merge: true));
 
         // setting new value of points for display
-        prefs.setInt('points', sprefPoints - cost);
+        prefs.setInt('points', sprefPoints! - cost);
         sprefPoints = prefs.getInt('points')!;
         points = sprefPoints;
     } catch (e) {
