@@ -9,16 +9,14 @@ import 'package:provider/provider.dart';
 import '../../polls/poll_card.dart';
 import '../../services/feeds/polls_created_provider.dart';
 
-
-
 class PollsCreatedPage extends StatefulWidget {
   const PollsCreatedPage({super.key});
   @override
   State<PollsCreatedPage> createState() => _PollsCreatedPageState();
-  
 }
 
-class _PollsCreatedPageState extends State<PollsCreatedPage> with WidgetsBindingObserver {
+class _PollsCreatedPageState extends State<PollsCreatedPage>
+    with WidgetsBindingObserver {
   bool refresh = false;
 
   final ScrollController _scrollController = ScrollController();
@@ -33,7 +31,6 @@ class _PollsCreatedPageState extends State<PollsCreatedPage> with WidgetsBinding
     super.dispose(); // Call super method
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Consumer<PollsCreatedProvider>(
@@ -41,6 +38,10 @@ class _PollsCreatedPageState extends State<PollsCreatedPage> with WidgetsBinding
         return PollsTheme(
           builder: (context, theme) {
             return Scaffold(
+                appBar: AppBar(
+                  elevation: 2.5,
+                  backgroundColor: theme.primaryColor,
+                ),
                 backgroundColor: MediaQuery.of(context).platformBrightness ==
                         Brightness.light
                     ? Colors.white
@@ -50,21 +51,34 @@ class _PollsCreatedPageState extends State<PollsCreatedPage> with WidgetsBinding
                     color: theme.secondaryHeaderColor,
                     onRefresh: () => provider.fetchInitial(100),
                     child: provider.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(), // Loading indicator
-                      ) :provider.items.isNotEmpty 
-                        ? ListView.builder(
-                            controller: _scrollController,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            shrinkWrap: false,
-                            itemCount: provider.items.length,
-                            itemBuilder: (_, int index) {
-                              
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(), // Loading indicator
+                          )
+                        : provider.items.isNotEmpty
+                            ? ListView.builder(
+                                controller: _scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                shrinkWrap: false,
+                                itemCount: provider.items.length,
+                                itemBuilder: (_, int index) {
+                                  final pollItem = provider.items[index];
 
-                              final pollItem = provider.items[index];
-
-                              if (index == 0) {
-                                return Column(
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0,
+                                        right: 8.0,
+                                        top: 8,
+                                        bottom: 0),
+                                    child: PollCard(
+                                      poll: pollItem,
+                                      feedProvider: provider,
+                                    ),
+                                  );
+                                },
+                              )
+                            : SingleChildScrollView(
+                                child: Column(
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(
@@ -86,59 +100,13 @@ class _PollsCreatedPageState extends State<PollsCreatedPage> with WidgetsBinding
                                         height: 50,
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 8.0,
-                                          right: 8.0,
-                                          top: 8,
-                                          bottom: 0),
-                                      child: PollCard(
-                                          poll: pollItem,
-                                          feedProvider: provider),
-                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                    )
                                   ],
-                                );
-                              }
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 8.0, right: 8.0, top: 8, bottom: 0),
-                                child: PollCard(
-                                  poll: pollItem,
-                                  feedProvider: provider,
                                 ),
-                              );
-                            },
-                          )
-                        : SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 6, bottom: 0, left: 8, right: 8),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: MediaQuery.of(context)
-                                                  .platformBrightness ==
-                                              Brightness.dark
-                                          ? theme.primaryColor
-                                          : theme.cardColor,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 10,
-                                            spreadRadius: 0),
-                                      ],
-                                    ),
-                                    height: 50,
-                                   
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height,
-                                )
-                              ],
-                            ),
-                          )));
+                              )));
           },
         );
       },

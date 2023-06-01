@@ -711,13 +711,15 @@ class _ProfilePageState extends State<ProfilePage>
                           onTap: () {
                             // Handle button tap here
                             Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider<ParticipationHistoryProvider>(
-            create: (_) => ParticipationHistoryProvider()..fetchInitial(100),
-            child: const ParticipationHistoryPage(),
-          ),
-        ),
-      );
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider<
+                                    ParticipationHistoryProvider>(
+                                  create: (_) => ParticipationHistoryProvider()
+                                    ..fetchInitial(100),
+                                  child: const ParticipationHistoryPage(),
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             height: 80,
@@ -776,15 +778,17 @@ class _ProfilePageState extends State<ProfilePage>
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GestureDetector(
                           onTap: () {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider<PollsCreatedProvider>(
-            create: (_) => PollsCreatedProvider()..fetchInitial(100),
-            child: const PollsCreatedPage(),
-          ),
-        ),
-      );
-    },
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider<
+                                    PollsCreatedProvider>(
+                                  create: (_) =>
+                                      PollsCreatedProvider()..fetchInitial(100),
+                                  child: const PollsCreatedPage(),
+                                ),
+                              ),
+                            );
+                          },
                           child: Container(
                             height: 80,
                             decoration: BoxDecoration(
