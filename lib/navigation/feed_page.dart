@@ -9,9 +9,8 @@ import '../polls/poll_card.dart';
 import '../polls_theme.dart';
 import '../services/location/location.dart';
 
-
-
-
+// for Android-specific issue as described here: https://github.com/Baseflow/flutter-geolocator/issues/1056
+bool shouldRequestLocation = true;
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key, required this.feedProvider});
@@ -57,13 +56,14 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      checkLocationEnabled(context).then((val){
-      debugPrint("location enabled = ${val}");
-      setState(() {
-        widget.feedProvider.fetchInitial(100);
-      });
-      
-    });
+      if (shouldRequestLocation) {
+        checkLocationEnabled(context).then((val){
+          debugPrint("location enabled = ${val}");
+          setState(() {
+            widget.feedProvider.fetchInitial(100);
+          });
+        });
+      }
     }
   }
 
