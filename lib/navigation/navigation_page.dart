@@ -46,11 +46,11 @@ class NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-          debugPrint("tst");
+    debugPrint("tst");
 
     return ChangeNotifierProvider<MainFeedProvider>(
-        create: (_) => MainFeedProvider()
-          , // Create a single instance of FeedProvider
+        create: (_) =>
+            MainFeedProvider(), // Create a single instance of FeedProvider
         builder: (context, child) {
           return PollsTheme(
             builder: (context, theme) => Scaffold(
@@ -82,8 +82,10 @@ class NavigationPageState extends State<NavigationPage> {
                                     listen: false);
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    CreateMapPage(feedProvider: feedProvider),
+                                builder: (context) => CreateMapPage(
+                                  feedProvider: feedProvider,
+                                  fromFeed: true,
+                                ),
                               ),
                             );
                           }),
@@ -105,7 +107,8 @@ class NavigationPageState extends State<NavigationPage> {
                           return;
                         }
                         MainFeedProvider feedProvider =
-                            Provider.of<MainFeedProvider>(context, listen: false);
+                            Provider.of<MainFeedProvider>(context,
+                                listen: false);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>

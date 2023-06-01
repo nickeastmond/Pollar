@@ -48,8 +48,11 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
 }
 
 class CreateMapPage extends StatefulWidget {
-  const CreateMapPage({Key? key, required this.feedProvider}) : super(key: key);
+  const CreateMapPage(
+      {Key? key, required this.feedProvider, required this.fromFeed})
+      : super(key: key);
   final MainFeedProvider feedProvider;
+  final bool fromFeed;
   @override
   State<CreateMapPage> createState() => CreateMapPageState();
 }
@@ -81,7 +84,7 @@ class CreateMapPageState extends State<CreateMapPage> {
             return Scaffold(
                 appBar: AppBar(
                   elevation: 2,
-                  title: const Text('Map'),
+                  title: Text(widget.fromFeed ? 'Map' : 'Poll Location'),
                   backgroundColor: theme.primaryColor,
                 ),
                 body: SingleChildScrollView(
@@ -151,7 +154,8 @@ class CreateMapPageState extends State<CreateMapPage> {
                             currentLocation.latLng.longitude),
                         buttonColor: theme.primaryColor,
                         locationPinIconColor: theme.primaryColor,
-                        buttonText: 'Set Feed Location',
+                        buttonText:
+                            widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
                           setState(() {
                             storeMapsData(_value, pickedData.latLong.longitude,
