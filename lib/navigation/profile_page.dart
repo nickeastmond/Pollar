@@ -1,12 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:pollar/navigation/poll_history.dart';
+import 'package:pollar/navigation/profilePages/participation_history_page.dart';
+import 'package:pollar/navigation/profilePages/polls_created_page.dart';
 import 'package:pollar/services/auth.dart';
+import 'package:pollar/services/feeds/polls_created_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/login/login_page.dart';
 import '../polls_theme.dart';
+import '../services/feeds/participation_history_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -727,6 +731,16 @@ class _ProfilePageState extends State<ProfilePage>
                         child: GestureDetector(
                           onTap: () {
                             // Handle button tap here
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider<
+                                    ParticipationHistoryProvider>(
+                                  create: (_) => ParticipationHistoryProvider()
+                                    ..fetchInitial(100),
+                                  child: const ParticipationHistoryPage(),
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             height: 80,
@@ -785,7 +799,16 @@ class _ProfilePageState extends State<ProfilePage>
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GestureDetector(
                           onTap: () {
-                            // Handle button tap here
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider<
+                                    PollsCreatedProvider>(
+                                  create: (_) =>
+                                      PollsCreatedProvider()..fetchInitial(100),
+                                  child: const PollsCreatedPage(),
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             height: 80,

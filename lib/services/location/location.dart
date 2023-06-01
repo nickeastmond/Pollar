@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pollar/navigation/feed_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/Position/position_adapter.dart';
@@ -27,6 +28,7 @@ Future<bool> getLocation() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble("Radius", 5.0);
     print("Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
+    shouldRequestLocation = true;
     return false;
   }
 
@@ -34,8 +36,11 @@ Future<bool> getLocation() async {
   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     debugPrint("Location service is disabled");
+    shouldRequestLocation = true;
     return false;
   }
+
+  shouldRequestLocation = false;
 
   Position position = await Geolocator.getCurrentPosition(
     desiredAccuracy: LocationAccuracy.high,

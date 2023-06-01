@@ -1,17 +1,16 @@
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/polls/delete_report_menu.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
-import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls/bar_graph.dart';
 import '../model/Poll/database/voting.dart';
 import '../polls_theme.dart';
+import '../services/feeds/feed_provider.dart';
 import '../user/main_profile_circle.dart';
 import '../comments/comment_section_page.dart';
 

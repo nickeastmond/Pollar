@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pollar/polls_theme.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
@@ -16,9 +17,9 @@ class LocationData {
 
 Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
-  final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
-  userLocation = LatLng(position!.latitude,
-      position.longitude);
+  final position =
+      await PositionAdapter.getFromSharedPreferences("virtualLocation");
+  userLocation = LatLng(position!.latitude, position.longitude);
   return LocationData(latLng: userLocation);
 }
 
@@ -33,23 +34,22 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
   print(var1);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setDouble('Radius', var1.toDouble());
-   final currentLocation = Position(
-        latitude: lat,
-        longitude: long,
-        timestamp: DateTime.now(),
-        accuracy: 0,
-        altitude: 0,
-        heading: 0,
-        speed: 0,
-        speedAccuracy: 0);
+  final currentLocation = Position(
+      latitude: lat,
+      longitude: long,
+      timestamp: DateTime.now(),
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0);
 
-    PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
-
+  PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
 }
 
 class CreateMapPage extends StatefulWidget {
   const CreateMapPage({Key? key, required this.feedProvider}) : super(key: key);
-  final FeedProvider feedProvider;
+  final MainFeedProvider feedProvider;
   @override
   State<CreateMapPage> createState() => CreateMapPageState();
 }
@@ -130,6 +130,23 @@ class CreateMapPageState extends State<CreateMapPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height - 115,
                     child: OpenStreetMapSearchAndPick(
+                        onGetCurrentLocationPressed: () async {
+                          bool? locationGranted =
+                              await PositionAdapter.getLocationStatus(
+                                  "locationGranted");
+
+                          Position? physicalLocation =
+                              await PositionAdapter.getFromSharedPreferences(
+                                  "physicalLocation");
+
+                          if (locationGranted == true &&
+                              physicalLocation != null) {
+                            return LatLng(physicalLocation.latitude,
+                                physicalLocation.longitude);
+                          } else {
+                            return LatLng(0, 0);
+                          }
+                        },
                         center: LatLong(currentLocation.latLng.latitude,
                             currentLocation.latLng.longitude),
                         buttonColor: theme.primaryColor,
@@ -137,12 +154,12 @@ class CreateMapPageState extends State<CreateMapPage> {
                         buttonText: 'Set Feed Location',
                         onPicked: (pickedData) {
                           setState(() {
-                            
                             storeMapsData(_value, pickedData.latLong.longitude,
                                     pickedData.latLong.latitude)
-                                .then((_) => widget.feedProvider.fetchInitial(100).then((_) => Navigator.pop(context, true)));
+                                .then((_) => widget.feedProvider
+                                    .fetchInitial(100)
+                                    .then((_) => Navigator.pop(context, true)));
                           });
-                          
                         }),
                   )
                 ])));

@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:pollar/navigation/feed_page.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 
 import '../model/Poll/database/voting.dart';
 import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
+import '../services/feeds/feed_provider.dart';
 import '../user/main_profile_circle.dart';
 import 'bar_graph.dart';
 import 'expanded_poll_page.dart';
@@ -146,7 +147,9 @@ class _PollCardState extends State<PollCard> {
                           height: 35,
                           width: 38,
                           minHeight: 5,
-                          counters: counters,
+                          counters: widget.poll.poll.pollData["answers"]
+          .map<int>((e) => int.parse(e["count"].toString()))
+          .toList(),
                           spacing: 2,
                           circleBorder: 0),
                     ),
@@ -187,7 +190,7 @@ class _PollCardState extends State<PollCard> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4.5),
                       child: Text(
-                        totalVotes.toString(),
+                        widget.poll.poll.votes.toString(),
                         style: TextStyle(
                           height: 1.5,
                           color: theme.indicatorColor,

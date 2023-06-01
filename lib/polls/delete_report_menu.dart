@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pollar/navigation/feed_page.dart';
 import 'package:pollar/polls_theme.dart';
+import 'package:pollar/services/feeds/main_feed_provider.dart';
 
 import '../model/Poll/database/delete_poll.dart';
 import '../model/Report/report_model.dart';
+import '../services/feeds/feed_provider.dart';
 
 class DeleteReportMenu extends StatelessWidget {
   const DeleteReportMenu(
@@ -19,51 +20,53 @@ class DeleteReportMenu extends StatelessWidget {
   final FeedProvider feedProvider;
   final VoidCallback callback;
   final List<int> counters;
+
   @override
   Widget build(BuildContext context) {
     return PollsTheme(builder: (context, theme) {
       return Container(
-        height: MediaQuery.of(context).size.height / 3,
+        height: MediaQuery.of(context).size.height / 4,
         padding: const EdgeInsets.all(30.0),
         color: const Color.fromARGB(255, 233, 232, 232).withAlpha(0),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Card(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0))),
-                color: theme.primaryColor,
-                child: ListTile(
-                  title: const Center(
-                    child: Text(
-                      "Delete",
-                      style:
-                          TextStyle(fontSize: 17.5, color: Colors.white),
+              FirebaseAuth.instance.currentUser!.uid == pollObj.poll.userId
+                  ? Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0))),
+                      color: theme.primaryColor,
+                      child: ListTile(
+                        title: const Center(
+                          child: Text(
+                            "Delete",
+                            style:
+                                TextStyle(fontSize: 17.5, color: Colors.white),
+                          ),
+                        ),
+                        onTap: () {
+                          deleteWarning(context, feedProvider);
+                        },
+                      ),
+                    )
+                  : Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0))),
+                      color: theme.primaryColor,
+                      child: ListTile(
+                        title: const Center(
+                          child: Text(
+                            "Report",
+                            style:
+                                TextStyle(fontSize: 17.5, color: Colors.white),
+                          ),
+                        ),
+                        onTap: () {
+                          reportWarning(context);
+                        },
+                      ),
                     ),
-                  ),
-                  onTap: () {
-                    deleteWarning(context, feedProvider);
-                  },
-                ),
-              ),
-              Card(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0))),
-                color: theme.primaryColor,
-                child: ListTile(
-                  title: const Center(
-                    child: Text(
-                      "Report",
-                      style:
-                          TextStyle(fontSize: 17.5, color: Colors.white),
-                    ),
-                  ),
-                  onTap: () {
-                    reportWarning(context);
-                  },
-                ),
-              ),
               Card(
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(0))),
@@ -105,26 +108,24 @@ class DeleteReportMenu extends StatelessWidget {
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () async {
-               Map<String, dynamic> data = {};
+              Map<String, dynamic> data = {};
               String id = FirebaseAuth.instance.currentUser!.uid;
               data["pollId"] = pollObj.pollId;
               String reportPollId = pollObj.poll.userId;
               bool selfReport = false;
-              if (reportPollId == id){
-                debugPrint("We need to tell user that they cant report their own poll");
+              if (reportPollId == id) {
+                debugPrint(
+                    "We need to tell user that they cant report their own poll");
                 selfReport = true;
+              } else {
+                data["timestamp"] = DateTime.now();
+                Report newReport = Report.fromData(id, data);
+                bool success = await createReport(newReport);
+                if (!success) {
+                  debugPrint("Error creating report");
+                }
               }
-              else
-              {
-                  data["timestamp"] = DateTime.now();
-                  Report newReport = Report.fromData(id, data);
-                  bool success = await createReport(newReport);
-                  if (!success)
-                  {
-                    debugPrint("Error creating report");
-                  }
-              }
-              
+
               callback();
               Navigator.pop(context);
               Navigator.pop(context);
@@ -145,7 +146,7 @@ class DeleteReportMenu extends StatelessWidget {
     );
   }
 
-    Future<void> deleteWarning(BuildContext context, FeedProvider feedProvider) {
+  Future<void> deleteWarning(BuildContext context, FeedProvider feedProvider) {
     return showCupertinoModalPopup<void>(
       context: context,
       barrierColor: Colors.grey.shade900.withOpacity(0.7),
@@ -166,17 +167,16 @@ class DeleteReportMenu extends StatelessWidget {
               String id = FirebaseAuth.instance.currentUser!.uid;
               String userIdOfPoll = pollObj.poll.userId;
               bool canDelete = false;
-              if (userIdOfPoll == id){
-                debugPrint("We need to tell user that they cant report their own poll");
+              if (userIdOfPoll == id) {
+                debugPrint(
+                    "We need to tell user that they cant report their own poll");
                 canDelete = true;
                 bool success = await deletePoll(pollObj.pollId);
-                if (success)
-                {
+                if (success) {
                   await feedProvider.fetchInitial(100);
                 }
-
               }
-              
+
               callback();
               Navigator.pop(context);
               Navigator.pop(context);
@@ -184,7 +184,7 @@ class DeleteReportMenu extends StatelessWidget {
               var snackBar = SnackBar(
                   backgroundColor: PollsTheme.lightTheme.secondaryHeaderColor,
                   content: Text(
-                     canDelete ? "Deleted Post" : "Can't Delete this Post",
+                    canDelete ? "Deleted Post" : "Can't Delete this Post",
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 17.5, color: Colors.white),
                   ));
