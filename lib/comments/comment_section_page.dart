@@ -49,10 +49,10 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height / 2),
-                  child: FutureBuilder<List<Comment>>(
+                  child: FutureBuilder<List<CommentFeedObj>>(
                       future: getComments(widget.poll.pollId),
                       builder: (commentContext, commentSnapshot) {
-                        final List<Comment> comments =
+                        final List<CommentFeedObj> comments =
                             commentSnapshot.data ?? [];
                         return Column(
                           children: [
@@ -61,7 +61,11 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 padding: const EdgeInsets.only(
                                     left: 8.0, right: 8.0, top: 8.0),
                                 child: CommentCard(
-                                    roundedTop: i == 0, comment: comments[i]),
+                                    pollObj: widget.poll,
+                                    feedProvider: widget.feedProvider,
+                                    roundedTop: i == 0, commentFeedObj: comments[i]),
+                                    
+
                               ),
                             const SizedBox(
                               height: 150,

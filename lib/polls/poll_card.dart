@@ -33,6 +33,7 @@ class _PollCardState extends State<PollCard> {
   @override
   void initState() {
     checkVoted();
+    
     setState(() {
       counters = widget.poll.poll.pollData["answers"]
           .map<int>((e) => int.parse(e["count"].toString()))
@@ -44,12 +45,21 @@ class _PollCardState extends State<PollCard> {
     super.initState();
   }
 
+   @override
+  void dispose() {
+
+    super.dispose(); // Call super method
+  }
+
   checkVoted() async {
     bool hasVoted = await hasUserVoted(
         widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
+    if (mounted) {
     setState(() {
       canVote = hasVoted;
     });
+  }
+    
   }
 
   Future<void> _onRefresh() async {
@@ -57,9 +67,13 @@ class _PollCardState extends State<PollCard> {
     bool hasVoted = await hasUserVoted(
         widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
     // Add some new data to the list
-    setState(() {
+    if (mounted)
+    {
+      setState(() {
       canVote = hasVoted;
     });
+    }
+    
 
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
         await FirebaseFirestore.instance
