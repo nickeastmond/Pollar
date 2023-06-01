@@ -17,7 +17,7 @@ class DeleteReportMenu extends StatelessWidget {
       required this.counters})
       : super(key: key);
   final PollFeedObject pollObj;
-  final MainFeedProvider feedProvider;
+  final FeedProvider feedProvider;
   final VoidCallback callback;
   final List<int> counters;
   @override

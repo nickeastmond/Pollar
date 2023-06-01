@@ -14,6 +14,7 @@ class LocationData {
   final LatLng latLng;
   final List<Placemark> placemarks;
   final int radius;
+  
 
   LocationData(
       {required this.latLng, required this.placemarks, required this.radius});
@@ -78,6 +79,7 @@ class MainFeedProvider extends FeedProvider {
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius'); // MILES
+    print("Rad is: ${userRad}");
     final currentLocation = Position(
         latitude: userLat,
         longitude: userLong,

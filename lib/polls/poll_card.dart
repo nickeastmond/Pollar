@@ -18,7 +18,7 @@ class PollCard extends StatefulWidget {
     required this.feedProvider
   }) : super(key: key);
   PollFeedObject poll;
-  MainFeedProvider feedProvider;
+  FeedProvider feedProvider;
 
   @override
   _PollCardState createState() => _PollCardState();

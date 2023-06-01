@@ -7,8 +7,10 @@ import 'feed_provider.dart';
 
 
 
-class MainFeedProvider extends FeedProvider {
+class PollsCreatedProvider extends FeedProvider {
   List<PollFeedObject> _items = []; // Implement items in the subclass
+  bool isLoading = false;
+
 
 
   @override
@@ -16,6 +18,7 @@ class MainFeedProvider extends FeedProvider {
  
   @override
   Future<void> fetchInitial(int limit) async {
+    isLoading = true;
     debugPrint("fetchin initial");
     String uid = FirebaseAuth.instance.currentUser!.uid;
     final snapshot =
@@ -32,6 +35,7 @@ class MainFeedProvider extends FeedProvider {
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
     print("notifyling listerners");
+    isLoading = false;
     notifyListeners();
     
   }

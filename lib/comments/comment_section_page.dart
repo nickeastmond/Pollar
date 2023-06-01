@@ -20,7 +20,7 @@ class CommentSectionPage extends StatefulWidget {
   }) : super(key: key);
 
   final PollFeedObject poll;
-  final MainFeedProvider feedProvider;
+  final FeedProvider feedProvider;
 
   @override
   State<CommentSectionPage> createState() => _CommentSectionPageState();

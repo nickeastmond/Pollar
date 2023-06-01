@@ -18,7 +18,7 @@ class ExpandedPollPage extends StatefulWidget {
   const ExpandedPollPage(
       {super.key, required this.pollFeedObj, required this.feedProvider});
   final PollFeedObject pollFeedObj;
-  final MainFeedProvider feedProvider;
+  final FeedProvider feedProvider;
   // Output: [5, 2, 3]
 
   @override

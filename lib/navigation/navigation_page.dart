@@ -46,9 +46,11 @@ class NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+          debugPrint("tst");
+
     return ChangeNotifierProvider<MainFeedProvider>(
         create: (_) => MainFeedProvider()
-          ..fetchInitial(100), // Create a single instance of FeedProvider
+          , // Create a single instance of FeedProvider
         builder: (context, child) {
           return PollsTheme(
             builder: (context, theme) => Scaffold(
