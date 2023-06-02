@@ -253,46 +253,6 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
 
-  // void deleteAccountConfirmation() {
-  //   showDialog(
-  //       context: context,
-  //       builder: (BuildContext c) {
-  //         return AlertDialog(
-  //             title: const Text('Deletion Confirmation'),
-  //             content: const Text(
-  //               'Are you sure you want to permanently delete your Pollar account?',
-  //               textScaleFactor: 1,
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                   onPressed: () {
-  //                     var snackBar = const SnackBar(
-  //                       duration: Duration(seconds: 3),
-  //                       backgroundColor: Colors.green,
-  //                       content: Text(
-  //                         'Account deleted',
-  //                         textAlign: TextAlign.center,
-  //                       ),
-  //                     );
-  //                     Navigator.of(context).pushAndRemoveUntil(
-  //                         MaterialPageRoute(
-  //                             builder: (context) => const LoginPage()),
-  //                         (route) => false);
-  //                     PollarAuth.deleteUser();
-  //                     if (context.mounted) {
-  //                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  //                     }
-  //                   },
-  //                   child: const Text('Yes')),
-  //               TextButton(
-  //                   onPressed: () {
-  //                     Navigator.of(context).pop();
-  //                   },
-  //                   child: const Text('No'))
-  //             ]);
-  //       });
-  // }
-
   Widget emojiOption(String emoji) {
     return Container(
       child: unlockedAssets.contains(emoji)
@@ -620,20 +580,6 @@ class _ProfilePageState extends State<ProfilePage>
                                           //             (route) => false);
                                           //   },
                                           // ),
-
-                                          // For testing purposes
-                                          const SizedBox(height: 50),
-                                          TextButton(
-                                            child: const Text("Delete Account",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 17,
-                                                )),
-                                            onPressed: () async {
-                                              //deleteAccountConfirmation();
-                                              PollarAuth.deleteUser();
-                                            },
-                                          ),
 
                                           AnimatedContainer(
                                             height:
