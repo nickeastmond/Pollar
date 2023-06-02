@@ -46,7 +46,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.clear();
+  preferences.remove('Radius');
+  preferences.remove('virtualLocation');
+  preferences.remove('physicalLocation');
   bool locationGranted =  await checkPermission();
   
   if (!locationGranted) {
