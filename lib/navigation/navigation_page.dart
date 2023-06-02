@@ -216,6 +216,7 @@ class MySidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return PollsTheme(builder: (context, theme) {
       return Drawer(
+        backgroundColor: theme.cardColor,
         width: MediaQuery.of(context).size.width * (2 / 3),
         child: ListView(
           padding: EdgeInsets.zero,
