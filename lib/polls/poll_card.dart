@@ -16,11 +16,8 @@ import 'bar_graph.dart';
 import 'expanded_poll_page.dart';
 
 class PollCard extends StatefulWidget {
-  PollCard({
-    Key? key,
-    required this.poll,
-    required this.feedProvider,
-  }) : super(key: key);
+  PollCard({Key? key, required this.poll, required this.feedProvider})
+      : super(key: key);
   PollFeedObject poll;
   FeedProvider feedProvider;
 
@@ -92,16 +89,29 @@ class _PollCardState extends State<PollCard> {
 
   @override
   void initState() {
-    checkVoted();
+    eligibleVote().then((status) {
+      setState(() {
+        counters = widget.poll.poll.pollData["answers"]
+            .map<int>((e) => int.parse(e["count"].toString()))
+            .toList();
+        totalComments = widget.poll.poll.numComments;
+        totalVotes = widget.poll.poll.votes;
+      });
+      if (status == false) {
+        setState(() {
+          List<Map<String, dynamic>> answers = [];
+          for (int i = 0;
+              i < widget.poll.poll.pollData["answers"].length;
+              i++) {
+            String answer = widget.poll.poll.pollData["answers"][i]["text"];
 
-    setState(() {
-      counters = widget.poll.poll.pollData["answers"]
-          .map<int>((e) => int.parse(e["count"].toString()))
-          .toList();
-      totalComments = widget.poll.poll.numComments;
-      print(totalComments);
-      totalVotes = widget.poll.poll.votes;
+            answers.add({"text": answer, "count": counters[i]});
+          }
+          widget.poll.poll.pollData["answers"] = answers;
+        });
+      }
     });
+
     super.initState();
     getLocalityString();
   }
@@ -111,14 +121,13 @@ class _PollCardState extends State<PollCard> {
     super.dispose(); // Call super method
   }
 
-  checkVoted() async {
-    bool hasVoted = await hasUserVoted(
-        widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
-    if (mounted) {
-      setState(() {
-        canVote = hasVoted;
-      });
-    }
+  Future<bool> eligibleVote() async {
+    bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
+        widget.poll.pollId, widget.poll.poll);
+    setState(() {
+      canVote = status;
+    });
+    return status;
   }
 
   Future<void> _onRefresh() async {
@@ -157,7 +166,7 @@ class _PollCardState extends State<PollCard> {
           ),
         );
         debugPrint("just left from poll");
-        await checkVoted();
+        await eligibleVote();
         totalVotes = 0;
         for (int i = 0; i < counters.length; i++) {
           totalVotes += counters[i];
