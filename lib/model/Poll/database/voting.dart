@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
+import 'package:pollar/polls/create_poll_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pollar/services/feeds/feed_provider.dart';
 
 Future<bool> geoPointsDistance(Position p1, Position p2, double r1) async {
   double metersToMilesFactor = 0.000621371;
@@ -14,12 +17,10 @@ Future<bool> geoPointsDistance(Position p1, Position p2, double r1) async {
   return (distance * metersToMilesFactor) <= (r1);
 }
 
-// There is a cloud function that deletes all interaections upon poll deletion
-Future<bool> pollInteraction(int vote, String userId, String pollId,
-    GeoPoint location, double radius) async {
+Future<bool> pollStatus(String userId, String pollId, Poll currentPoll) async {
   final pollLocation = Position(
-      latitude: location.latitude,
-      longitude: location.longitude,
+      latitude: currentPoll.locationData.latitude,
+      longitude: currentPoll.locationData.longitude,
       timestamp: DateTime.now(),
       accuracy: 0,
       altitude: 0,
@@ -32,12 +33,14 @@ Future<bool> pollInteraction(int vote, String userId, String pollId,
   bool canVote = await hasUserVoted(pollId, userId);
   Position? physicalLocation =
       await PositionAdapter.getFromSharedPreferences("physicalLocation");
-  final bool inRange =
-      await geoPointsDistance(physicalLocation!, pollLocation, radius);
+  final bool inRange = await geoPointsDistance(
+      physicalLocation!, pollLocation, currentPoll.radius);
 
-  if (locationGranted == true && canVote && (inRange || radius == 0.0)) {
-    voteOnPoll(pollId, userId, vote);
-    debugPrint("Voted");
+  if (locationGranted == true &&
+      canVote &&
+      (inRange || currentPoll.radius == 0.0)) {
+    debugPrint("Can Vote");
+    return true;
   } else {
     if (locationGranted == false) {
       debugPrint("Permissions not Granted");
@@ -46,6 +49,18 @@ Future<bool> pollInteraction(int vote, String userId, String pollId,
     } else if (inRange == false) {
       debugPrint("Out of Range");
     }
+    return false;
+  }
+}
+
+// There is a cloud function that deletes all interaections upon poll deletion
+Future<bool> pollInteraction(
+    int vote, String userId, String pollId, Poll currentPoll) async {
+  bool? canVote = await pollStatus(userId, pollId, currentPoll);
+
+  if (canVote) {
+    voteOnPoll(pollId, userId, vote);
+  } else {
     return false;
   }
   return true;

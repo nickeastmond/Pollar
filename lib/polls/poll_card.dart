@@ -12,11 +12,8 @@ import 'bar_graph.dart';
 import 'expanded_poll_page.dart';
 
 class PollCard extends StatefulWidget {
-  PollCard({
-    Key? key,
-    required this.poll,
-    required this.feedProvider
-  }) : super(key: key);
+  PollCard({Key? key, required this.poll, required this.feedProvider})
+      : super(key: key);
   PollFeedObject poll;
   FeedProvider feedProvider;
 
@@ -32,34 +29,44 @@ class _PollCardState extends State<PollCard> {
 
   @override
   void initState() {
-    checkVoted();
-    
-    setState(() {
-      counters = widget.poll.poll.pollData["answers"]
-          .map<int>((e) => int.parse(e["count"].toString()))
-          .toList();
-      totalComments = widget.poll.poll.numComments;
-      print(totalComments);
-      totalVotes = widget.poll.poll.votes;
+    eligibleVote().then((status) {
+      setState(() {
+        counters = widget.poll.poll.pollData["answers"]
+            .map<int>((e) => int.parse(e["count"].toString()))
+            .toList();
+        totalComments = widget.poll.poll.numComments;
+        totalVotes = widget.poll.poll.votes;
+      });
+      if (status == false) {
+        setState(() {
+          List<Map<String, dynamic>> answers = [];
+          for (int i = 0;
+              i < widget.poll.poll.pollData["answers"].length;
+              i++) {
+            String answer = widget.poll.poll.pollData["answers"][i]["text"];
+
+            answers.add({"text": answer, "count": counters[i]});
+          }
+          widget.poll.poll.pollData["answers"] = answers;
+        });
+      }
     });
+
     super.initState();
   }
 
-   @override
+  @override
   void dispose() {
-
     super.dispose(); // Call super method
   }
 
-  checkVoted() async {
-    bool hasVoted = await hasUserVoted(
-        widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
-    if (mounted) {
+  Future<bool> eligibleVote() async {
+    bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
+        widget.poll.pollId, widget.poll.poll);
     setState(() {
-      canVote = hasVoted;
+      canVote = status;
     });
-  }
-    
+    return status;
   }
 
   Future<void> _onRefresh() async {
@@ -96,13 +103,11 @@ class _PollCardState extends State<PollCard> {
         counters = await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ExpandedPollPage(
-              pollFeedObj: widget.poll,
-              feedProvider: widget.feedProvider
-            ),
+                pollFeedObj: widget.poll, feedProvider: widget.feedProvider),
           ),
         );
         debugPrint("just left from poll");
-        await checkVoted();
+        await eligibleVote();
         totalVotes = 0;
         for (int i = 0; i < counters.length; i++) {
           totalVotes += counters[i];
@@ -162,8 +167,8 @@ class _PollCardState extends State<PollCard> {
                           width: 38,
                           minHeight: 5,
                           counters: widget.poll.poll.pollData["answers"]
-          .map<int>((e) => int.parse(e["count"].toString()))
-          .toList(),
+                              .map<int>((e) => int.parse(e["count"].toString()))
+                              .toList(),
                           spacing: 2,
                           circleBorder: 0),
                     ),
