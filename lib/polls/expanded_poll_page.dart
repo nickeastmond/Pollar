@@ -33,12 +33,6 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
   int vote = -1;
   List<int> counters = [0, 0, 0, 0, 0];
 
-  // success
-  // if success gesture tap
-  // if not show votes
-  // should show votes on both ?
-  // not updating feed on polls cannot vote where didnt vote in
-
   @override
   void initState() {
     eligibleVote().then((status) {
