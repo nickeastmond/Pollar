@@ -33,24 +33,46 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
   int vote = -1;
   List<int> counters = [0, 0, 0, 0, 0];
 
+  // success
+  // if success gesture tap
+  // if not show votes
+  // should show votes on both ?
+  // not updating feed on polls cannot vote where didnt vote in
+
   @override
   void initState() {
-    checkVoted();
-    setState(() {
-      counters = widget.pollFeedObj.poll.pollData["answers"]
-          .map<int>((e) => int.parse(e["count"].toString()))
-          .toList();
+    eligibleVote().then((status) {
+      setState(() {
+        counters = widget.pollFeedObj.poll.pollData["answers"]
+            .map<int>((e) => int.parse(e["count"].toString()))
+            .toList();
+      });
+      if (status == false) {
+        setState(() {
+          List<Map<String, dynamic>> answers = [];
+          for (int i = 0;
+              i < widget.pollFeedObj.poll.pollData["answers"].length;
+              i++) {
+            String answer =
+                widget.pollFeedObj.poll.pollData["answers"][i]["text"];
+
+            answers.add({"text": answer, "count": counters[i]});
+          }
+          widget.pollFeedObj.poll.pollData["answers"] = answers;
+        });
+      }
     });
 
     super.initState();
   }
 
-  checkVoted() async {
-    bool hasVoted = await hasUserVoted(
-        widget.pollFeedObj.pollId, FirebaseAuth.instance.currentUser!.uid);
+  Future<bool> eligibleVote() async {
+    bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
+        widget.pollFeedObj.pollId, widget.pollFeedObj.poll);
     setState(() {
-      canVote = hasVoted;
+      canVote = status;
     });
+    return status;
   }
 
   void showLoadingScreen(BuildContext context) {
@@ -270,8 +292,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 i,
                                 FirebaseAuth.instance.currentUser!.uid,
                                 widget.pollFeedObj.pollId,
-                                widget.pollFeedObj.poll.locationData,
-                                widget.pollFeedObj.poll.radius);
+                                widget.pollFeedObj.poll);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             if (success) {
