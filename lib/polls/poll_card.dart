@@ -34,6 +34,8 @@ class _PollCardState extends State<PollCard> {
         counters = widget.poll.poll.pollData["answers"]
             .map<int>((e) => int.parse(e["count"].toString()))
             .toList();
+        totalComments = widget.poll.poll.numComments;
+        totalVotes = widget.poll.poll.votes;
       });
       if (status == false) {
         setState(() {
@@ -60,6 +62,11 @@ class _PollCardState extends State<PollCard> {
       canVote = status;
     });
     return status;
+  }
+
+  @override
+  void dispose() {
+    super.dispose(); // Call super method
   }
 
   Future<void> _onRefresh() async {
