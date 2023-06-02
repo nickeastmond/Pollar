@@ -10,7 +10,10 @@ import 'package:pollar/model/constans.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../maps.dart';
 import '../model/Poll/database/add_poll_firestore.dart';
 import '../model/Poll/poll_model.dart';
 import '../polls_theme.dart';
@@ -36,7 +39,34 @@ class CreatePollPageState extends State<CreatePollPage> {
     TextEditingController()
   ];
   int numBars = 5;
+
   double _sliderValue = 0.0;
+
+  void showLoadingScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (
+        BuildContext context,
+      ) {
+        return PollsTheme(builder: (context, theme) {
+          return Stack(
+            children: <Widget>[
+              const ModalBarrier(
+                color: Color.fromARGB(0, 0, 0, 0),
+                dismissible: false,
+              ),
+              Center(
+                child: CircularProgressIndicator(
+                  color: theme.secondaryHeaderColor,
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,16 +82,50 @@ class CreatePollPageState extends State<CreatePollPage> {
                 child: GestureDetector(
                   onTap: () async {
                     try {
+                      if (pollQuestionController.text.isEmpty) {
+                        debugPrint("Please don't leave the question empty");
+
+                        throw Exception(
+                            "Tried to submit without filling out the question");
+                      }
+
+                      for (int i = 0; i < numBars; i++) {
+                        String answer = pollChoices[i].text;
+                        if (answer.isEmpty) {
+                          debugPrint("Please don't leave any answers empty");
+
+                          throw Exception(
+                              "Tried to submit without filling out answers");
+                        }
+                      }
+
+                      //Lets now fetch location and radius with map
+                      // MainFeedProvider feedProvider =
+                      //     Provider.of<MainFeedProvider>(context, listen: false);
+
+                      bool successMap = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CreateMapPage(
+                            feedProvider: widget.feedProvider,
+                            fromFeed: false,
+                          ),
+                        ),
+                      );
+
+                      if (!successMap) {
+                        return;
+                      }
+                      showLoadingScreen(context);
+
                       Map<String, dynamic> data = {};
                       Position? cur =
                           await PositionAdapter.getFromSharedPreferences(
                               "virtualLocation");
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      _sliderValue = prefs.getDouble('Radius') ?? 0;
 
-                      if (pollQuestionController.text.isEmpty) {
-                        debugPrint("Please don't leave the question empty");
-                        throw Exception(
-                            "Tried to submit without filling out the question");
-                      }
+                      //We are done with location stuff, lets upload this info
 
                       data.addAll({
                         "locationData": GeoPoint(cur!.latitude, cur.longitude),
@@ -76,11 +140,13 @@ class CreatePollPageState extends State<CreatePollPage> {
                         String answer = pollChoices[i].text;
                         if (answer.isEmpty) {
                           debugPrint("Please don't leave any answers empty");
+
                           throw Exception(
                               "Tried to submit without filling out answers");
                         }
                         answers.add({"text": answer, "count": 0});
                       }
+
                       data["pollData"]["answers"] = answers;
                       String uid = FirebaseAuth.instance.currentUser!.uid;
                       data["timestamp"] = DateTime.now();
@@ -91,6 +157,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                       if (context.mounted && success) {
                         await widget.feedProvider.fetchInitial(100);
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        Navigator.pop(context);
                         Navigator.pop(context);
                         //This seemed to work not having the UI in feed have a seizure
                         // ignore: invalid_use_of_visible_for_testing_member
@@ -174,43 +241,43 @@ class CreatePollPageState extends State<CreatePollPage> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Text(
-                  'Select a Radius',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17.5,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 200,
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
-                    overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
-                    activeTrackColor: Colors.blue,
-                    inactiveTrackColor: Colors.grey,
-                    thumbColor: Colors.blue,
-                    overlayColor: Colors.blue.withOpacity(0.2),
-                  ),
-                  child: Slider(
-                    value: _sliderValue,
-                    min: 0.0,
-                    max: 20.0,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _sliderValue = newValue;
-                      });
-                    },
-                    label: _sliderValue == 0.0
-                        ? 'Global'
-                        : "Poll Radius: ${_sliderValue.toStringAsFixed(1)}",
-                    divisions: 10,
-                  ),
-                ),
-              ),
+              // const Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 16.0),
+              //   child: Text(
+              //     'Select a Radius',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 17.5,
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(
+              //   width: 200,
+              //   child: SliderTheme(
+              //     data: SliderTheme.of(context).copyWith(
+              //       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10),
+              //       overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+              //       activeTrackColor: Colors.blue,
+              //       inactiveTrackColor: Colors.grey,
+              //       thumbColor: Colors.blue,
+              //       overlayColor: Colors.blue.withOpacity(0.2),
+              //     ),
+              //     child: Slider(
+              //       value: _sliderValue,
+              //       min: 0.0,
+              //       max: 20.0,
+              //       onChanged: (newValue) {
+              //         setState(() {
+              //           _sliderValue = newValue;
+              //         });
+              //       },
+              //       label: _sliderValue == 0.0
+              //           ? 'Global'
+              //           : "Poll Radius: ${_sliderValue.toStringAsFixed(1)}",
+              //       divisions: 10,
+              //     ),
+              //   ),
+              // ),
               Container(
                 alignment: Alignment.center,
                 color: theme.scaffoldBackgroundColor,

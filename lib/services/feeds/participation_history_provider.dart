@@ -6,12 +6,9 @@ import '../../model/Comment/comment_model.dart';
 import '../../model/Poll/poll_model.dart';
 import 'feed_provider.dart';
 
-
-
 class ParticipationHistoryProvider extends FeedProvider {
   List<PollFeedObject> _items = []; // Implement items in the subclass
   bool isLoading = false;
-
 
   @override
   List<PollFeedObject> get items => _items;
@@ -29,57 +26,37 @@ class ParticipationHistoryProvider extends FeedProvider {
       .where('userId', isEqualTo: uid)
       .get();
 
-  final commentSnapshot = await FirebaseFirestore.instance
-      .collection('Comment')
-      .where('userId', isEqualTo: uid)
-      .get();
-
+ 
   List<String> pollIds = [];
 
-  // Get all the pollIds that match the custom id
-  for (var doc in querySnapshot.docs) {
-    pollIds.add(doc.id);
+
+  for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
+    doc.data()["pollId"];
+    pollIds.add(doc.data()["pollId"]);
   }
 
-  for (QueryDocumentSnapshot<Map<String, dynamic>> doc in commentSnapshot.docs) {
-    Comment comment = Comment.fromDoc(doc);
-    pollIds.add(comment.pollId);
-  }
-
-  // Divide the pollIds into batches of 10 elements each
-  List<List<String>> batches = [];
   int batchSize = 10;
-  for (int i = 0; i < pollIds.length; i += batchSize) {
-    int endIndex = i + batchSize;
-    if (endIndex > pollIds.length) {
-      endIndex = pollIds.length;
-    }
-    List<String> batch = pollIds.sublist(i, endIndex);
-    batches.add(batch);
+  int end = (pollIds.length / batchSize).ceil();
+  if (end > 10) {
+    end = 10;
   }
-
-  // Query the "Poll" collection using the batches of pollIds
-  List<QuerySnapshot> pollSnapshots = [];
-  for (List<String> batch in batches) {
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
+  int curEnd = batchSize;
+  for (int i = 0; i < end; i++) {
+    int currentBatchSize = curEnd <= pollIds.length ? batchSize : pollIds.length % batchSize;
+    final pollSnapshot = await FirebaseFirestore.instance
         .collection('Poll')
-        .where(FieldPath.documentId, whereIn: batch)
+        .where(FieldPath.documentId, whereIn: pollIds.sublist(i * batchSize, i * batchSize + currentBatchSize))
         .get();
-    pollSnapshots.add(snapshot);
-  }
-
-  // Iterate over the documents in the snapshots and add them to _items
-  for (QuerySnapshot snapshot in pollSnapshots) {
-    for (QueryDocumentSnapshot<Object?> doc in snapshot.docs) {
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc as QueryDocumentSnapshot<Map<String, dynamic>>), doc.id);
+    for (QueryDocumentSnapshot<Map<String, dynamic>> doc in pollSnapshot.docs) {
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);
       _items.add(obj);
     }
+    curEnd += batchSize;
   }
-
   _items = _items.toList();
   _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
-    isLoading = false; // Set isLoading to false when fetch is completed
-
   notifyListeners();
+  isLoading = false; // Set isLoading to false when fetch is completed
+
  }
 }

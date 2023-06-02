@@ -3,6 +3,13 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+class CommentFeedObj {
+  Comment comment;
+  String commentId;
+
+  CommentFeedObj(this.comment, this.commentId);
+}
 class Comment {
   final String uid;
   final String pollId;
@@ -89,10 +96,11 @@ Future<bool> createComment(Comment comment) async {
   }
 }
 
-Future<bool> deleteComment(String uid ) async {
+Future<bool> deleteComment(String docId ) async {
   try {
     var db = FirebaseFirestore.instance; 
-    db.collection("Comment").doc(uid).delete().then(
+    print(docId);
+    db.collection("Comment").doc(docId).delete().then(
       (doc) { 
         debugPrint("Document deleted");
         },
@@ -106,12 +114,14 @@ Future<bool> deleteComment(String uid ) async {
   return false;
 }
 
-//TODO: sort by timestamp
-Future<List<Comment>> getComments(String pollId) async {
-  debugPrint("getting comments");
-  List<Comment> comments = [];
 
-  Completer<List<Comment>> completer = Completer<List<Comment>>();
+
+//TODO: sort by timestamp
+Future<List<CommentFeedObj>> getComments(String pollId) async {
+  debugPrint("getting comments");
+  List<CommentFeedObj> comments = [];
+
+  Completer<List<CommentFeedObj>> completer = Completer<List<CommentFeedObj>>();
   
   await FirebaseFirestore.instance
       .collection('Comment')
@@ -120,7 +130,7 @@ Future<List<Comment>> getComments(String pollId) async {
       .get()
       .then((val) {
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in val.docs) {
-      Comment obj = Comment.fromDoc(doc);
+      CommentFeedObj obj = CommentFeedObj(Comment.fromDoc(doc), doc.id);
       comments.add(obj);
     }
   }).then((_) {

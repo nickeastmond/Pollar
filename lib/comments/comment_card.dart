@@ -1,18 +1,25 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/polls_theme.dart';
 
 import '../model/Comment/comment_model.dart';
 import '../polls/poll_card.dart';
+import '../services/feeds/feed_provider.dart';
 import '../user/main_profile_circle.dart';
 
 class CommentCard extends StatefulWidget {
   const CommentCard({
-    required this.comment,
+    required this.commentFeedObj,
     required this.roundedTop,
+    required this.pollObj,
+    required this.feedProvider,
     Key? key,
   }) : super(key: key);
-  final Comment comment;
+  final CommentFeedObj commentFeedObj;
   final bool roundedTop;
+  final PollFeedObject pollObj;
+  final FeedProvider feedProvider;
 
   @override
   State<CommentCard> createState() => _CommentCardState();
@@ -22,6 +29,50 @@ class _CommentCardState extends State<CommentCard> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> deleteCommentWarning(BuildContext context, FeedProvider feedProvider) {
+    return showCupertinoModalPopup<void>(
+      context: context,
+      barrierColor: Colors.grey.shade900.withOpacity(0.7),
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Delete this Comment?'),
+        content: const Text('Are you sure?'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('No'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () async {
+              String id = FirebaseAuth.instance.currentUser!.uid;
+              bool canDelete = false;
+              if (widget.commentFeedObj.comment.userId == id) {
+                canDelete = true;
+                bool success = await deleteComment(widget.commentFeedObj.commentId);
+               
+              }
+              Navigator.pop(context);
+              Navigator.pop(context);
+
+              var snackBar = SnackBar(
+                  backgroundColor: PollsTheme.lightTheme.secondaryHeaderColor,
+                  content: Text(
+                    canDelete ? "Deleted Comment" : "Can't Delete this Comment",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 17.5, color: Colors.white),
+                  ));
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -70,7 +121,7 @@ class _CommentCardState extends State<CommentCard> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 100,
                     child: Text(
-                      widget.comment.text,
+                      widget.commentFeedObj.comment.text,
                       style: TextStyle(
                         height: 1.4,
                         color: theme.indicatorColor,
@@ -92,7 +143,7 @@ class _CommentCardState extends State<CommentCard> {
                     width: 65,
                   ),
                   Text(
-                    pollText(widget.comment.timestamp),
+                    pollText(widget.commentFeedObj.comment.timestamp),
                     style: TextStyle(
                       height: 1.4,
                       color: theme.indicatorColor,
@@ -103,7 +154,10 @@ class _CommentCardState extends State<CommentCard> {
                   const Spacer(),
                   PollsTheme(builder: (context, theme) {
                     return GestureDetector(
-                        onTap: () {},
+                        onTap: ()  {
+                          deleteCommentWarning(context,widget.feedProvider).then((_)=>getComments(widget.pollObj.pollId));
+                         
+                        },
                         child: Icon(
                           Icons.more_horiz,
                           size: 23,
@@ -122,3 +176,4 @@ class _CommentCardState extends State<CommentCard> {
     });
   }
 }
+

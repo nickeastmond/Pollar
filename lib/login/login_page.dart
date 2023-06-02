@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pollar/login/firebase_user_login.dart';
@@ -397,14 +398,75 @@ class LoginPageState extends State<LoginPage>
                   circleBorder: 0,
                 )),
             Positioned(
-              bottom: 30,
+              bottom: 20,
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                children: <Widget>[
+                  const Spacer(),
+                  const Text(
+                    "Forgot password?",
+                    style: TextStyle(
+                      color: Colors.white,
+                      shadows: [
+                        // Shadow(
+                        //   blurRadius: 10,
+                        //   color: Color.fromARGB(150, 0, 0, 0),
+                        // ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: emailController.text);
+                      var passResetSnackBar = const SnackBar(
+                        duration: Duration(seconds: 3),
+                        backgroundColor: Colors.red,
+                        content: Text(
+                          'Password reset link sent to email',
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(passResetSnackBar);
+                      }
+                    },
+                    child: Text(
+                      "Reset Password",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade200,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10,
+                            color: Color.fromARGB(150, 0, 0, 0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 45,
               width: MediaQuery.of(context).size.width,
               child: Row(
                 children: <Widget>[
                   const Spacer(),
                   const Text(
                     "No account yet?",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      // shadows: [
+                      //   Shadow(
+                      //     blurRadius: 10,
+                      //     color: Color.fromARGB(150, 0, 0, 0),
+                      //   ),
+                      // ],
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
@@ -416,6 +478,12 @@ class LoginPageState extends State<LoginPage>
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         color: Colors.grey.shade200,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10,
+                            color: Color.fromARGB(150, 0, 0, 0),
+                          ),
+                        ],
                       ),
                     ),
                   ),

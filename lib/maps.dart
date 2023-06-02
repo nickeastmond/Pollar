@@ -17,9 +17,9 @@ class LocationData {
 
 Future<LocationData> _getCurrentLocation() async {
   LatLng userLocation = LatLng(0, 0);
-  final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
-  userLocation = LatLng(position!.latitude,
-      position.longitude);
+  final position =
+      await PositionAdapter.getFromSharedPreferences("virtualLocation");
+  userLocation = LatLng(position!.latitude, position.longitude);
   return LocationData(latLng: userLocation);
 }
 
@@ -34,23 +34,25 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
   print(var1);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setDouble('Radius', var1.toDouble());
-   final currentLocation = Position(
-        latitude: lat,
-        longitude: long,
-        timestamp: DateTime.now(),
-        accuracy: 0,
-        altitude: 0,
-        heading: 0,
-        speed: 0,
-        speedAccuracy: 0);
+  final currentLocation = Position(
+      latitude: lat,
+      longitude: long,
+      timestamp: DateTime.now(),
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0);
 
-    PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
-
+  PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
 }
 
 class CreateMapPage extends StatefulWidget {
-  const CreateMapPage({Key? key, required this.feedProvider}) : super(key: key);
+  const CreateMapPage(
+      {Key? key, required this.feedProvider, required this.fromFeed})
+      : super(key: key);
   final MainFeedProvider feedProvider;
+  final bool fromFeed;
   @override
   State<CreateMapPage> createState() => CreateMapPageState();
 }
@@ -82,7 +84,7 @@ class CreateMapPageState extends State<CreateMapPage> {
             return Scaffold(
                 appBar: AppBar(
                   elevation: 2,
-                  title: const Text('Map'),
+                  title: Text(widget.fromFeed ? 'Map' : 'Poll Location'),
                   backgroundColor: theme.primaryColor,
                 ),
                 body: SingleChildScrollView(
@@ -131,19 +133,37 @@ class CreateMapPageState extends State<CreateMapPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height - 115,
                     child: OpenStreetMapSearchAndPick(
+                        onGetCurrentLocationPressed: () async {
+                          bool? locationGranted =
+                              await PositionAdapter.getLocationStatus(
+                                  "locationGranted");
+
+                          Position? physicalLocation =
+                              await PositionAdapter.getFromSharedPreferences(
+                                  "physicalLocation");
+
+                          if (locationGranted == true &&
+                              physicalLocation != null) {
+                            return LatLng(physicalLocation.latitude,
+                                physicalLocation.longitude);
+                          } else {
+                            return LatLng(0, 0);
+                          }
+                        },
                         center: LatLong(currentLocation.latLng.latitude,
                             currentLocation.latLng.longitude),
                         buttonColor: theme.primaryColor,
                         locationPinIconColor: theme.primaryColor,
-                        buttonText: 'Set Feed Location',
+                        buttonText:
+                            widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
                           setState(() {
-                            
                             storeMapsData(_value, pickedData.latLong.longitude,
                                     pickedData.latLong.latitude)
-                                .then((_) => widget.feedProvider.fetchInitial(100).then((_) => Navigator.pop(context, true)));
+                                .then((_) => widget.feedProvider
+                                    .fetchInitial(100)
+                                    .then((_) => Navigator.pop(context, true)));
                           });
-                          
                         }),
                   )
                 ])));
