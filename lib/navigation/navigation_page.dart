@@ -263,10 +263,10 @@ class MySidebar extends StatelessWidget {
               ),
               onTap: () {
                 PollarAuth.resetPassword();
-                var passResetSnackBar = const SnackBar(
-                  duration: Duration(seconds: 3),
-                  backgroundColor: Colors.red,
-                  content: Text(
+                var passResetSnackBar = SnackBar(
+                  duration: const Duration(seconds: 3),
+                  backgroundColor: theme.secondaryHeaderColor,
+                  content: const Text(
                     'Password reset link sent to email',
                     textAlign: TextAlign.center,
                   ),

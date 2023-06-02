@@ -335,7 +335,8 @@ class LoginPageState extends State<LoginPage>
 
                                       var snackBar = SnackBar(
                                         duration: const Duration(seconds: 3),
-                                        backgroundColor: Colors.red,
+                                        backgroundColor:
+                                            theme.secondaryHeaderColor,
                                         content: Text(
                                           error,
                                           textAlign: TextAlign.center,
@@ -419,10 +420,10 @@ class LoginPageState extends State<LoginPage>
                     onPressed: () async {
                       await FirebaseAuth.instance
                           .sendPasswordResetEmail(email: emailController.text);
-                      var passResetSnackBar = const SnackBar(
-                        duration: Duration(seconds: 3),
-                        backgroundColor: Colors.red,
-                        content: Text(
+                      var passResetSnackBar = SnackBar(
+                        duration: const Duration(seconds: 3),
+                        backgroundColor: theme.secondaryHeaderColor,
+                        content: const Text(
                           'Password reset link sent to email',
                           textAlign: TextAlign.center,
                         ),

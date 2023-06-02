@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 
 import '../model/Poll/database/voting.dart';
 import '../model/Poll/poll_model.dart';
+import '../model/Position/position_adapter.dart';
 import '../polls_theme.dart';
 import '../services/feeds/feed_provider.dart';
 import '../user/main_profile_circle.dart';
@@ -15,7 +19,7 @@ class PollCard extends StatefulWidget {
   PollCard({
     Key? key,
     required this.poll,
-    required this.feedProvider
+    required this.feedProvider,
   }) : super(key: key);
   PollFeedObject poll;
   FeedProvider feedProvider;
@@ -29,11 +33,67 @@ class _PollCardState extends State<PollCard> {
   int totalVotes = 0;
   int totalComments = 0;
   List<int> counters = [0, 0, 0, 0, 0];
+  String locality = "Loading ...";
+  String milesAway = "Loading ...";
+
+  Future<List<Placemark>> placemarkLocation(LatLng location) async {
+    try {
+      return await placemarkFromCoordinates(
+          location.latitude, location.longitude);
+    } catch (e) {
+      return [Placemark()];
+    }
+  }
+
+  Future<double> distanceFromPoll() async {
+    double metersToMilesFactor = 0.000621371;
+    Position? physicalLocation =
+        await PositionAdapter.getFromSharedPreferences("physicalLocation");
+    double lat;
+    double lon;
+    if (physicalLocation != null) {
+      lat = physicalLocation.latitude;
+      lon = physicalLocation.longitude;
+    } else {
+      lat = 0;
+      lon = 0;
+      debugPrint("LAT LON IS 0");
+    }
+    double distance = Geolocator.distanceBetween(
+        widget.poll.poll.locationData.latitude,
+        widget.poll.poll.locationData.longitude,
+        lat,
+        lon);
+    return distance * metersToMilesFactor;
+  }
+
+  Future<List<Placemark>> _getCurrentLocation() async {
+    LatLng _pollLocation = LatLng(widget.poll.poll.locationData.latitude,
+        widget.poll.poll.locationData.longitude);
+    List<Placemark> placemark = await placemarkLocation(_pollLocation);
+    return placemark;
+  }
+
+  Future<void> getLocalityString() async {
+    _getCurrentLocation().then((placemarkData) {
+      List<Placemark> placemark =
+          placemarkData; // Set the initial location data
+      setState(() {
+        locality = (placemark.first.locality ?? "") + "  📍";
+      });
+    });
+    distanceFromPoll().then((distance) {
+      double distanceFromPoll = distance; // Set the initial location data
+      setState(() {
+        milesAway = ("${distanceFromPoll.toInt()}") + " mi away";
+      });
+    });
+  }
 
   @override
   void initState() {
     checkVoted();
-    
+
     setState(() {
       counters = widget.poll.poll.pollData["answers"]
           .map<int>((e) => int.parse(e["count"].toString()))
@@ -43,11 +103,11 @@ class _PollCardState extends State<PollCard> {
       totalVotes = widget.poll.poll.votes;
     });
     super.initState();
+    getLocalityString();
   }
 
-   @override
+  @override
   void dispose() {
-
     super.dispose(); // Call super method
   }
 
@@ -55,11 +115,10 @@ class _PollCardState extends State<PollCard> {
     bool hasVoted = await hasUserVoted(
         widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
     if (mounted) {
-    setState(() {
-      canVote = hasVoted;
-    });
-  }
-    
+      setState(() {
+        canVote = hasVoted;
+      });
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -67,13 +126,11 @@ class _PollCardState extends State<PollCard> {
     bool hasVoted = await hasUserVoted(
         widget.poll.pollId, FirebaseAuth.instance.currentUser!.uid);
     // Add some new data to the list
-    if (mounted)
-    {
+    if (mounted) {
       setState(() {
-      canVote = hasVoted;
-    });
+        canVote = hasVoted;
+      });
     }
-    
 
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
         await FirebaseFirestore.instance
@@ -96,9 +153,7 @@ class _PollCardState extends State<PollCard> {
         counters = await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ExpandedPollPage(
-              pollFeedObj: widget.poll,
-              feedProvider: widget.feedProvider
-            ),
+                pollFeedObj: widget.poll, feedProvider: widget.feedProvider),
           ),
         );
         debugPrint("just left from poll");
@@ -119,131 +174,188 @@ class _PollCardState extends State<PollCard> {
               BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 0),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 7.5),
+                //color: theme.secondaryHeaderColor.withAlpha(200),
+                height: 30,
+                child: Row(
                   children: [
                     const SizedBox(
-                      width: 13,
+                      width: 17.5,
                     ),
-                    MainProfileCircleWidget(
-                      emoji: "😄",
-                      fillColor: Colors.orange,
-                      borderColor: Colors.grey.shade200,
-                      size: 35,
-                      width: 2.5,
-                      emojiSize: 17.5,
-                    ),
-                    const SizedBox(width: 15),
-                    SizedBox(
-                      width: 250,
-                      //color: Colors.grey.shade900,
-                      child: Text(
-                        widget.poll.poll.pollData["question"],
-                        style: TextStyle(
-                          height: 1.4,
-                          color: theme.indicatorColor,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w300,
-                        ),
+                    Text(
+                      locality,
+                      style: TextStyle(
+                        height: 1.4,
+                        color: Colors.grey.shade800,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        // shadows: [
+                        //   Shadow(
+                        //     blurRadius: 3,
+                        //     color: Colors.black,
+                        //     offset: Offset(1.0, 1.0),
+                        //   ),
+                        // ],
                       ),
                     ),
                     const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: BarGraph(
-                          initalDisplayData: !canVote,
-                          numBars: widget.poll.poll.pollData["answers"].length,
-                          height: 35,
-                          width: 38,
-                          minHeight: 5,
-                          counters: widget.poll.poll.pollData["answers"]
-          .map<int>((e) => int.parse(e["count"].toString()))
-          .toList(),
-                          spacing: 2,
-                          circleBorder: 0),
+                    Text(
+                      milesAway,
+                      style: TextStyle(
+                        height: 1.4,
+                        color: Colors.grey.shade800,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        // shadows: [
+                        //   Shadow(
+                        //     blurRadius: 3,
+                        //     color: Colors.black,
+                        //     offset: Offset(1.0, 1.0),
+                        //   ),
+                        // ],
+                      ),
                     ),
                     const SizedBox(
-                      width: 16,
+                      width: 17.5,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12.5),
-                Row(
+              ),
+              const Divider(
+                thickness: 0.5,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      width: 65,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.5),
-                      child: Text(
-                        widget.poll.poll.numComments.toString(),
-                        style: TextStyle(
-                          height: 1.5,
-                          color: theme.indicatorColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          width: 13,
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 1.75,
-                    ),
-                    Icon(
-                      Icons.message_rounded,
-                      size: 17.5,
-                      color: theme.indicatorColor,
-                    ),
-                    const SizedBox(
-                      width: 25,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.5),
-                      child: Text(
-                        widget.poll.poll.votes.toString(),
-                        style: TextStyle(
-                          height: 1.5,
-                          color: theme.indicatorColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
+                        MainProfileCircleWidget(
+                          emoji: "😄",
+                          fillColor: Colors.orange,
+                          borderColor: Colors.grey.shade200,
+                          size: 35,
+                          width: 2.5,
+                          emojiSize: 17.5,
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 1.75,
-                    ),
-                    Icon(
-                      Icons.people_rounded,
-                      size: 23,
-                      color: theme.indicatorColor,
-                    ),
-                    const SizedBox(
-                      width: 27.5,
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0),
-                      child: Text(
-                        pollText(widget.poll.poll.timestamp),
-                        style: TextStyle(
-                          height: 1.5,
-                          color: theme.indicatorColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w300,
+                        const SizedBox(width: 15),
+                        SizedBox(
+                          width: 250,
+                          //color: Colors.grey.shade900,
+                          child: Text(
+                            widget.poll.poll.pollData["question"],
+                            style: TextStyle(
+                              height: 1.4,
+                              color: theme.indicatorColor,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
                         ),
-                      ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: BarGraph(
+                              initalDisplayData: !canVote,
+                              numBars:
+                                  widget.poll.poll.pollData["answers"].length,
+                              height: 35,
+                              width: 38,
+                              minHeight: 5,
+                              counters: widget.poll.poll.pollData["answers"]
+                                  .map<int>(
+                                      (e) => int.parse(e["count"].toString()))
+                                  .toList(),
+                              spacing: 2,
+                              circleBorder: 0),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 15,
+                    const SizedBox(height: 12.5),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 65,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4.5),
+                          child: Text(
+                            widget.poll.poll.numComments.toString(),
+                            style: TextStyle(
+                              height: 1.5,
+                              color: theme.indicatorColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 1.75,
+                        ),
+                        Icon(
+                          Icons.message_rounded,
+                          size: 17.5,
+                          color: theme.indicatorColor,
+                        ),
+                        const SizedBox(
+                          width: 25,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4.5),
+                          child: Text(
+                            widget.poll.poll.votes.toString(),
+                            style: TextStyle(
+                              height: 1.5,
+                              color: theme.indicatorColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 1.75,
+                        ),
+                        Icon(
+                          Icons.people_rounded,
+                          size: 23,
+                          color: theme.indicatorColor,
+                        ),
+                        const SizedBox(
+                          width: 27.5,
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 0),
+                          child: Text(
+                            pollText(widget.poll.poll.timestamp),
+                            style: TextStyle(
+                              height: 1.5,
+                              color: theme.indicatorColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }),
