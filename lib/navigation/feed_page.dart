@@ -56,14 +56,15 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (shouldRequestLocation) {
+      print("location request: ${shouldRequestLocation}" );
+      
         checkLocationEnabled(context).then((val){
           debugPrint("location enabled = ${val}");
           setState(() {
             widget.feedProvider.fetchInitial(100);
           });
         });
-      }
+      
     }
   }
 

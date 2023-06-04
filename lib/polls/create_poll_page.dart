@@ -155,10 +155,13 @@ class CreatePollPageState extends State<CreatePollPage> {
                       Poll p = Poll.fromData(uid, data);
                       bool success = await addPollToFirestore(p);
                       if (context.mounted && success) {
-                        await widget.feedProvider.fetchInitial(100);
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        
                         Navigator.pop(context);
                         Navigator.pop(context);
+                                                await widget.feedProvider.fetchInitial(100);
+
+
                         //This seemed to work not having the UI in feed have a seizure
                         // ignore: invalid_use_of_visible_for_testing_member
                       }

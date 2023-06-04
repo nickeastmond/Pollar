@@ -60,7 +60,7 @@ Future<bool> getLocation() async {
 
 Future<bool> checkLocationEnabled(BuildContext context) async {
   bool locationEnabled = await getLocation();
- 
+    print("checking location" );
   if (!locationEnabled && context.mounted ) {
     showDialog(
       context: context,

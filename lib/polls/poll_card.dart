@@ -23,7 +23,7 @@ class PollCard extends StatefulWidget {
 
   @override
   _PollCardState createState() => _PollCardState();
-}
+} 
 
 class _PollCardState extends State<PollCard> {
   bool canVote = true;
