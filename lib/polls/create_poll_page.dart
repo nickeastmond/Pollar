@@ -5,7 +5,9 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:pollar/model/Position/position_adapter.dart';
@@ -41,6 +43,23 @@ class CreatePollPageState extends State<CreatePollPage> {
   int numBars = 5;
 
   double _sliderValue = 0.0;
+
+  Future<List<Placemark>> placemarkLocation(LatLng location) async {
+    try {
+      return await placemarkFromCoordinates(
+          location.latitude, location.longitude);
+    } catch (e) {
+      return [Placemark()];
+    }
+  }
+
+  Future<List<Placemark>> _getPollLocation(Position? cur) async {
+
+    LatLng pollLocation = LatLng(cur!.latitude,
+        cur.longitude);
+    List<Placemark> placemark = await placemarkLocation(pollLocation);
+    return placemark;
+  }
 
   void showLoadingScreen(BuildContext context) {
     showDialog(
@@ -124,11 +143,13 @@ class CreatePollPageState extends State<CreatePollPage> {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
                       _sliderValue = prefs.getDouble('Radius') ?? 0;
-
+                      List<Placemark> placemark = await _getPollLocation(cur);
+                      
                       //We are done with location stuff, lets upload this info
 
                       data.addAll({
                         "locationData": GeoPoint(cur!.latitude, cur.longitude),
+                        "locationName": placemark.first.locality,
                         "pollData": {
                           "question": pollQuestionController.text,
                           "answers": List<Map<String, int>>
@@ -159,7 +180,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                         
                         Navigator.pop(context);
                         Navigator.pop(context);
-                                                await widget.feedProvider.fetchInitial(100);
+                        await widget.feedProvider.fetchInitial(100);
 
 
                         //This seemed to work not having the UI in feed have a seizure

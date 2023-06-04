@@ -289,6 +289,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 widget.pollFeedObj.poll);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
+                            
                             if (success) {
                               setState(() {
                                 vote = i;

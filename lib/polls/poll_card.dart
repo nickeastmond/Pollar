@@ -64,21 +64,11 @@ class _PollCardState extends State<PollCard> {
     return distance * metersToMilesFactor;
   }
 
-  Future<List<Placemark>> _getCurrentLocation() async {
-    LatLng _pollLocation = LatLng(widget.poll.poll.locationData.latitude,
-        widget.poll.poll.locationData.longitude);
-    List<Placemark> placemark = await placemarkLocation(_pollLocation);
-    return placemark;
-  }
-
   Future<void> getLocalityString() async {
-    _getCurrentLocation().then((placemarkData) {
-      List<Placemark> placemark =
-          placemarkData; // Set the initial location data
-      setState(() {
-        locality = (placemark.first.locality ?? "") + "  📍";
-      });
-    });
+   
+      // setState(() {
+      //   locality = (widget.poll.poll.locationName) + "  📍";
+      // });
     distanceFromPoll().then((distance) {
       double distanceFromPoll = distance; // Set the initial location data
       setState(() {
@@ -88,7 +78,16 @@ class _PollCardState extends State<PollCard> {
   }
 
   @override
+void didUpdateWidget(PollCard oldWidget) {
+  super.didUpdateWidget(oldWidget);
+  if (widget.poll.pollId != oldWidget.poll.pollId) {
+    getLocalityString();
+  }
+}
+
+  @override
   void initState() {
+    super.initState();
     eligibleVote().then((status) {
       setState(() {
         counters = widget.poll.poll.pollData["answers"]
@@ -110,10 +109,11 @@ class _PollCardState extends State<PollCard> {
           widget.poll.poll.pollData["answers"] = answers;
         });
       }
+    }).then((_)
+    {
+      getLocalityString();
+      print("locality is: ${locality}");
     });
-
-    super.initState();
-    getLocalityString();
   }
 
   @override
@@ -195,7 +195,7 @@ class _PollCardState extends State<PollCard> {
                       width: 17.5,
                     ),
                     Text(
-                      locality,
+                      (widget.poll.poll.locationName) + "  📍",
                       style: TextStyle(
                         height: 1.4,
                         color: Colors.grey.shade800,
