@@ -81,7 +81,31 @@ class _PollCardState extends State<PollCard> {
 void didUpdateWidget(PollCard oldWidget) {
   super.didUpdateWidget(oldWidget);
   if (widget.poll.pollId != oldWidget.poll.pollId) {
-    getLocalityString();
+    eligibleVote().then((status) {
+      setState(() {
+        counters = widget.poll.poll.pollData["answers"]
+            .map<int>((e) => int.parse(e["count"].toString()))
+            .toList();
+        totalComments = widget.poll.poll.numComments;
+        totalVotes = widget.poll.poll.votes;
+      });
+      if (status == false) {
+        setState(() {
+          List<Map<String, dynamic>> answers = [];
+          for (int i = 0;
+              i < widget.poll.poll.pollData["answers"].length;
+              i++) {
+            String answer = widget.poll.poll.pollData["answers"][i]["text"];
+
+            answers.add({"text": answer, "count": counters[i]});
+          }
+          widget.poll.poll.pollData["answers"] = answers;
+        });
+      }
+    }).then((_)
+    {
+      getLocalityString();
+    });
   }
 }
 
@@ -112,7 +136,6 @@ void didUpdateWidget(PollCard oldWidget) {
     }).then((_)
     {
       getLocalityString();
-      print("locality is: ${locality}");
     });
   }
 
