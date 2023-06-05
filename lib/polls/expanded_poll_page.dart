@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:pollar/model/Poll/poll_model.dart';
 import 'package:pollar/polls/bar_graph.dart';
 import '../model/Poll/database/voting.dart';
+import '../model/Position/position_adapter.dart';
 import '../polls_theme.dart';
 import '../services/feeds/feed_provider.dart';
 import '../user/main_profile_circle.dart';
@@ -30,6 +32,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
 
   bool displayResults = false;
   bool canVote = true;
+  bool outOfBounds = false;
   int vote = -1;
   List<int> counters = [0, 0, 0, 0, 0];
 
@@ -63,10 +66,38 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
   Future<bool> eligibleVote() async {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.pollFeedObj.pollId, widget.pollFeedObj.poll);
+    bool withinRange = await inRange();
     setState(() {
+      outOfBounds = !withinRange;
       canVote = status;
     });
     return status;
+  }
+
+  Future<bool> inRange() async {
+    final pollLocation = Position(
+        latitude: widget.pollFeedObj.poll.locationData.latitude,
+        longitude: widget.pollFeedObj.poll.locationData.longitude,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0);
+
+    bool? locationGranted =
+        await PositionAdapter.getLocationStatus("locationGranted");
+    Position? physicalLocation =
+        await PositionAdapter.getFromSharedPreferences("physicalLocation");
+    final bool inRange = await geoPointsDistance(
+        physicalLocation!, pollLocation, widget.pollFeedObj.poll.radius);
+
+    if (locationGranted == true && inRange) {
+      debugPrint("inRange");
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void showLoadingScreen(BuildContext context) {
@@ -74,8 +105,8 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Stack(
-          children: const <Widget>[
+        return const Stack(
+          children: <Widget>[
             ModalBarrier(
               color: Color.fromARGB(0, 0, 0, 0),
               dismissible: false,
@@ -278,7 +309,30 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                           i++)
                         GestureDetector(
                           onTap: () async {
+                            if (outOfBounds) {
+                              var snackBar = const SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text(
+                                    "Cannot vote: This Poll Creator restricted voting rights to a radius that does not include your location",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 17.5, color: Colors.white),
+                                  ));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                              return;
+                            }
                             if (!canVote) {
+                              var snackBar = const SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text(
+                                    "Cannot vote on same poll twice",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 17.5, color: Colors.white),
+                                  ));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                               return;
                             }
                             showLoadingScreen(context);
@@ -289,7 +343,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                                 widget.pollFeedObj.poll);
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
-                            
+
                             if (success) {
                               setState(() {
                                 vote = i;
@@ -319,11 +373,11 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
                             height: 100,
                             decoration: BoxDecoration(
                               color: [
-                                Color(0xFFFF5F6D),
-                                Color(0xFF01B9CC),
-                                Color(0xFFFFC371),
-                                Color.fromARGB(255, 173, 129, 231),
-                                Color.fromARGB(255, 88, 196, 136),
+                                const Color(0xFFFF5F6D),
+                                const Color(0xFF01B9CC),
+                                const Color(0xFFFFC371),
+                                const Color.fromARGB(255, 173, 129, 231),
+                                const Color.fromARGB(255, 88, 196, 136),
                               ][i % 5],
                               boxShadow: [
                                 BoxShadow(

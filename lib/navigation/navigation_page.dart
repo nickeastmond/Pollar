@@ -3,8 +3,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pollar/model/Report/report_model.dart';
+import 'package:pollar/navigation/global_feed_page.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/services/feeds/feed_provider.dart';
+import 'package:pollar/services/feeds/global_feed_providor.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:pollar/services/reset.dart';
 import 'package:provider/provider.dart';
@@ -31,14 +33,13 @@ class NavigationPage extends StatefulWidget {
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 32;
   static double elevation = 2.5;
+  bool displayAllPolls = true;
   int tabSelected = 0; // initially tab selected is poll feed
   bool refresh = false;
 
   @override
   initState() {
     super.initState();
-    
-
   }
 
   @override
@@ -52,123 +53,150 @@ class NavigationPageState extends State<NavigationPage> {
   Widget build(BuildContext context) {
     debugPrint("tst");
 
-    return ChangeNotifierProvider<MainFeedProvider>(
+    return ChangeNotifierProvider<GlobalFeedProvider>(
         create: (_) =>
-            MainFeedProvider(), // Create a single instance of FeedProvider
+            GlobalFeedProvider(), // Create a single instance of FeedProvider
         builder: (context, child) {
-          return PollsTheme(
-            builder: (context, theme) => Scaffold(
-              key: _scaffoldKey,
-              endDrawer: MySidebar(
-                onClose: () {
-                  Navigator.pop(context);
-                },
-              ),
-              appBar: AppBar(
-                //Top bar with app logo
-                centerTitle: true,
-                automaticallyImplyLeading: false,
-                elevation: elevation,
-                backgroundColor: theme.primaryColor,
-                leading: tabSelected == 0
-                    ? Padding(
+          return ChangeNotifierProvider<MainFeedProvider>(
+              create: (_) =>
+                  MainFeedProvider(), // Create a single instance of FeedProvider
+              builder: (context, child) {
+                return PollsTheme(
+                  builder: (context, theme) => Scaffold(
+                    key: _scaffoldKey,
+                    endDrawer: MySidebar(
+                      onClose: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    appBar: AppBar(
+                      //Top bar with app logo
+                      centerTitle: true,
+                      automaticallyImplyLeading: false,
+                      elevation: elevation,
+                      backgroundColor: theme.primaryColor,
+                      leading: Padding(
                         padding: const EdgeInsets.only(left: 18.0),
                         child: IconButton(
                           icon: Icon(
                             tabSelected == 0
                                 ? Icons.map_outlined
-                                : Icons.help_outline,
+                                : tabSelected == 1
+                                    ? (displayAllPolls == true
+                                        ? Icons.location_on_outlined
+                                        : Icons.location_off_outlined)
+                                    : Icons.help_outline,
                             size: iconSize,
                           ),
                           onPressed: (() {
-                            MainFeedProvider feedProvider =
-                                Provider.of<MainFeedProvider>(context,
-                                    listen: false);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CreateMapPage(
-                                  feedProvider: feedProvider,
-                                  fromFeed: true,
+                            if (tabSelected == 0) {
+                              MainFeedProvider feedProvider =
+                                  Provider.of<MainFeedProvider>(context,
+                                      listen: false);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CreateMapPage(
+                                    feedProvider: feedProvider,
+                                    fromFeed: true,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                            if (tabSelected == 1) {
+                              setState(() {
+                                displayAllPolls = !displayAllPolls;
+                              });
+                            }
                           }),
                         ),
-                      )
-                    : const SizedBox(),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                    child: IconButton(
-                      icon: Icon(
-                        tabSelected == 0 ? Icons.add_chart : Icons.settings,
-                        size: iconSize,
                       ),
-                      onPressed: (() {
-                        if (tabSelected != 0) {
-                          _scaffoldKey.currentState?.openEndDrawer();
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: IconButton(
+                            icon: Icon(
+                              tabSelected == 0 || tabSelected == 1
+                                  ? Icons.add_chart
+                                  : Icons.settings_outlined,
+                              size: iconSize,
+                            ),
+                            onPressed: (() {
+                              if (tabSelected != 0 && tabSelected != 1) {
+                                _scaffoldKey.currentState?.openEndDrawer();
 
-                          return;
-                        }
-                        MainFeedProvider feedProvider =
-                            Provider.of<MainFeedProvider>(context,
-                                listen: false);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CreatePollPage(feedProvider: feedProvider),
+                                return;
+                              }
+                              MainFeedProvider feedProvider =
+                                  Provider.of<MainFeedProvider>(context,
+                                      listen: false);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CreatePollPage(
+                                      feedProvider: feedProvider),
+                                ),
+                              );
+                            }),
                           ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-                title: tabSelected == 0
-                    ? Icon(
+                        ),
+                      ],
+                      title: Icon(
                         Icons.bar_chart,
                         size: iconSize,
-                      )
-                    : const SizedBox(),
-              ),
-              bottomNavigationBar: BottomNavigationBar(
-                //Navigation bar that contains feed, poll, and profile page icons
-                elevation: 25,
-                backgroundColor: theme.primaryColor,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                selectedItemColor: theme.unselectedWidgetColor,
-                unselectedItemColor: theme.unselectedWidgetColor.withAlpha(100),
-                currentIndex: tabSelected,
-                onTap: (int tab) => setState(() => tabSelected = tab),
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.assessment_outlined,
-                      size: iconSize,
+                      ),
                     ),
-                    label: 'Feed Page',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.person_outline,
-                      size: iconSize,
+                    bottomNavigationBar: BottomNavigationBar(
+                      //Navigation bar that contains feed, poll, and profile page icons
+                      elevation: 25,
+                      backgroundColor: theme.primaryColor,
+                      showSelectedLabels: false,
+                      showUnselectedLabels: false,
+                      selectedItemColor: theme.unselectedWidgetColor,
+                      unselectedItemColor:
+                          theme.unselectedWidgetColor.withAlpha(100),
+                      currentIndex: tabSelected,
+                      onTap: (int tab) => setState(() => tabSelected = tab),
+                      items: [
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.assessment_outlined,
+                            size: iconSize,
+                          ),
+                          label: 'Feed Page',
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.language_outlined,
+                            size: iconSize,
+                          ),
+                          label: 'Global Feed Page',
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.person_outline,
+                            size: iconSize,
+                          ),
+                          label: 'Profile Page',
+                        ),
+                      ],
                     ),
-                    label: 'Profile Page',
+                    body: IndexedStack(
+                      index: tabSelected,
+                      children: [
+                        FeedPage(
+                          feedProvider: Provider.of<MainFeedProvider>(context,
+                              listen: false),
+                        ),
+                        GlobalFeedPage(
+                          globalFeedProvider: Provider.of<GlobalFeedProvider>(
+                              context,
+                              listen: false),
+                        ), // This should be Global Feed
+                        const ProfilePage(),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              body: IndexedStack(
-                index: tabSelected,
-                children: [
-                  FeedPage(
-                    feedProvider:
-                        Provider.of<MainFeedProvider>(context, listen: false),
-                  ),
-                  const ProfilePage(),
-                ],
-              ),
-            ),
-          );
+                );
+              });
         });
   }
 }

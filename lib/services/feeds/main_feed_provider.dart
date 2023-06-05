@@ -68,7 +68,7 @@ class MainFeedProvider extends FeedProvider {
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
     // Check if the distance is less than or equal to the radius
-    return (distance * metersToMilesFactor) <= (r1!);
+    return (distance * metersToMilesFactor) <= (r1 ?? 5);
   }
   @override
   Future<void> fetchInitial(int limit) async {

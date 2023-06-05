@@ -47,7 +47,7 @@ class PollarUser {
       id: id,
       emailAddress: data["email"],
       emoji: data['emoji'] ?? defaultEmoji,
-      emojiBgColor: Color(data['emojiBgColor']) ?? defaultEmojiBgColor,
+      emojiBgColor: Color(data['emojiBgColor']),
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
       points: data['points'] ?? 0,
@@ -75,6 +75,7 @@ class PollarUser {
         "outterColor": outerColor.value,
         "points": points,
         "unlocked": unlocked,
+        "emojiBgColor": emojiBgColor.value
     };
   }
 }
@@ -94,11 +95,10 @@ Future<bool> setEmoji(String emoji) async {
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emoji": emoji}, SetOptions(merge: true));
-      debugPrint("Set emoji");
       return true;
   
   } catch (e) {
-    debugPrint("failed setting user emoji: ${e}");
+    debugPrint("failed setting user emoji");
     return false;
   }
 }
@@ -110,7 +110,6 @@ Future<bool> setEmojiBgColor(int color) async {
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emojiBgColor": color}, SetOptions(merge: true));
-      debugPrint("Set BG Color");
       return true;
   
   } catch (e) {

@@ -34,6 +34,8 @@ class LoginPageState extends State<LoginPage>
   late AnimationController _controller;
   late Animation<Alignment> _topAlignmentAnimation;
   late Animation<Alignment> _bottomAlignmentAnimation;
+    late Timer _timer;
+
 
   @override
   void initState() {
@@ -99,11 +101,22 @@ class LoginPageState extends State<LoginPage>
     
   }
 
+  @override
+  void dispose()
+  {
+    _timer.cancel(); // Cancel the timer
+    _controller.dispose();
+    super.dispose();
+  }
+
   void updateSinValue() {
-    Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      sinVal = (sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) ~/ 15;
-      setState(() {});
-    });
+   if (mounted) {
+      _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+        sinVal = (sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) ~/ 15;
+        setState(() {});
+      });
+    }
+    
   }
 
   @override

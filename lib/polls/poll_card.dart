@@ -28,6 +28,7 @@ class PollCard extends StatefulWidget {
 
 class _PollCardState extends State<PollCard> {
   bool canVote = true;
+  bool outOfBounds = false;
   int totalVotes = 0;
   int totalComments = 0;
   List<int> counters = [0, 0, 0, 0, 0];
@@ -58,10 +59,10 @@ class _PollCardState extends State<PollCard> {
       debugPrint("LAT LON IS 0");
     }
     double distance = Geolocator.distanceBetween(
-        lat,
-        lon,
         widget.poll.poll.locationData.latitude,
-        widget.poll.poll.locationData.longitude);
+        widget.poll.poll.locationData.longitude,
+        lat,
+        lon);
     return distance * metersToMilesFactor;
   }
 
@@ -111,9 +112,7 @@ class _PollCardState extends State<PollCard> {
   @override
   void initState() {
     super.initState();
-    if (mounted)
-    {
-      eligibleVote().then((status) {
+    eligibleVote().then((status) {
       setState(() {
         counters = widget.poll.poll.pollData["answers"]
             .map<int>((e) => int.parse(e["count"].toString()))
@@ -137,8 +136,6 @@ class _PollCardState extends State<PollCard> {
     }).then((_) {
       getLocalityString();
     });
-    }
-    
   }
 
   @override
@@ -149,14 +146,38 @@ class _PollCardState extends State<PollCard> {
   Future<bool> eligibleVote() async {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.poll.pollId, widget.poll.poll);
-    if (mounted)
-    {
-      setState(() {
+    bool withinRange = await inRange();
+    setState(() {
       canVote = status;
+      outOfBounds = !withinRange;
     });
-    }
-    
     return status;
+  }
+
+  Future<bool> inRange() async {
+    final pollLocation = Position(
+        latitude: widget.poll.poll.locationData.latitude,
+        longitude: widget.poll.poll.locationData.longitude,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0);
+
+    bool? locationGranted =
+        await PositionAdapter.getLocationStatus("locationGranted");
+    Position? physicalLocation =
+        await PositionAdapter.getFromSharedPreferences("physicalLocation");
+    final bool inRange = await geoPointsDistance(
+        physicalLocation!, pollLocation, widget.poll.poll.radius);
+
+    if (locationGranted == true && inRange) {
+      debugPrint("inRange");
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<void> _onRefresh() async {
@@ -244,7 +265,7 @@ class _PollCardState extends State<PollCard> {
                       milesAway,
                       style: TextStyle(
                         height: 1.4,
-                        color: Colors.grey.shade800,
+                        color: !outOfBounds ? Colors.grey.shade800 : Colors.red,
                         fontSize: 15,
                         fontWeight: FontWeight.w300,
                         // shadows: [
@@ -278,8 +299,8 @@ class _PollCardState extends State<PollCard> {
                         ),
                         MainProfileCircleWidget(
                           emoji: widget.poll.pollarUser.emoji,
-                          fillColor: widget.poll.pollarUser.emojiBgColor,
-                          borderColor: widget.poll.pollarUser.outerColor,
+                          fillColor: Colors.orange,
+                          borderColor: Colors.grey.shade200,
                           size: 35,
                           width: 2.5,
                           emojiSize: 17.5,

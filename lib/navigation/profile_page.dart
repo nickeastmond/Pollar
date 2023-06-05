@@ -131,20 +131,18 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
-    _controller.stop();
   }
 
   void fetchAssets() async {
-    if (mounted)
-    {
+    if (mounted) {
       List<dynamic> temp = await getUnlockedAssets();
 
-    setState(() {
-      unlockedAssets = temp;
-    });
+      setState(() {
+        unlockedAssets = temp;
+      });
     }
-    
   }
 
   void updateMyEmoji(String emoji) async {
@@ -180,9 +178,7 @@ class _ProfilePageState extends State<ProfilePage>
     setState(() {
       sprefEmojiBgColorVal = prefs.getInt('emojiBgColorVal')!;
       userEmojiBgColorVal = sprefEmojiBgColorVal;
-      
     });
-
   }
 
   void updatePoints(int num) async {
@@ -403,7 +399,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           100),
-                                                  color: Color(userEmojiBgColorVal),
+                                                  color: Color(
+                                                      userEmojiBgColorVal),
                                                 ),
                                                 child: Padding(
                                                   padding:
@@ -655,7 +652,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                     // Handle color selection here
                                                     Color selectedColor =
                                                         colors[index];
-                                                    updateMyEmojiBgColor(selectedColor.value);
+                                                    updateMyEmojiBgColor(
+                                                        selectedColor.value);
                                                   },
                                                   child: Container(
                                                     decoration: BoxDecoration(

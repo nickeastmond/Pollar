@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pollar/model/Comment/comment_model.dart';
+import 'package:pollar/model/Poll/database/delete_all.dart';
 
 class PollarAuth {
 
@@ -49,6 +51,8 @@ static bool isUserSignedIn() {
 static void deleteUser() async {
   try {
   FirebaseAuth auth = FirebaseAuth.instance;
+  deleteAllCommentBelongingToUser();
+  deleteAllPollBelongingToUser();
   User? user = auth.currentUser;
   await user?.delete();
   // User account deleted successfully
