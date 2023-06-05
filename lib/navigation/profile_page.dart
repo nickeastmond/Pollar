@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pollar/navigation/profilePages/participation_history_page.dart';
@@ -403,9 +404,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                       userEmojiBgColorVal),
                                                 ),
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          bottom: 8.0),
+                                                  padding: Platform.isAndroid
+                                                    ? const EdgeInsets.only(bottom: 0)
+                                                    : const EdgeInsets.only(bottom: 8.0),
                                                   child: Center(
                                                     child: SizedBox(
                                                       height: 100,
@@ -422,15 +423,6 @@ class _ProfilePageState extends State<ProfilePage>
 
                                           Column(
                                             children: [
-                                              // Text(
-                                              //   '\${PollarAuth.getEmail()}',
-                                              //   style: TextStyle(
-                                              //     color: theme.indicatorColor,
-                                              //     fontSize: 20,
-                                              //     //fontWeight: FontWeight.bold,
-                                              //   ),
-                                              // ),
-
                                               const SizedBox(height: 24),
                                               Text(
                                                 'Points: ${setStateFromAnotherPagePoints()}',
@@ -442,7 +434,6 @@ class _ProfilePageState extends State<ProfilePage>
                                                     Shadow(
                                                       color: Color.fromARGB(
                                                           100, 0, 0, 0),
-                                                      //offset: Offset(2, 2),
                                                       blurRadius: 5,
                                                     ),
                                                   ],
