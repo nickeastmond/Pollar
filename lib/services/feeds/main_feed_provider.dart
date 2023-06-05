@@ -60,13 +60,13 @@ class MainFeedProvider extends FeedProvider {
   @override
   List<PollFeedObject> get items => _items;
   Future<bool> geoPointsDistance(
-      Position p1, Position p2, double? r1, double r2) async {
+      Position p1, Position p2, double? r1) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);
     // Check if the distance is less than or equal to the radius
-    return (distance * metersToMilesFactor) <= (r1! + r2);
+    return (distance * metersToMilesFactor) <= (r1!);
   }
   @override
   Future<void> fetchInitial(int limit) async {
@@ -118,7 +118,7 @@ class MainFeedProvider extends FeedProvider {
           speedAccuracy: 0);
        
       final bool overlap = await geoPointsDistance(
-          currentLocation, otherLocation, userRad, obj.poll.radius);
+          currentLocation, otherLocation, userRad);
 
       // Check if the circles overlap
       if (overlap) {
