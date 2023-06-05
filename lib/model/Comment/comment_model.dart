@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CommentFeedObj {
@@ -160,3 +161,21 @@ bool deleteAllComment() {
   return true;
 }
   
+
+bool deleteAllCommentBelongingToUser() {
+  try {
+    FirebaseFirestore.instance.collection('Comment').where("userId",isEqualTo:FirebaseAuth.instance.currentUser!.uid).get().then((querySnapshot) {
+  querySnapshot.docs.forEach((doc) {
+    doc.reference.delete();
+  });
+
+  return true;
+});
+   
+  }
+  catch (e) {
+    debugPrint(e.toString());
+    return false;
+  }
+  return true;
+}
