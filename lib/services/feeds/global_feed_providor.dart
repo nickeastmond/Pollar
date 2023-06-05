@@ -42,7 +42,6 @@ class GlobalFeedProvider extends FeedProvider {
     }
     _items = _items.toList();
 
-    _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
     print("notifyling listerners");
     isLoading = false;
     notifyListeners();
