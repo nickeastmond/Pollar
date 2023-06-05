@@ -105,7 +105,6 @@ class MainFeedProvider extends FeedProvider {
         await FirebaseFirestore.instance.collection('User').doc(userId).get();
       PollarUser user = PollarUser.fromDoc(userSnapshot); 
       PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );
-      print("Object iss: ${obj.pollarUser.emailAddress}");
       GeoPoint locationData = doc.data()['locationData'];
       final otherLocation = Position(
           latitude: locationData.latitude,
@@ -122,11 +121,9 @@ class MainFeedProvider extends FeedProvider {
 
       // Check if the circles overlap
       if (overlap) {
-        print("FATTT");
         _items.add(obj);
       }
     }
-        print(_items.length);
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));

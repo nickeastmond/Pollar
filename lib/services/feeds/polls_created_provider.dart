@@ -32,7 +32,7 @@ class PollsCreatedProvider extends FeedProvider {
       final userId = doc.data()["userId"];
     final userSnapshot =
         await FirebaseFirestore.instance.collection('User').doc(userId).get();
-      PollarUser user = PollarUser.fromDoc(userSnapshot.data() as DocumentSnapshot<Map<String, dynamic>>); 
+      PollarUser user = PollarUser.fromDoc(userSnapshot); 
       PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );         
       _items.add(obj); 
     }
