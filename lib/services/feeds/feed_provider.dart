@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:pollar/maps.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import '../../model/Poll/poll_model.dart';
 
 
 class PollFeedObject {
   Poll poll;
   String pollId;
+  PollarUser pollarUser;
 
-  PollFeedObject(this.poll, this.pollId);
+  PollFeedObject(this.poll, this.pollId, this.pollarUser);
 }
 
 abstract class FeedProvider extends ChangeNotifier {

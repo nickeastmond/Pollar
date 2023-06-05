@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../model/Poll/poll_model.dart';
@@ -89,7 +91,7 @@ class MainFeedProvider extends FeedProvider {
         heading: 0,
         speed: 0,
         speedAccuracy: 0);
-
+        
     final snapshot =
         await FirebaseFirestore.instance.collection('Poll').limit(limit).get();
     _items = [];
@@ -97,7 +99,13 @@ class MainFeedProvider extends FeedProvider {
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);
+      
+    final userId = doc.data()["userId"];
+    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      PollarUser user = PollarUser.fromDoc(userSnapshot); 
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );
+      print("Object iss: ${obj.pollarUser.emailAddress}");
       GeoPoint locationData = doc.data()['locationData'];
       final otherLocation = Position(
           latitude: locationData.latitude,
@@ -108,14 +116,17 @@ class MainFeedProvider extends FeedProvider {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
+       
       final bool overlap = await geoPointsDistance(
           currentLocation, otherLocation, userRad, obj.poll.radius);
 
       // Check if the circles overlap
       if (overlap) {
+        print("FATTT");
         _items.add(obj);
       }
     }
+        print(_items.length);
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../model/Poll/poll_model.dart';
+import '../../model/user/pollar_user_model.dart';
 import 'feed_provider.dart';
 
 
@@ -28,7 +29,11 @@ class PollsCreatedProvider extends FeedProvider {
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);            
+      final userId = doc.data()["userId"];
+    final userSnapshot =
+        await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      PollarUser user = PollarUser.fromDoc(userSnapshot.data() as DocumentSnapshot<Map<String, dynamic>>); 
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );         
       _items.add(obj); 
     }
     _items = _items.toList();

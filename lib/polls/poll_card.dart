@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pollar/model/user/pollar_user_model.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 
 import '../model/Poll/database/voting.dart';
@@ -271,7 +272,7 @@ void didUpdateWidget(PollCard oldWidget) {
                           width: 13,
                         ),
                         MainProfileCircleWidget(
-                          emoji: "😄",
+                          emoji: widget.poll.pollarUser.emoji,
                           fillColor: Colors.orange,
                           borderColor: Colors.grey.shade200,
                           size: 35,

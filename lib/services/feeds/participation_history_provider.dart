@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../../model/Comment/comment_model.dart';
 import '../../model/Poll/poll_model.dart';
+import '../../model/user/pollar_user_model.dart';
 import 'feed_provider.dart';
 
 class ParticipationHistoryProvider extends FeedProvider {
@@ -48,7 +49,11 @@ class ParticipationHistoryProvider extends FeedProvider {
         .where(FieldPath.documentId, whereIn: pollIds.sublist(i * batchSize, i * batchSize + currentBatchSize))
         .get();
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in pollSnapshot.docs) {
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id);
+      final userId = doc.data()["userId"];
+    final userSnapshot =
+        await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      PollarUser user = PollarUser.fromDoc(userSnapshot.data() as DocumentSnapshot<Map<String, dynamic>>); 
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );
       _items.add(obj);
     }
     curEnd += batchSize;
