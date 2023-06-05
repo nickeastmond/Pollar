@@ -248,7 +248,10 @@ class _PollCardState extends State<PollCard> {
                       (widget.poll.poll.locationName) + "  📍",
                       style: TextStyle(
                         height: 1.4,
-                        color: Colors.grey.shade800,
+                        color: MediaQuery.of(context).platformBrightness ==
+                                Brightness.light
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade200,
                         fontSize: 15,
                         fontWeight: FontWeight.w300,
                         // shadows: [
@@ -265,7 +268,12 @@ class _PollCardState extends State<PollCard> {
                       milesAway,
                       style: TextStyle(
                         height: 1.4,
-                        color: !outOfBounds ? Colors.grey.shade800 : Colors.red,
+                        color: !outOfBounds
+                            ? (MediaQuery.of(context).platformBrightness ==
+                                    Brightness.light
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade200)
+                            : Colors.red,
                         fontSize: 15,
                         fontWeight: FontWeight.w300,
                         // shadows: [
@@ -283,7 +291,11 @@ class _PollCardState extends State<PollCard> {
                   ],
                 ),
               ),
-              const Divider(
+              Divider(
+                color: MediaQuery.of(context).platformBrightness ==
+                        Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
                 thickness: 0.5,
               ),
               Padding(
@@ -300,10 +312,14 @@ class _PollCardState extends State<PollCard> {
                         MainProfileCircleWidget(
                           emoji: widget.poll.pollarUser.emoji,
                           fillColor: widget.poll.pollarUser.emojiBgColor,
-                          borderColor: widget.poll.pollarUser.outerColor,
+                          borderColor:
+                              MediaQuery.of(context).platformBrightness ==
+                                      Brightness.light
+                                  ? Colors.grey.shade200
+                                  : Colors.grey.shade800,
                           size: 35,
                           width: 2.5,
-                          emojiSize: 17.5,
+                          emojiSize: 18,
                         ),
                         const SizedBox(width: 15),
                         SizedBox(
