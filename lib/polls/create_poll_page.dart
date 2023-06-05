@@ -128,6 +128,8 @@ class CreatePollPageState extends State<CreatePollPage> {
                             feedProvider: widget.feedProvider,
                             fromFeed: false,
                           ),
+                          settings: RouteSettings(
+                                            arguments: runtimeType.toString()),
                         ),
                       );
 

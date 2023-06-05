@@ -36,7 +36,9 @@ Future<bool> pollStatus(String userId, String pollId, Poll currentPoll) async {
   final bool inRange = await geoPointsDistance(
       physicalLocation!, pollLocation, currentPoll.radius);
 
-  if (locationGranted == true && canVote && inRange) {
+  if (locationGranted == true &&
+      canVote &&
+      (inRange || currentPoll.radius == 999)) {
     debugPrint("Can Vote");
     return true;
   } else {
