@@ -169,11 +169,11 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
             Padding(
               padding: const EdgeInsets.only(right: 20.5),
               child: MainProfileCircleWidget(
-                fillColor: Colors.orange,
+                fillColor: widget.pollFeedObj.pollarUser.emojiBgColor,
                 size: 31,
                 width: 2.5,
-                emojiSize: 17.5,
-                emoji: "😄",
+                emojiSize: 18,
+                emoji: widget.pollFeedObj.pollarUser.emoji,
                 borderColor: Colors.grey.shade200,
               ),
             ),

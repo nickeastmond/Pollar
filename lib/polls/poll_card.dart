@@ -300,10 +300,10 @@ class _PollCardState extends State<PollCard> {
                         MainProfileCircleWidget(
                           emoji: widget.poll.pollarUser.emoji,
                           fillColor: widget.poll.pollarUser.emojiBgColor,
-                          borderColor: widget.poll.pollarUser.outerColor,
+                          borderColor: Colors.grey.shade200,
                           size: 35,
                           width: 2.5,
-                          emojiSize: 17.5,
+                          emojiSize: 18,
                         ),
                         const SizedBox(width: 15),
                         SizedBox(
