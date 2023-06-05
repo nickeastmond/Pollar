@@ -24,7 +24,7 @@ class PollCard extends StatefulWidget {
 
   @override
   _PollCardState createState() => _PollCardState();
-} 
+}
 
 class _PollCardState extends State<PollCard> {
   bool canVote = true;
@@ -58,18 +58,17 @@ class _PollCardState extends State<PollCard> {
       debugPrint("LAT LON IS 0");
     }
     double distance = Geolocator.distanceBetween(
-        widget.poll.poll.locationData.latitude,
-        widget.poll.poll.locationData.longitude,
         lat,
-        lon);
+        lon,
+        widget.poll.poll.locationData.latitude,
+        widget.poll.poll.locationData.longitude);
     return distance * metersToMilesFactor;
   }
 
   Future<void> getLocalityString() async {
-   
-      // setState(() {
-      //   locality = (widget.poll.poll.locationName) + "  📍";
-      // });
+    // setState(() {
+    //   locality = (widget.poll.poll.locationName) + "  📍";
+    // });
     distanceFromPoll().then((distance) {
       double distanceFromPoll = distance; // Set the initial location data
       setState(() {
@@ -79,36 +78,35 @@ class _PollCardState extends State<PollCard> {
   }
 
   @override
-void didUpdateWidget(PollCard oldWidget) {
-  super.didUpdateWidget(oldWidget);
-  if (widget.poll.pollId != oldWidget.poll.pollId) {
-    eligibleVote().then((status) {
-      setState(() {
-        counters = widget.poll.poll.pollData["answers"]
-            .map<int>((e) => int.parse(e["count"].toString()))
-            .toList();
-        totalComments = widget.poll.poll.numComments;
-        totalVotes = widget.poll.poll.votes;
-      });
-      if (status == false) {
+  void didUpdateWidget(PollCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.poll.pollId != oldWidget.poll.pollId) {
+      eligibleVote().then((status) {
         setState(() {
-          List<Map<String, dynamic>> answers = [];
-          for (int i = 0;
-              i < widget.poll.poll.pollData["answers"].length;
-              i++) {
-            String answer = widget.poll.poll.pollData["answers"][i]["text"];
-
-            answers.add({"text": answer, "count": counters[i]});
-          }
-          widget.poll.poll.pollData["answers"] = answers;
+          counters = widget.poll.poll.pollData["answers"]
+              .map<int>((e) => int.parse(e["count"].toString()))
+              .toList();
+          totalComments = widget.poll.poll.numComments;
+          totalVotes = widget.poll.poll.votes;
         });
-      }
-    }).then((_)
-    {
-      getLocalityString();
-    });
+        if (status == false) {
+          setState(() {
+            List<Map<String, dynamic>> answers = [];
+            for (int i = 0;
+                i < widget.poll.poll.pollData["answers"].length;
+                i++) {
+              String answer = widget.poll.poll.pollData["answers"][i]["text"];
+
+              answers.add({"text": answer, "count": counters[i]});
+            }
+            widget.poll.poll.pollData["answers"] = answers;
+          });
+        }
+      }).then((_) {
+        getLocalityString();
+      });
+    }
   }
-}
 
   @override
   void initState() {
@@ -134,8 +132,7 @@ void didUpdateWidget(PollCard oldWidget) {
           widget.poll.poll.pollData["answers"] = answers;
         });
       }
-    }).then((_)
-    {
+    }).then((_) {
       getLocalityString();
     });
   }
