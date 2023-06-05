@@ -18,6 +18,7 @@ import '../services/location/location.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';
+import 'global_feed_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
@@ -37,8 +38,6 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
-    
-
   }
 
   @override
@@ -70,28 +69,32 @@ class NavigationPageState extends State<NavigationPage> {
                 automaticallyImplyLeading: false,
                 elevation: elevation,
                 backgroundColor: theme.primaryColor,
-                leading: tabSelected == 0
+                leading: tabSelected != 2
                     ? Padding(
                         padding: const EdgeInsets.only(left: 18.0),
                         child: IconButton(
                           icon: Icon(
                             tabSelected == 0
                                 ? Icons.map_outlined
-                                : Icons.help_outline,
+                                : tabSelected == 1
+                                    ? Icons.search
+                                    : Icons.help_outline,
                             size: iconSize,
                           ),
                           onPressed: (() {
-                            MainFeedProvider feedProvider =
-                                Provider.of<MainFeedProvider>(context,
-                                    listen: false);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CreateMapPage(
-                                  feedProvider: feedProvider,
-                                  fromFeed: true,
+                            if (tabSelected == 0) {
+                              MainFeedProvider feedProvider =
+                                  Provider.of<MainFeedProvider>(context,
+                                      listen: false);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CreateMapPage(
+                                    feedProvider: feedProvider,
+                                    fromFeed: true,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           }),
                         ),
                       )
@@ -101,11 +104,13 @@ class NavigationPageState extends State<NavigationPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 18.0),
                     child: IconButton(
                       icon: Icon(
-                        tabSelected == 0 ? Icons.add_chart : Icons.settings,
+                        tabSelected == 0 || tabSelected == 1
+                            ? Icons.add_chart
+                            : Icons.settings,
                         size: iconSize,
                       ),
                       onPressed: (() {
-                        if (tabSelected != 0) {
+                        if (tabSelected != 0 || tabSelected != 1) {
                           _scaffoldKey.currentState?.openEndDrawer();
 
                           return;
@@ -123,7 +128,7 @@ class NavigationPageState extends State<NavigationPage> {
                     ),
                   ),
                 ],
-                title: tabSelected == 0
+                title: tabSelected == 0 || tabSelected == 1
                     ? Icon(
                         Icons.bar_chart,
                         size: iconSize,
@@ -150,6 +155,13 @@ class NavigationPageState extends State<NavigationPage> {
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(
+                      Icons.language_outlined,
+                      size: iconSize,
+                    ),
+                    label: 'Global Feed Page',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
                       Icons.person_outline,
                       size: iconSize,
                     ),
@@ -164,6 +176,7 @@ class NavigationPageState extends State<NavigationPage> {
                     feedProvider:
                         Provider.of<MainFeedProvider>(context, listen: false),
                   ),
+                  Container(), // This should be Global Feed
                   const ProfilePage(),
                 ],
               ),
