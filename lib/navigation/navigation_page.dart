@@ -18,7 +18,6 @@ import '../services/location/location.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';
-import 'global_feed_page.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({
