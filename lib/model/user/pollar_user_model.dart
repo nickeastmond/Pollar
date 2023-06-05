@@ -11,7 +11,7 @@ const defaultEmoji = "🤪";
 const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
 const defaultEmojiBgColor = Color.fromARGB(255, 255, 186, 82);
 final defaultInnerColor = Colors.blue.value;
-final defaultOuterColor = Colors.white.value;
+final defaultOuterColor = Colors.black.value;
 
 int? points = 0;
 int? sprefPoints = -1;

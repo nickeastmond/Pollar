@@ -59,6 +59,9 @@ class CreateMapPage extends StatefulWidget {
 
 class CreateMapPageState extends State<CreateMapPage> {
   late int _value; //Default
+  late double _max;
+  late int finalValue;
+  late double upperBound;
 
   @override
   void initState() {
@@ -75,6 +78,16 @@ class CreateMapPageState extends State<CreateMapPage> {
 
   @override
   Widget build(BuildContext context) {
+    _max = 20.0; // Default
+    upperBound = _max; // Default
+    final callingClass = ModalRoute.of(context)?.settings.arguments as String?;
+    if (callingClass == "NavigationPageState") {
+      _max = 20.0; // Feed No Global Option
+      upperBound = _max;
+    } else if (callingClass == "CreatePollPageState") {
+      _max = 21.0; // Poll Global Option
+      upperBound = 20.0;
+    }
     return FutureBuilder<LocationData?>(
       future: _getCurrentLocation(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapchat) {
@@ -115,19 +128,30 @@ class CreateMapPageState extends State<CreateMapPage> {
                                 child: Slider(
                                     value: _value.toDouble(),
                                     min: 1.0,
-                                    max: 20.0,
+                                    max: _max,
                                     divisions: 10,
                                     activeColor: theme.primaryColor,
                                     inactiveColor: theme.secondaryHeaderColor,
-                                    label: "$_value mi",
+                                    label: _value > upperBound.round()
+                                        ? "Global"
+                                        : "$_value mi",
                                     onChanged: (double newValue) {
                                       setState(() {
                                         _value = newValue.round();
+                                        if (newValue > upperBound) {
+                                          finalValue = 999;
+                                        } else {
+                                          finalValue = _value;
+                                        }
                                       });
                                     },
                                     semanticFormatterCallback:
                                         (double newValue) {
-                                      return '${newValue.round()} miles';
+                                      if (newValue > upperBound) {
+                                        return 'Global';
+                                      } else {
+                                        return '${newValue.round()} miles';
+                                      }
                                     })),
                           ])),
                   SizedBox(
@@ -158,7 +182,9 @@ class CreateMapPageState extends State<CreateMapPage> {
                             widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
                           setState(() {
-                            storeMapsData(_value, pickedData.latLong.longitude,
+                            storeMapsData(
+                                    finalValue,
+                                    pickedData.latLong.longitude,
                                     pickedData.latLong.latitude)
                                 .then((_) => widget.feedProvider
                                     .fetchInitial(100)

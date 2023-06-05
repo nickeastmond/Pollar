@@ -299,8 +299,8 @@ class _PollCardState extends State<PollCard> {
                         ),
                         MainProfileCircleWidget(
                           emoji: widget.poll.pollarUser.emoji,
-                          fillColor: Colors.orange,
-                          borderColor: Colors.grey.shade200,
+                          fillColor: widget.poll.pollarUser.emojiBgColor,
+                          borderColor: widget.poll.pollarUser.outerColor,
                           size: 35,
                           width: 2.5,
                           emojiSize: 17.5,
