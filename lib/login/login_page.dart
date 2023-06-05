@@ -39,7 +39,9 @@ class LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
 
-    updateSinValue();
+    if (mounted)
+    {
+      updateSinValue();
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 8));
     _topAlignmentAnimation = TweenSequence<Alignment>(
@@ -93,6 +95,8 @@ class LoginPageState extends State<LoginPage>
     ).animate(_controller);
 
     _controller.repeat();
+    }
+    
   }
 
   void updateSinValue() {
