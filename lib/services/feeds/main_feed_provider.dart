@@ -26,6 +26,8 @@ class MainFeedProvider extends FeedProvider {
   List<PollFeedObject> _items = []; // Implement items in the subclass
    LatLng _userLocation = LatLng(0, 0);
   final MapController mapController = MapController();
+  bool isLoading = false;
+
 
   LocationData? _locationData; // Store the location data here
   LocationData? get locationData => _locationData; // Define the getter
@@ -71,6 +73,8 @@ class MainFeedProvider extends FeedProvider {
   @override
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
+    isLoading = true; // Set isLoading to true when starting the fetch
+
     
     _getCurrentLocation().then((locationData) {
       _locationData = locationData; // Set the initial location data
@@ -129,6 +133,7 @@ class MainFeedProvider extends FeedProvider {
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
     print("notifyling listerners");
     notifyListeners();
+    isLoading  = false;
     
   }
 

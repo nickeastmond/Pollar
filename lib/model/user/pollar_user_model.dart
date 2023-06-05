@@ -11,7 +11,7 @@ const defaultEmoji = "🤪";
 const defaultUnlocked = [defaultEmoji, '😂', '😍', '😄'];
 const defaultEmojiBgColor = Color.fromARGB(255, 255, 186, 82);
 final defaultInnerColor = Colors.blue.value;
-final defaultOuterColor = Colors.red.value;
+final defaultOuterColor = Colors.white.value;
 
 int? points = 0;
 int? sprefPoints = -1;
@@ -38,7 +38,6 @@ class PollarUser {
   });
 
   factory PollarUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    print(doc.data());
     return PollarUser.fromData(doc.id, doc.data() ?? {});
   }
 
@@ -48,7 +47,7 @@ class PollarUser {
       id: id,
       emailAddress: data["email"],
       emoji: data['emoji'] ?? defaultEmoji,
-      emojiBgColor: data['emojiBgColor'] ?? defaultEmojiBgColor,
+      emojiBgColor: Color(data['emojiBgColor']) ?? defaultEmojiBgColor,
       innerColor: Color(data['innerColor'] ?? defaultInnerColor),
       outerColor: Color(data['outerColor'] ?? defaultOuterColor),
       points: data['points'] ?? 0,
@@ -95,21 +94,23 @@ Future<bool> setEmoji(String emoji) async {
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emoji": emoji}, SetOptions(merge: true));
+      debugPrint("Set emoji");
       return true;
   
   } catch (e) {
-    debugPrint("failed setting user emoji");
+    debugPrint("failed setting user emoji: ${e}");
     return false;
   }
 }
 
-Future<bool> setEmojiBgColor(Color color) async {
+Future<bool> setEmojiBgColor(int color) async {
   try {
   
   await FirebaseFirestore.instance
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"emojiBgColor": color}, SetOptions(merge: true));
+      debugPrint("Set BG Color");
       return true;
   
   } catch (e) {

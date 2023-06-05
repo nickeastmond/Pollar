@@ -135,11 +135,15 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void fetchAssets() async {
-    List<dynamic> temp = await getUnlockedAssets();
+    if (mounted)
+    {
+      List<dynamic> temp = await getUnlockedAssets();
 
     setState(() {
       unlockedAssets = temp;
     });
+    }
+    
   }
 
   void updateMyEmoji(String emoji) async {
@@ -169,12 +173,13 @@ class _ProfilePageState extends State<ProfilePage>
       prefs.setInt('emojiBgColorVal', defaultEmojiBgColor.value);
       // existing user
     } else if (colorVal > -1) {
-      setEmojiBgColor(Color(colorVal));
+      setEmojiBgColor(colorVal);
       prefs.setInt('emojiBgColorVal', colorVal);
     }
     setState(() {
       sprefEmojiBgColorVal = prefs.getInt('emojiBgColorVal')!;
       userEmojiBgColorVal = sprefEmojiBgColorVal;
+      
     });
 
   }

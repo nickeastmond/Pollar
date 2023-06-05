@@ -2,9 +2,11 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pollar/model/Report/report_model.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/services/feeds/feed_provider.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
+import 'package:pollar/services/reset.dart';
 import 'package:provider/provider.dart';
 import '../login/login_page.dart';
 import '../model/Poll/database/delete_all.dart';
@@ -35,6 +37,8 @@ class NavigationPageState extends State<NavigationPage> {
   @override
   initState() {
     super.initState();
+    
+
   }
 
   @override

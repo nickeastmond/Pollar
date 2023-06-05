@@ -111,7 +111,9 @@ class _PollCardState extends State<PollCard> {
   @override
   void initState() {
     super.initState();
-    eligibleVote().then((status) {
+    if (mounted)
+    {
+      eligibleVote().then((status) {
       setState(() {
         counters = widget.poll.poll.pollData["answers"]
             .map<int>((e) => int.parse(e["count"].toString()))
@@ -135,6 +137,8 @@ class _PollCardState extends State<PollCard> {
     }).then((_) {
       getLocalityString();
     });
+    }
+    
   }
 
   @override
@@ -145,9 +149,13 @@ class _PollCardState extends State<PollCard> {
   Future<bool> eligibleVote() async {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.poll.pollId, widget.poll.poll);
-    setState(() {
+    if (mounted)
+    {
+      setState(() {
       canVote = status;
     });
+    }
+    
     return status;
   }
 
@@ -270,8 +278,8 @@ class _PollCardState extends State<PollCard> {
                         ),
                         MainProfileCircleWidget(
                           emoji: widget.poll.pollarUser.emoji,
-                          fillColor: Colors.orange,
-                          borderColor: Colors.grey.shade200,
+                          fillColor: widget.poll.pollarUser.emojiBgColor,
+                          borderColor: widget.poll.pollarUser.outerColor,
                           size: 35,
                           width: 2.5,
                           emojiSize: 17.5,

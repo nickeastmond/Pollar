@@ -141,3 +141,22 @@ Future<List<CommentFeedObj>> getComments(String pollId) async {
 
   return completer.future;
 }
+
+bool deleteAllComment() {
+  try {
+    FirebaseFirestore.instance.collection('Comment').get().then((querySnapshot) {
+  querySnapshot.docs.forEach((doc) {
+    doc.reference.delete();
+  });
+
+  return true;
+});
+   
+  }
+  catch (e) {
+    debugPrint(e.toString());
+    return false;
+  }
+  return true;
+}
+  

@@ -33,9 +33,13 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
     //fetchFromFirebaseToSharedPreferences();
     checkLocationEnabled(context).then((val){
       debugPrint("location enabled = ${val}");
-      setState(() {
+      if (mounted)
+      {
+        setState(() {
         widget.feedProvider.fetchInitial(100);
       });
+      }
+      
       
     });
     
@@ -84,7 +88,7 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
                     color: theme.secondaryHeaderColor,
                     onRefresh: () => provider.fetchInitial(100),
                     child: provider.items.isNotEmpty &&
-                            provider.locationData != null
+                            provider.locationData != null && provider.isLoading == false
                         ? ListView.builder(
                             controller: _scrollController,
                             physics: const AlwaysScrollableScrollPhysics(),
@@ -92,7 +96,6 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
                             itemCount: provider.items.length,
                             itemBuilder: (_, int index) {
                               
-
                               final pollItem = provider.items[index];
 
                               if (index == 0) {
