@@ -97,6 +97,7 @@ class NavigationPageState extends State<NavigationPage> {
                                         feedProvider: feedProvider,
                                         fromFeed: true,
                                       ),
+                                      settings: RouteSettings(arguments: runtimeType.toString()),
                                     ),
                                   );
                                 }
