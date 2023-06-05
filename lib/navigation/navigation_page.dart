@@ -33,6 +33,7 @@ class NavigationPage extends StatefulWidget {
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 32;
   static double elevation = 2.5;
+  bool displayAllPolls = true;
   int tabSelected = 0; // initially tab selected is poll feed
   bool refresh = false;
 
@@ -53,146 +54,150 @@ class NavigationPageState extends State<NavigationPage> {
     debugPrint("tst");
 
     return ChangeNotifierProvider<GlobalFeedProvider>(
-            create: (_) =>
-                GlobalFeedProvider(), // Create a single instance of FeedProvider
-            builder: (context, child) {
-        return ChangeNotifierProvider<MainFeedProvider>(
-            create: (_) =>
-                MainFeedProvider(), // Create a single instance of FeedProvider
-            builder: (context, child) {
-              return PollsTheme(
-                builder: (context, theme) => Scaffold(
-                  key: _scaffoldKey,
-                  endDrawer: MySidebar(
-                    onClose: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  appBar: AppBar(
-                    //Top bar with app logo
-                    centerTitle: true,
-                    automaticallyImplyLeading: false,
-                    elevation: elevation,
-                    backgroundColor: theme.primaryColor,
-                    leading: tabSelected != 2
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: 18.0),
-                            child: IconButton(
-                              icon: Icon(
-                                tabSelected == 0
-                                    ? Icons.map_outlined
-                                    : tabSelected == 1
-                                        ? Icons.search
-                                        : Icons.help_outline,
-                                size: iconSize,
-                              ),
-                              onPressed: (() {
-                                if (tabSelected == 0) {
-                                  MainFeedProvider feedProvider =
-                                      Provider.of<MainFeedProvider>(context,
-                                          listen: false);
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => CreateMapPage(
-                                        feedProvider: feedProvider,
-                                        fromFeed: true,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }),
-                            ),
-                          )
-                        : const SizedBox(),
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+        create: (_) =>
+            GlobalFeedProvider(), // Create a single instance of FeedProvider
+        builder: (context, child) {
+          return ChangeNotifierProvider<MainFeedProvider>(
+              create: (_) =>
+                  MainFeedProvider(), // Create a single instance of FeedProvider
+              builder: (context, child) {
+                return PollsTheme(
+                  builder: (context, theme) => Scaffold(
+                    key: _scaffoldKey,
+                    endDrawer: MySidebar(
+                      onClose: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    appBar: AppBar(
+                      //Top bar with app logo
+                      centerTitle: true,
+                      automaticallyImplyLeading: false,
+                      elevation: elevation,
+                      backgroundColor: theme.primaryColor,
+                      leading: Padding(
+                        padding: const EdgeInsets.only(left: 18.0),
                         child: IconButton(
                           icon: Icon(
-                            tabSelected == 0 || tabSelected == 1
-                                ? Icons.add_chart
-                                : Icons.settings,
+                            tabSelected == 0
+                                ? Icons.map_outlined
+                                : tabSelected == 1
+                                    ? (displayAllPolls == true
+                                        ? Icons.location_on_outlined
+                                        : Icons.location_off_outlined)
+                                    : Icons.help_outline,
                             size: iconSize,
                           ),
                           onPressed: (() {
-                            if (tabSelected != 0 && tabSelected != 1) {
-                              _scaffoldKey.currentState?.openEndDrawer();
-
-                              return;
+                            if (tabSelected == 0) {
+                              MainFeedProvider feedProvider =
+                                  Provider.of<MainFeedProvider>(context,
+                                      listen: false);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CreateMapPage(
+                                    feedProvider: feedProvider,
+                                    fromFeed: true,
+                                  ),
+                                ),
+                              );
                             }
-                            MainFeedProvider feedProvider =
-                                Provider.of<MainFeedProvider>(context,
-                                    listen: false);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CreatePollPage(feedProvider: feedProvider),
-                              ),
-                            );
+                            if (tabSelected == 1) {
+                              setState(() {
+                                displayAllPolls = !displayAllPolls;
+                              });
+                            }
                           }),
                         ),
                       ),
-                    ],
-                    title: tabSelected == 0 || tabSelected == 1
-                        ? Icon(
-                            Icons.bar_chart,
+                      actions: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: IconButton(
+                            icon: Icon(
+                              tabSelected == 0 || tabSelected == 1
+                                  ? Icons.add_chart
+                                  : Icons.settings_outlined,
+                              size: iconSize,
+                            ),
+                            onPressed: (() {
+                              if (tabSelected != 0 && tabSelected != 1) {
+                                _scaffoldKey.currentState?.openEndDrawer();
+
+                                return;
+                              }
+                              MainFeedProvider feedProvider =
+                                  Provider.of<MainFeedProvider>(context,
+                                      listen: false);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CreatePollPage(
+                                      feedProvider: feedProvider),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
+                      title: Icon(
+                        Icons.bar_chart,
+                        size: iconSize,
+                      ),
+                    ),
+                    bottomNavigationBar: BottomNavigationBar(
+                      //Navigation bar that contains feed, poll, and profile page icons
+                      elevation: 25,
+                      backgroundColor: theme.primaryColor,
+                      showSelectedLabels: false,
+                      showUnselectedLabels: false,
+                      selectedItemColor: theme.unselectedWidgetColor,
+                      unselectedItemColor:
+                          theme.unselectedWidgetColor.withAlpha(100),
+                      currentIndex: tabSelected,
+                      onTap: (int tab) => setState(() => tabSelected = tab),
+                      items: [
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.assessment_outlined,
                             size: iconSize,
-                          )
-                        : const SizedBox(),
-                  ),
-                  bottomNavigationBar: BottomNavigationBar(
-                    //Navigation bar that contains feed, poll, and profile page icons
-                    elevation: 25,
-                    backgroundColor: theme.primaryColor,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
-                    selectedItemColor: theme.unselectedWidgetColor,
-                    unselectedItemColor: theme.unselectedWidgetColor.withAlpha(100),
-                    currentIndex: tabSelected,
-                    onTap: (int tab) => setState(() => tabSelected = tab),
-                    items: [
-                      BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.assessment_outlined,
-                          size: iconSize,
+                          ),
+                          label: 'Feed Page',
                         ),
-                        label: 'Feed Page',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.language_outlined,
-                          size: iconSize,
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.language_outlined,
+                            size: iconSize,
+                          ),
+                          label: 'Global Feed Page',
                         ),
-                        label: 'Global Feed Page',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.person_outline,
-                          size: iconSize,
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.person_outline,
+                            size: iconSize,
+                          ),
+                          label: 'Profile Page',
                         ),
-                        label: 'Profile Page',
-                      ),
-                    ],
+                      ],
+                    ),
+                    body: IndexedStack(
+                      index: tabSelected,
+                      children: [
+                        FeedPage(
+                          feedProvider: Provider.of<MainFeedProvider>(context,
+                              listen: false),
+                        ),
+                        GlobalFeedPage(
+                          globalFeedProvider: Provider.of<GlobalFeedProvider>(
+                              context,
+                              listen: false),
+                        ), // This should be Global Feed
+                        const ProfilePage(),
+                      ],
+                    ),
                   ),
-                  body: IndexedStack(
-                    index: tabSelected,
-                    children: [
-                      FeedPage(
-                        feedProvider:
-                            Provider.of<MainFeedProvider>(context, listen: false),
-                      ),
-                      GlobalFeedPage(
-                        globalFeedProvider:
-                            Provider.of<GlobalFeedProvider>(context, listen: false),
-                      ), // This should be Global Feed
-                      const ProfilePage(),
-                    ],
-                  ),
-                ),
-              );
-            });
-      }
-    );
+                );
+              });
+        });
   }
 }
 
