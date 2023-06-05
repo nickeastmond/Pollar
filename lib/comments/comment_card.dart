@@ -54,9 +54,10 @@ class _CommentCardState extends State<CommentCard> {
               if (widget.commentFeedObj.comment.userId == id) {
                 canDelete = true;
                 bool success = await deleteComment(widget.commentFeedObj.commentId);
+                              Navigator.pop(context);
+
                
               }
-              Navigator.pop(context);
               Navigator.pop(context);
 
               var snackBar = SnackBar(
@@ -107,9 +108,9 @@ class _CommentCardState extends State<CommentCard> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: MainProfileCircleWidget(
-                      emoji: '😄',
-                      fillColor: Colors.orange,
-                      borderColor: Colors.grey.shade200,
+                      emoji: widget.pollObj.pollarUser.emoji,
+                      fillColor: widget.pollObj.pollarUser.emojiBgColor,
+                      borderColor: widget.pollObj.pollarUser.outerColor,
                       size: 35,
                       width: 2.5,
                       emojiSize: 17.5,

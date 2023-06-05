@@ -148,7 +148,9 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                   String id =
                                       FirebaseAuth.instance.currentUser!.uid;
                                   data["pollId"] = widget.poll.pollId;
-                                  data["text"] =
+                                  if (commentTextEditorController.text.isNotEmpty)
+                                  {
+                                      data["text"] =
                                       commentTextEditorController.text;
                                   data["timestamp"] = DateTime.now();
                                   Comment newComment =
@@ -164,6 +166,8 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                     commentTextEditorController.text = "";
                                     addPoints(Constants.COMMENT_POINTS);
                                   });
+                                  }
+                                  
                                 }),
                                 child: Icon(
                                   Icons.send,

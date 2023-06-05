@@ -21,7 +21,9 @@ class _WrapperState extends State<Wrapper> {
   void initState() 
   {
     super.initState();
-    getUserById(FirebaseAuth.instance.currentUser!.uid).then((PollarUser? user)
+    try
+    {
+      getUserById(FirebaseAuth.instance.currentUser!.uid).then((PollarUser? user)
     {
       print("User is: ${user}");
       if (user != null)
@@ -39,11 +41,17 @@ class _WrapperState extends State<Wrapper> {
          if (mounted)
         {
           setState(() {
-            allowEntry = true;
+            allowEntry = false;
           });
         }
       }
     });
+    }
+    catch(e)
+    {
+      allowEntry = false;
+    }
+    
   }
 
   @override

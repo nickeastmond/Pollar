@@ -131,8 +131,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
-    _controller.stop();
   }
 
   void fetchAssets() async {
