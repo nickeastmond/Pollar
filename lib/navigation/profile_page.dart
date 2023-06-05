@@ -408,7 +408,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                 child: Padding(
                                                   padding:
                                                       const EdgeInsets.only(
-                                                          bottom: 8.0),
+                                                          bottom: 0),
                                                   child: Center(
                                                     child: SizedBox(
                                                       height: 100,

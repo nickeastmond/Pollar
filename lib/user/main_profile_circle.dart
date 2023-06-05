@@ -40,7 +40,7 @@ class MainProfileCircleWidget extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(
-            left: 3,
+            left: 0,
           ),
           child: Text(
             emoji,

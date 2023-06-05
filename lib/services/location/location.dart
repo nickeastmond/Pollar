@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
-  LocationPermission permission = await Geolocator.requestPermission();
+  LocationPermission permission = await Geolocator.checkPermission();
   print("PERMISSION IS: $permission");
   if (permission == LocationPermission.denied ||
       permission == LocationPermission.deniedForever) {
