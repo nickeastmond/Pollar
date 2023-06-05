@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -7,7 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
-  LocationPermission permission = await Geolocator.checkPermission();
+  LocationPermission permission;
+  Platform.isAndroid ? permission = await Geolocator.checkPermission() : permission = await Geolocator.requestPermission();
   print("PERMISSION IS: $permission");
   if (permission == LocationPermission.denied ||
       permission == LocationPermission.deniedForever) {

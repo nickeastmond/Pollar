@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class MainProfileCircleWidget extends StatelessWidget {
@@ -39,9 +40,9 @@ class MainProfileCircleWidget extends StatelessWidget {
           border: Border.all(color: borderColor, width: width)),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.only(
-            left: 0,
-          ),
+          padding: Platform.isAndroid 
+            ? const EdgeInsets.only(left: 0)
+            : const EdgeInsets.only(left: 3),
           child: Text(
             emoji,
             textAlign: TextAlign.center,
