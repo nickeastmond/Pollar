@@ -109,7 +109,7 @@ class NavigationPageState extends State<NavigationPage> {
                         size: iconSize,
                       ),
                       onPressed: (() {
-                        if (tabSelected != 0 || tabSelected != 1) {
+                        if (tabSelected != 0 && tabSelected != 1) {
                           _scaffoldKey.currentState?.openEndDrawer();
 
                           return;
