@@ -72,9 +72,13 @@ class _PollCardState extends State<PollCard> {
     // });
     distanceFromPoll().then((distance) {
       double distanceFromPoll = distance; // Set the initial location data
-      setState(() {
+      if (mounted)
+      {
+        setState(() {
         milesAway = ("${distanceFromPoll.toInt()}") + " mi away";
       });
+      }
+      
     });
   }
 
@@ -83,13 +87,17 @@ class _PollCardState extends State<PollCard> {
     super.didUpdateWidget(oldWidget);
     if (widget.poll.pollId != oldWidget.poll.pollId) {
       eligibleVote().then((status) {
-        setState(() {
+        if (mounted)
+        {
+           setState(() {
           counters = widget.poll.poll.pollData["answers"]
               .map<int>((e) => int.parse(e["count"].toString()))
               .toList();
           totalComments = widget.poll.poll.numComments;
           totalVotes = widget.poll.poll.votes;
         });
+        }
+       
         if (status == false) {
           setState(() {
             List<Map<String, dynamic>> answers = [];
@@ -112,16 +120,25 @@ class _PollCardState extends State<PollCard> {
   @override
   void initState() {
     super.initState();
-    eligibleVote().then((status) {
-      setState(() {
+    if (mounted)
+    {
+      eligibleVote().then((status) {
+
+      if (mounted)
+      {
+        setState(() {
         counters = widget.poll.poll.pollData["answers"]
             .map<int>((e) => int.parse(e["count"].toString()))
             .toList();
         totalComments = widget.poll.poll.numComments;
         totalVotes = widget.poll.poll.votes;
       });
+      }
+      
       if (status == false) {
-        setState(() {
+        if (mounted)
+        {
+          setState(() {
           List<Map<String, dynamic>> answers = [];
           for (int i = 0;
               i < widget.poll.poll.pollData["answers"].length;
@@ -132,10 +149,13 @@ class _PollCardState extends State<PollCard> {
           }
           widget.poll.poll.pollData["answers"] = answers;
         });
+        }
       }
     }).then((_) {
       getLocalityString();
     });
+    }
+    
   }
 
   @override
@@ -147,10 +167,14 @@ class _PollCardState extends State<PollCard> {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.poll.pollId, widget.poll.poll);
     bool withinRange = await inRange();
-    setState(() {
+    if (mounted)
+    {
+      setState(() {
       canVote = status;
       outOfBounds = !withinRange;
     });
+    }
+    
     return status;
   }
 
