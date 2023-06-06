@@ -72,13 +72,11 @@ class _PollCardState extends State<PollCard> {
     // });
     distanceFromPoll().then((distance) {
       double distanceFromPoll = distance; // Set the initial location data
-      if (mounted)
-      {
+      if (mounted) {
         setState(() {
-        milesAway = ("${distanceFromPoll.toInt()}") + " mi away";
-      });
+          milesAway = ("${distanceFromPoll.toInt()}") + " mi away";
+        });
       }
-      
     });
   }
 
@@ -87,17 +85,16 @@ class _PollCardState extends State<PollCard> {
     super.didUpdateWidget(oldWidget);
     if (widget.poll.pollId != oldWidget.poll.pollId) {
       eligibleVote().then((status) {
-        if (mounted)
-        {
-           setState(() {
-          counters = widget.poll.poll.pollData["answers"]
-              .map<int>((e) => int.parse(e["count"].toString()))
-              .toList();
-          totalComments = widget.poll.poll.numComments;
-          totalVotes = widget.poll.poll.votes;
-        });
+        if (mounted) {
+          setState(() {
+            counters = widget.poll.poll.pollData["answers"]
+                .map<int>((e) => int.parse(e["count"].toString()))
+                .toList();
+            totalComments = widget.poll.poll.numComments;
+            totalVotes = widget.poll.poll.votes;
+          });
         }
-       
+
         if (status == false) {
           setState(() {
             List<Map<String, dynamic>> answers = [];
@@ -120,42 +117,37 @@ class _PollCardState extends State<PollCard> {
   @override
   void initState() {
     super.initState();
-    if (mounted)
-    {
+    if (mounted) {
       eligibleVote().then((status) {
-
-      if (mounted)
-      {
-        setState(() {
-        counters = widget.poll.poll.pollData["answers"]
-            .map<int>((e) => int.parse(e["count"].toString()))
-            .toList();
-        totalComments = widget.poll.poll.numComments;
-        totalVotes = widget.poll.poll.votes;
-      });
-      }
-      
-      if (status == false) {
-        if (mounted)
-        {
+        if (mounted) {
           setState(() {
-          List<Map<String, dynamic>> answers = [];
-          for (int i = 0;
-              i < widget.poll.poll.pollData["answers"].length;
-              i++) {
-            String answer = widget.poll.poll.pollData["answers"][i]["text"];
-
-            answers.add({"text": answer, "count": counters[i]});
-          }
-          widget.poll.poll.pollData["answers"] = answers;
-        });
+            counters = widget.poll.poll.pollData["answers"]
+                .map<int>((e) => int.parse(e["count"].toString()))
+                .toList();
+            totalComments = widget.poll.poll.numComments;
+            totalVotes = widget.poll.poll.votes;
+          });
         }
-      }
-    }).then((_) {
-      getLocalityString();
-    });
+
+        if (status == false) {
+          if (mounted) {
+            setState(() {
+              List<Map<String, dynamic>> answers = [];
+              for (int i = 0;
+                  i < widget.poll.poll.pollData["answers"].length;
+                  i++) {
+                String answer = widget.poll.poll.pollData["answers"][i]["text"];
+
+                answers.add({"text": answer, "count": counters[i]});
+              }
+              widget.poll.poll.pollData["answers"] = answers;
+            });
+          }
+        }
+      }).then((_) {
+        getLocalityString();
+      });
     }
-    
   }
 
   @override
@@ -167,14 +159,13 @@ class _PollCardState extends State<PollCard> {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.poll.pollId, widget.poll.poll);
     bool withinRange = await inRange();
-    if (mounted)
-    {
+    if (mounted) {
       setState(() {
-      canVote = status;
-      outOfBounds = !withinRange;
-    });
+        canVote = status;
+        outOfBounds = !withinRange;
+      });
     }
-    
+
     return status;
   }
 
@@ -269,7 +260,8 @@ class _PollCardState extends State<PollCard> {
                       width: 17.5,
                     ),
                     Text(
-                      (widget.poll.poll.locationName) + "  📍",
+                      (widget.poll.poll.locationName) +
+                          (widget.poll.poll.radius != 999 ? "  📍" : "  🌎"),
                       style: TextStyle(
                         height: 1.4,
                         color: MediaQuery.of(context).platformBrightness ==
