@@ -62,9 +62,8 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 child: CommentCard(
                                     pollObj: widget.poll,
                                     feedProvider: widget.feedProvider,
-                                    roundedTop: i == 0, commentFeedObj: comments[i]),
-                                    
-
+                                    roundedTop: i == 0,
+                                    commentFeedObj: comments[i]),
                               ),
                             const SizedBox(
                               height: 150,
@@ -99,6 +98,13 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                 width: MediaQuery.of(context).size.width - 90,
                                 child: TextField(
                                   keyboardType: TextInputType.text,
+                                  style: TextStyle(
+                                    color: MediaQuery.of(context)
+                                                .platformBrightness ==
+                                            Brightness.light
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
                                   textInputAction: TextInputAction.done,
                                   controller: commentTextEditorController,
                                   minLines: 1,
@@ -149,27 +155,29 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                   String id =
                                       FirebaseAuth.instance.currentUser!.uid;
                                   data["pollId"] = widget.poll.pollId;
-                                  if (commentTextEditorController.text.isNotEmpty)
-                                  {
-                                      data["text"] =
-                                      commentTextEditorController.text;
-                                  data["timestamp"] = DateTime.now();
-                                  Comment newComment =
-                                      Comment.fromData(id, data);
-                                  bool success =
-                                      await createComment(newComment);
-                                  if (!success) {
-                                    debugPrint("Error creating comment");
+                                  if (commentTextEditorController
+                                      .text.isNotEmpty) {
+                                    data["text"] =
+                                        commentTextEditorController.text;
+                                    data["timestamp"] = DateTime.now();
+                                    setState(() {
+                                      commentTextEditorController.text = "";
+                                    });
+                                    Comment newComment =
+                                        Comment.fromData(id, data);
+                                    bool success =
+                                        await createComment(newComment);
+                                    if (!success) {
+                                      debugPrint("Error creating comment");
+                                    }
+
+                                    FocusScope.of(context).unfocus();
+                                    await widget.feedProvider.fetchInitial(100);
+                                    setState(() {
+                                      refresh = !refresh;
+                                      addPoints(Constants.COMMENT_POINTS);
+                                    });
                                   }
-                                  FocusScope.of(context).unfocus();
-                                  await widget.feedProvider.fetchInitial(100);
-                                  setState(() {
-                                    refresh = !refresh;
-                                    commentTextEditorController.text = "";
-                                    addPoints(Constants.COMMENT_POINTS);
-                                  });
-                                  }
-                                  
                                 }),
                                 child: Icon(
                                   Icons.send,

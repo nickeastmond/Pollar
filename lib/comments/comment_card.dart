@@ -110,7 +110,7 @@ class _CommentCardState extends State<CommentCard> {
                     child: MainProfileCircleWidget(
                       emoji: widget.pollObj.pollarUser.emoji,
                       fillColor: widget.pollObj.pollarUser.emojiBgColor,
-                      borderColor: widget.pollObj.pollarUser.outerColor,
+                      borderColor: MediaQuery.of(context).platformBrightness == Brightness.light? Colors.grey.shade200: Colors.grey.shade800,
                       size: 35,
                       width: 2.5,
                       emojiSize: 17.5,

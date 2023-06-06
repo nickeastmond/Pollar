@@ -29,7 +29,7 @@ class NavigationPage extends StatefulWidget {
 class NavigationPageState extends State<NavigationPage> {
   static double iconSize = 32;
   static double elevation = 2.5;
-  bool displayAllPolls = true;
+  bool displayAllPolls = false;
   int tabSelected = 0; // initially tab selected is poll feed
   bool refresh = false;
   late ConfettiController _controllerTopCenter;
@@ -196,6 +196,7 @@ class NavigationPageState extends State<NavigationPage> {
                                   listen: false),
                             ),
                             GlobalFeedPage(
+                              filterGlobalOnly: !displayAllPolls,
                               globalFeedProvider:
                                   Provider.of<GlobalFeedProvider>(context,
                                       listen: false),
