@@ -13,3 +13,10 @@ For IOS users if 'flutter run' doesnt work:
 - flutter run
 
 
+if packages dont show up try:
+ - flutter packages get
+ - flutter packages upgrade
+
+
+Algolia:
+https://dashboard.algolia.com/apps/PURDN21VI7/explorer/browse/Pollar_Poll_Question_Index?searchMode=search

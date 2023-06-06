@@ -6,7 +6,7 @@ import 'package:pollar/model/Report/report_model.dart';
 import 'package:pollar/navigation/global_feed_page.dart';
 import 'package:pollar/navigation/profile_page.dart';
 import 'package:pollar/services/feeds/feed_provider.dart';
-import 'package:pollar/services/feeds/global_feed_providor.dart';
+import 'package:pollar/services/feeds/global_feed_provider.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
 import 'package:pollar/services/reset.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +51,6 @@ class NavigationPageState extends State<NavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("tst");
-
     return ChangeNotifierProvider<GlobalFeedProvider>(
         create: (_) =>
             GlobalFeedProvider(), // Create a single instance of FeedProvider

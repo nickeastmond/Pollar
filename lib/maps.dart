@@ -73,7 +73,9 @@ class CreateMapPageState extends State<CreateMapPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _value = prefs.getDouble('Radius')!.toInt();
+      finalValue = _value;
     });
+  
   }
 
   @override
