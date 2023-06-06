@@ -188,7 +188,7 @@ class _PollCardState extends State<PollCard> {
         physicalLocation!, pollLocation, widget.poll.poll.radius);
 
     if (locationGranted == true && inRange) {
-      debugPrint("inRange");
+      //debugPrint("inRange");
       return true;
     } else {
       return false;

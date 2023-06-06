@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
@@ -44,6 +43,7 @@ class MainFeedProvider extends FeedProvider {
     _userLocation = LatLng(position!.latitude, position.longitude);
     mapController.move(_userLocation, 13);
     List<Placemark> placemark = await placemarkLocation(_userLocation);
+
     return LocationData(
         latLng: _userLocation,
         placemarks: placemark,
@@ -75,10 +75,10 @@ class MainFeedProvider extends FeedProvider {
     debugPrint("fetchin initial");
     isLoading = true;
 
-    
     _getCurrentLocation().then((locationData) {
       _locationData = locationData; // Set the initial location data
     });
+
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
@@ -100,6 +100,8 @@ class MainFeedProvider extends FeedProvider {
         await FirebaseFirestore.instance.collection('Poll').limit(limit).get();
     _items = [];
 
+    //TODO: do this in small batches of 4-5 for how many r displayed,
+    // TO SLOW RN - darin
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
@@ -128,6 +130,7 @@ class MainFeedProvider extends FeedProvider {
         _items.add(obj);
       }
     }
+
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
