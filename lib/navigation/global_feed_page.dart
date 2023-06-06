@@ -34,6 +34,7 @@ class _GlobalFeedPageState extends State<GlobalFeedPage>
   @override
   initState() {
     super.initState();
+    _searchController.text = "";
     widget.globalFeedProvider.fetchInitial(100);
   }
 
