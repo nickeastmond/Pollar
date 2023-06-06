@@ -124,7 +124,6 @@ class MainFeedProvider extends FeedProvider {
        
       final bool overlap = await geoPointsDistance(
           currentLocation, otherLocation, userRad);
-
       // Check if the circles overlap
       if (overlap) {
         _items.add(obj);
