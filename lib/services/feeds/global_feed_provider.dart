@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:algolia/algolia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -74,12 +76,17 @@ Future<void> fetchBySearchText(String searchText) async {
           apiKey: algoliaApiKey,
         );
 
-    AlgoliaQuery query = algolia.instance.index('Pollar_Poll_Question_Index')
-    .query(searchText)
-    ..setHitsPerPage(10);
-    AlgoliaQuerySnapshot snapshot = await query.getObjects();
+    AlgoliaQuery query = algolia.instance.index('Pollar_Poll_Question_Index').query(searchText)
+    .setPage(0)
+  ..setHitsPerPage(10);
+AlgoliaQuerySnapshot snapshot = await query.getObjects();
 
-    List<String> objectIDs = snapshot.hits.map((hit) => hit.objectID).toList();
+List<String> objectIDs = snapshot.hits.map((hit) => hit.objectID).toList();
+if (objectIDs.length > 10) {
+  objectIDs = objectIDs.sublist(0, 10);
+}
+
+
     if (objectIDs.isEmpty)
     {
       _items = [];
@@ -87,13 +94,13 @@ Future<void> fetchBySearchText(String searchText) async {
       isSearching = false;
       return;
     }
+    print(objectIDs);
     final firestoreSnapshot = await FirebaseFirestore.instance
         .collection('Poll')
         .where(FieldPath.documentId, whereIn: objectIDs)
         .get();
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in firestoreSnapshot.docs) {
-      // Get the document's geopoint and radius
       final userId = doc.data()["userId"];
     final userSnapshot =
         await FirebaseFirestore.instance.collection('User').doc(userId).get();
@@ -102,6 +109,10 @@ Future<void> fetchBySearchText(String searchText) async {
       _items.add(obj); 
     }
     _items = _items.toList();
+
+    //For now just sort by votes.
+    _items.sort((a, b) => a.poll.votes.compareTo(a.poll.votes));
+
     
     print("notifyling listerners");
     isLoading = false;

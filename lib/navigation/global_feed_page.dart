@@ -26,6 +26,8 @@ class _GlobalFeedPageState extends State<GlobalFeedPage>
 
   final ScrollController _scrollController = ScrollController();
   final SearchController _searchController = SearchController();
+  int previousLength = 0;
+
 
   Timer? _debounce;
 
@@ -44,11 +46,15 @@ class _GlobalFeedPageState extends State<GlobalFeedPage>
   }
 
   void _performSearch(String value) {
+  final currentLength = value.length;
+  if (currentLength > previousLength || currentLength <= 3) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () async {
       await widget.globalFeedProvider.fetchBySearchText(value);
     });
   }
+  previousLength = currentLength;
+}
 
 @override
 Widget build(BuildContext context) {
@@ -136,10 +142,19 @@ Widget build(BuildContext context) {
                             child: TextFormField(
                               controller: _searchController,
                               onChanged: (value) {
-                                _performSearch(_searchController.text);
+                                
+                                _performSearch(_searchController.text);  
+                                
+                                
                               },
                              
-                              onFieldSubmitted: (value) =>_performSearch(_searchController.text),
+                              onFieldSubmitted: (value) {
+                                if (value != _searchController.text)
+                                {
+                                  _performSearch(_searchController.text);  
+                                }
+                                
+                              },
                               decoration: const InputDecoration(
                                 hintText: 'Search...',
                                 hintStyle: TextStyle(
