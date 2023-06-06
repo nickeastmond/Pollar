@@ -371,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 30, horizontal: 50),
+                                          vertical: 30, horizontal: 30),
                                       child: Column(
                                         children: [
                                           // emoji pfp & dropdown
@@ -405,8 +405,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                 ),
                                                 child: Padding(
                                                   padding: Platform.isAndroid
-                                                    ? const EdgeInsets.only(bottom: 0)
-                                                    : const EdgeInsets.only(bottom: 8.0),
+                                                      ? const EdgeInsets.only(
+                                                          bottom: 0)
+                                                      : const EdgeInsets.only(
+                                                          bottom: 8.0),
                                                   child: Center(
                                                     child: SizedBox(
                                                       height: 100,
@@ -574,7 +576,7 @@ class _ProfilePageState extends State<ProfilePage>
                                           //             (route) => false);
                                           //   },
                                           // ),
-
+                                          const SizedBox(height: 2.5),
                                           AnimatedContainer(
                                             height:
                                                 dropdownState != "▲" ? 12 : 0,
@@ -586,12 +588,11 @@ class _ProfilePageState extends State<ProfilePage>
                                                 milliseconds: 250),
                                             decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(5),
+                                                  BorderRadius.circular(15),
                                               color:
                                                   Colors.black.withOpacity(0.1),
                                             ),
                                             height: emojiBoxHeight,
-                                            width: 250,
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 15, vertical: 10),
                                             child: SingleChildScrollView(
@@ -620,10 +621,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                 milliseconds: 400),
                                           ),
                                           Container(
-                                            width: 250,
                                             decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(5),
+                                                  BorderRadius.circular(15),
                                               color:
                                                   Colors.black.withOpacity(0.1),
                                             ),
@@ -632,7 +632,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               padding: const EdgeInsets.all(30),
                                               gridDelegate:
                                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                                crossAxisCount: 4,
+                                                crossAxisCount: 5,
                                                 mainAxisSpacing: 16,
                                                 crossAxisSpacing: 16,
                                               ),
