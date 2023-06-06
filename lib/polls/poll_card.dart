@@ -190,6 +190,8 @@ class _PollCardState extends State<PollCard> {
     if (locationGranted == true && inRange) {
       //debugPrint("inRange");
       return true;
+    } else if (widget.poll.poll.radius == 999.0) {
+      return true;
     } else {
       return false;
     }

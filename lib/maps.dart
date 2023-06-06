@@ -75,7 +75,6 @@ class CreateMapPageState extends State<CreateMapPage> {
       _value = prefs.getDouble('Radius')!.toInt();
       finalValue = _value;
     });
-  
   }
 
   @override
@@ -184,13 +183,22 @@ class CreateMapPageState extends State<CreateMapPage> {
                             widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
                           setState(() {
-                            storeMapsData(
-                                    finalValue,
-                                    pickedData.latLong.longitude,
-                                    pickedData.latLong.latitude)
-                                .then((_) => widget.feedProvider
-                                    .fetchInitial(100)
-                                    .then((_) => Navigator.pop(context, true)));
+                            if (widget.fromFeed) {
+                              storeMapsData(
+                                      finalValue,
+                                      pickedData.latLong.longitude,
+                                      pickedData.latLong.latitude)
+                                  .then((_) => widget.feedProvider
+                                      .fetchInitial(100)
+                                      .then(
+                                          (_) => Navigator.pop(context, true)));
+                            } else {
+                              storeMapsData(
+                                      finalValue,
+                                      pickedData.latLong.longitude,
+                                      pickedData.latLong.latitude)
+                                  .then((_) => Navigator.pop(context, true));
+                            }
                           });
                         }),
                   )

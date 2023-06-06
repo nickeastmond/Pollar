@@ -93,7 +93,8 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
         physicalLocation!, pollLocation, widget.pollFeedObj.poll.radius);
 
     if (locationGranted == true && inRange) {
-      debugPrint("inRange");
+      return true;
+    } else if (widget.pollFeedObj.poll.radius == 999.0) {
       return true;
     } else {
       return false;

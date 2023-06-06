@@ -22,9 +22,11 @@ import '../polls_theme.dart';
 import 'bar_graph.dart';
 
 class CreatePollPage extends StatefulWidget {
-  const CreatePollPage({Key? key, required this.feedProvider,    required this.onPollCreated,
-})
-      : super(key: key);
+  const CreatePollPage({
+    Key? key,
+    required this.feedProvider,
+    required this.onPollCreated,
+  }) : super(key: key);
   final MainFeedProvider feedProvider;
   final Function() onPollCreated;
 
@@ -56,9 +58,7 @@ class CreatePollPageState extends State<CreatePollPage> {
   }
 
   Future<List<Placemark>> _getPollLocation(Position? cur) async {
-
-    LatLng pollLocation = LatLng(cur!.latitude,
-        cur.longitude);
+    LatLng pollLocation = LatLng(cur!.latitude, cur.longitude);
     List<Placemark> placemark = await placemarkLocation(pollLocation);
     return placemark;
   }
@@ -130,8 +130,8 @@ class CreatePollPageState extends State<CreatePollPage> {
                             feedProvider: widget.feedProvider,
                             fromFeed: false,
                           ),
-                          settings: RouteSettings(
-                                            arguments: runtimeType.toString()),
+                          settings:
+                              RouteSettings(arguments: runtimeType.toString()),
                         ),
                       );
 
@@ -149,7 +149,7 @@ class CreatePollPageState extends State<CreatePollPage> {
                           await SharedPreferences.getInstance();
                       _sliderValue = prefs.getDouble('Radius') ?? 0;
                       List<Placemark> placemark = await _getPollLocation(cur);
-                      
+
                       //We are done with location stuff, lets upload this info
 
                       data.addAll({
@@ -183,14 +183,16 @@ class CreatePollPageState extends State<CreatePollPage> {
                       if (context.mounted && success) {
                         addPoints(Constants.CREATE_POLL_POINTS);
                         widget.onPollCreated(); // Trigger the callback
-
-                        
-                        Navigator.pop(context);
-                        Navigator.pop(context);
+                        if (_sliderValue == 999) {
+                          await prefs.setDouble("Radius", 5.0);
+                        }
                         await widget.feedProvider.fetchInitial(100);
+                        if (mounted) {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }
+
                         return Future.value(true);
-
-
 
                         //This seemed to work not having the UI in feed have a seizure
                         // ignore: invalid_use_of_visible_for_testing_member
