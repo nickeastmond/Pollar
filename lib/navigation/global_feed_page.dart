@@ -73,102 +73,106 @@ class _GlobalFeedPageState extends State<GlobalFeedPage>
                       : const Color.fromARGB(255, 25, 25, 25),
               body: Column(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: MediaQuery.of(context).platformBrightness ==
-                              Brightness.dark
-                          ? theme.primaryColor
-                          : theme.cardColor,
-                      boxShadow: const [
-                        BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            spreadRadius: 0),
-                      ],
-                    ),
-                    height: 100,
-                    child: FlutterMap(
-                      mapController: MapController(),
-                      options: MapOptions(
-                        zoom: 1,
-                        center: LatLng(0, 0),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: MediaQuery.of(context).platformBrightness ==
+                                Brightness.dark
+                            ? theme.primaryColor
+                            : theme.cardColor,
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 10,
+                              spreadRadius: 0),
+                        ],
                       ),
-                      children: [
-                        TileLayer(
-                          backgroundColor: Colors.white,
-                          retinaMode: true,
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: const ['a', 'b', 'c'],
+                      height: 100,
+                      child: FlutterMap(
+                        mapController: MapController(),
+                        options: MapOptions(
+                          zoom: 1,
+                          center: LatLng(0, 0),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 10, left: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 19,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 8,
-                                      color: Colors.black,
-                                      offset: Offset(1.0, 1.0),
+                        children: [
+                          TileLayer(
+                            backgroundColor: Colors.white,
+                            retinaMode: true,
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: const ['a', 'b', 'c'],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(top: 10, left: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 19,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 8,
+                                        color: Colors.black,
+                                        offset: Offset(1.0, 1.0),
+                                      ),
+                                    ],
+                                  ),
+                                  '',
+                                ),
+                              ],
+                            ),
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12.0, right: 12, top: 28),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(150),
+                                  borderRadius: BorderRadius.circular(3.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      spreadRadius: 2.0,
+                                      blurRadius: 4.0,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
-                                '',
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 40, bottom: 15, left: 15, right: 15),
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(3.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    spreadRadius: 2.0,
-                                    blurRadius: 4.0,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: TextFormField(
-                                controller: _searchController,
-                                onChanged: (value) {
-                                  _performSearch(_searchController.text);
-                                },
-                                onFieldSubmitted: (value) {
-                                  if (value != _searchController.text) {
+                                child: TextFormField(
+                                  controller: _searchController,
+                                  onChanged: (value) {
                                     _performSearch(_searchController.text);
-                                  }
-                                },
-                                decoration: const InputDecoration(
-                                  hintText: 'Search...',
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                  border: InputBorder.none,
-                                  icon: Icon(
-                                    Icons.search,
-                                    color: Colors.grey,
+                                  },
+                                  onFieldSubmitted: (value) {
+                                    if (value != _searchController.text) {
+                                      _performSearch(_searchController.text);
+                                    }
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search...',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                    border: InputBorder.none,
+                                    icon: Icon(
+                                      Icons.search,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(
