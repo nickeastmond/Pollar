@@ -31,9 +31,9 @@ Future<LocationData> _getCurrentLocation() async {
 // }
 
 Future<void> storeMapsData(int var1, double long, double lat) async {
-  print(var1);
+  debugPrint(var1.toString());
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setDouble('Radius', var1.toDouble());
+  await prefs.setDouble('Radius', var1.toDouble());
   final currentLocation = Position(
       latitude: lat,
       longitude: long,
@@ -44,7 +44,8 @@ Future<void> storeMapsData(int var1, double long, double lat) async {
       speed: 0,
       speedAccuracy: 0);
 
-  PositionAdapter.saveToSharedPreferences("virtualLocation", currentLocation);
+  await PositionAdapter.saveToSharedPreferences(
+      "virtualLocation", currentLocation);
 }
 
 class CreateMapPage extends StatefulWidget {
@@ -71,10 +72,37 @@ class CreateMapPageState extends State<CreateMapPage> {
 
   Future<void> _getValue() async {
     final prefs = await SharedPreferences.getInstance();
+    double val = await prefs.getDouble('Radius') ?? 5;
     setState(() {
-      _value = prefs.getDouble('Radius')!.toInt();
+      _value = val.toInt();
       finalValue = _value;
     });
+  }
+
+  void showLoadingScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (
+        BuildContext context,
+      ) {
+        return PollsTheme(builder: (context, theme) {
+          return Stack(
+            children: <Widget>[
+              const ModalBarrier(
+                color: Color.fromARGB(0, 0, 0, 0),
+                dismissible: false,
+              ),
+              Center(
+                child: CircularProgressIndicator(
+                  color: theme.secondaryHeaderColor,
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -182,23 +210,42 @@ class CreateMapPageState extends State<CreateMapPage> {
                         buttonText:
                             widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
-                          setState(() {
-                            if (widget.fromFeed) {
-                              storeMapsData(
-                                      finalValue,
-                                      pickedData.latLong.longitude,
-                                      pickedData.latLong.latitude)
-                                  .then((_) => widget.feedProvider
-                                      .fetchInitial(100)
-                                      .then(
-                                          (_) => Navigator.pop(context, true)));
-                            } else {
-                              storeMapsData(
-                                      finalValue,
-                                      pickedData.latLong.longitude,
-                                      pickedData.latLong.latitude)
-                                  .then((_) => Navigator.pop(context, true));
+                          setState(() async {
+                            debugPrint("showing loading screen");
+                            showLoadingScreen(context);
+                            try {
+                              if (widget.fromFeed) {
+                                await storeMapsData(
+                                    finalValue,
+                                    pickedData.latLong.longitude,
+                                    pickedData.latLong.latitude);
+                                await widget.feedProvider.fetchInitial(100);
+                                if (mounted) {
+                                  Navigator.pop(context, true);
+                                }
+                              } else {
+                                await storeMapsData(
+                                    finalValue,
+                                    pickedData.latLong.longitude,
+                                    pickedData.latLong.latitude);
+                                if (mounted) {
+                                  Navigator.pop(context, true);
+                                }
+                              }
+                            } catch (e) {
+                              var snackBar = SnackBar(
+                                duration: const Duration(seconds: 3),
+                                backgroundColor: Colors.red,
+                                content: Text(
+                                  e.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                             }
+                            if (mounted) Navigator.pop(context, true);
                           });
                         }),
                   )

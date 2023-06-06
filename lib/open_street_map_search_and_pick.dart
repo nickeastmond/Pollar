@@ -54,10 +54,8 @@ class _OpenStreetMapSearchAndPickState
   void setNameCurrentPos() async {
     double latitude = _mapController.center.latitude;
     double longitude = _mapController.center.longitude;
-    if (kDebugMode) {
-    }
-    if (kDebugMode) {
-    }
+    if (kDebugMode) {}
+    if (kDebugMode) {}
     String url =
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1&limit=10&importance=1';
 
@@ -72,10 +70,8 @@ class _OpenStreetMapSearchAndPickState
   void setNameCurrentPosAtInit() async {
     double latitude = widget.center.latitude;
     double longitude = widget.center.longitude;
-    if (kDebugMode) {
-    }
-    if (kDebugMode) {
-    }
+    if (kDebugMode) {}
+    if (kDebugMode) {}
     String url =
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1&limit=10&importance=1';
 
@@ -103,10 +99,8 @@ class _OpenStreetMapSearchAndPickState
         var decodedResponse = jsonDecode(utf8.decode(response.bodyBytes))
             as Map<dynamic, dynamic>;
 
-        if (_searchController.text.isNotEmpty)
-        {
-                  _searchController.text = "";
-
+        if (_searchController.text.isNotEmpty) {
+          _searchController.text = "";
         }
         setState(() {});
       }
@@ -126,7 +120,8 @@ class _OpenStreetMapSearchAndPickState
   Widget build(BuildContext context) {
     // String? _autocompleteSelection;
     OutlineInputBorder inputBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: widget.buttonColor, style: BorderStyle.none),
+      borderSide:
+          BorderSide(color: widget.buttonColor, style: BorderStyle.none),
     );
     OutlineInputBorder inputFocusBorder = OutlineInputBorder(
       borderSide: BorderSide(color: widget.buttonColor, width: 3.0),
@@ -248,16 +243,16 @@ class _OpenStreetMapSearchAndPickState
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: const Color.fromARGB(25, 0, 0, 0),
-                          blurRadius: 4,
-                          spreadRadius: 4,
-                          blurStyle: BlurStyle.normal,
-                          offset: Offset.fromDirection(pi / 2, 4))
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5)),
+                        boxShadow: [
+                          BoxShadow(
+                              color: const Color.fromARGB(25, 0, 0, 0),
+                              blurRadius: 4,
+                              spreadRadius: 4,
+                              blurStyle: BlurStyle.normal,
+                              offset: Offset.fromDirection(pi / 2, 4))
+                        ],
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5)),
                     child: TextFormField(
                         controller: _searchController,
                         focusNode: _focusNode,
@@ -274,10 +269,9 @@ class _OpenStreetMapSearchAndPickState
                         onChanged: (String value) {
                           if (_debounce?.isActive ?? false) _debounce?.cancel();
 
-                          _debounce =
-                              Timer(const Duration(milliseconds: 500), () async {
-                            if (kDebugMode) {
-                            }
+                          _debounce = Timer(const Duration(milliseconds: 500),
+                              () async {
+                            if (kDebugMode) {}
                             var client = http.Client();
                             try {
                               String url =
@@ -289,50 +283,53 @@ class _OpenStreetMapSearchAndPickState
                               var decodedResponse =
                                   jsonDecode(utf8.decode(response.bodyBytes))
                                       as List<dynamic>;
-                              if (kDebugMode) {
-                              }
+                              if (kDebugMode) {}
                               //CUSTOM CODE
-                              
+
                               _options = decodedResponse.map((e) {
-                                  String final_str= "";
-                                  final_str += e["address"].values.toList()[0];
-                                  final_str +=", ";
-                                  if (e["address"]["road"] != null && e["address"]["road"] != e["address"].values.toList()[0])
-                                  {
-                                    final_str += e["address"]["road"];
-                                    final_str +=", ";
-
-                                  }
-                                  if (e["address"]["road"] != null && e["address"]["county"] != null && e["address"]["county"] != e["address"].values.toList()[0]&& e["address"]["county"] != e["address"]["state"])
-                                  {
-                                    final_str += e["address"]["county"];
-                                    final_str +=", ";
-
-                                  }
-                                  if (e["address"]["state"] != null && e["address"]["state"] != e["address"].values.toList()[0])
-                                  {
-                                    final_str += e["address"]["state"];
-                                    final_str +=", ";
-
-                                  }
-                                   if (e["address"]["country"] != null && e["address"]["country"] != e["address"].values.toList()[0])
-                                  {
-                                    final_str += e["address"]["country"];
-                                    final_str +=", ";
-                                  }
-                                  if (final_str.substring(final_str.length-2, final_str.length) == ", ")
-                                  {
-                                    final_str = final_str.substring(0, final_str.length - 2);
-
-                                  }
-                                  print("final str: \n");
-                                  print(final_str);
-                                    return  OSMdata(
-                                      displayname: final_str,
-                                      lat: double.parse(e['lat']),
-                                      lon: double.parse(e['lon']));
-
-                                  }).toList();
+                                String final_str = "";
+                                final_str += e["address"].values.toList()[0];
+                                final_str += ", ";
+                                if (e["address"]["road"] != null &&
+                                    e["address"]["road"] !=
+                                        e["address"].values.toList()[0]) {
+                                  final_str += e["address"]["road"];
+                                  final_str += ", ";
+                                }
+                                if (e["address"]["road"] != null &&
+                                    e["address"]["county"] != null &&
+                                    e["address"]["county"] !=
+                                        e["address"].values.toList()[0] &&
+                                    e["address"]["county"] !=
+                                        e["address"]["state"]) {
+                                  final_str += e["address"]["county"];
+                                  final_str += ", ";
+                                }
+                                if (e["address"]["state"] != null &&
+                                    e["address"]["state"] !=
+                                        e["address"].values.toList()[0]) {
+                                  final_str += e["address"]["state"];
+                                  final_str += ", ";
+                                }
+                                if (e["address"]["country"] != null &&
+                                    e["address"]["country"] !=
+                                        e["address"].values.toList()[0]) {
+                                  final_str += e["address"]["country"];
+                                  final_str += ", ";
+                                }
+                                if (final_str.substring(final_str.length - 2,
+                                        final_str.length) ==
+                                    ", ") {
+                                  final_str = final_str.substring(
+                                      0, final_str.length - 2);
+                                }
+                                print("final str: \n");
+                                print(final_str);
+                                return OSMdata(
+                                    displayname: final_str,
+                                    lat: double.parse(e['lat']),
+                                    lon: double.parse(e['lon']));
+                              }).toList();
                               setState(() {});
                             } finally {
                               client.close();
@@ -352,7 +349,6 @@ class _OpenStreetMapSearchAndPickState
                             title: Text(_options[index].displayname),
                             subtitle: Text(
                                 '${_options[index].lat},${_options[index].lon}'),
-                            
                             onTap: () {
                               _mapController.move(
                                   LatLng(
@@ -398,10 +394,10 @@ class _OpenStreetMapSearchAndPickState
                         fontSize: 17,
                         fontWeight: FontWeight.w400),
                   ),
-                  onPressed: () async {
-                    pickData().then((value) {
-                      widget.onPicked(value);
-                    });
+                  onPressed: () {
+                    LatLong center = LatLong(_mapController.center.latitude,
+                        _mapController.center.longitude);
+                    widget.onPicked(PickedData(center, "dont need this shit"));
                   },
                 ),
               ),
@@ -412,21 +408,36 @@ class _OpenStreetMapSearchAndPickState
     );
   }
 
+//   Future<PickedData> pickData() async {
+//     LatLong center = LatLong(
+//         _mapController.center.latitude, _mapController.center.longitude);
+//     var client = http.Client();
+//     String url =
+//         'https://nominatim.openstreetmap.org/reverse?format=json&lat=${_mapController.center.latitude}&lon=${_mapController.center.longitude}&zoom=18&addressdetails=1&limit=10&importance=1';
+
+//     var response = await client.post(Uri.parse(url));
+//     var decodedResponse =
+//         jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
+//         print(decodedResponse);
+
+//     String displayName = decodedResponse['display_name'];
+//     return PickedData(center, displayName);
+//   }
+// }
   Future<PickedData> pickData() async {
     LatLong center = LatLong(
         _mapController.center.latitude, _mapController.center.longitude);
-    var client = http.Client();
-    String url =
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${_mapController.center.latitude}&lon=${_mapController.center.longitude}&zoom=18&addressdetails=1&limit=10&importance=1';
+    //var client = http.Client();
+    //String url =
+    //   'https://nominatim.openstreetmap.org/reverse?format=json&lat=${_mapController.center.latitude}&lon=${_mapController.center.longitude}&zoom=18&addressdetails=1&limit=10&importance=1';
 
-    var response = await client.post(Uri.parse(url));
-    var decodedResponse =
-        jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
-        print(decodedResponse);
-    
-    
-    String displayName = decodedResponse['display_name'];
-    return PickedData(center, displayName);
+    //var response = await client.post(Uri.parse(url));
+    //var decodedResponse =
+    //    jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
+    //print(decodedResponse);
+
+    //String displayName = decodedResponse['display_name'];
+    return PickedData(center, "might fix");
   }
 }
 
