@@ -87,7 +87,7 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
                     triggerMode: RefreshIndicatorTriggerMode.onEdge,
                     color: theme.secondaryHeaderColor,
                     onRefresh: () => provider.fetchInitial(100),
-                    child: provider.items.isNotEmpty &&
+                    child: provider.isLoading? const Center(child: CircularProgressIndicator()) : provider.items.isNotEmpty &&
                             provider.locationData != null && provider.isLoading == false
                         ? ListView.builder(
                             controller: _scrollController,
@@ -95,7 +95,10 @@ class _FeedPageState extends State<FeedPage> with WidgetsBindingObserver {
                             shrinkWrap: false,
                             itemCount: provider.items.length,
                             itemBuilder: (_, int index) {
-                              
+                               if (index >= provider.items.length) {
+    // Handle the case when the index is out of range
+    return const SizedBox.shrink(); // Return an empty widget or another appropriate widget
+  }
                               final pollItem = provider.items[index];
 
                               if (index == 0) {

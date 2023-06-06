@@ -422,6 +422,7 @@ class _OpenStreetMapSearchAndPickState
     var response = await client.post(Uri.parse(url));
     var decodedResponse =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<dynamic, dynamic>;
+        print(decodedResponse);
     
     
     String displayName = decodedResponse['display_name'];

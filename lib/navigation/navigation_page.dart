@@ -1,22 +1,18 @@
 //  Created by Nicholas Eastmond on 9/26/22.
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pollar/model/Report/report_model.dart';
 import 'package:pollar/navigation/global_feed_page.dart';
 import 'package:pollar/navigation/profile_page.dart';
-import 'package:pollar/services/feeds/feed_provider.dart';
 import 'package:pollar/services/feeds/global_feed_provider.dart';
 import 'package:pollar/services/feeds/main_feed_provider.dart';
-import 'package:pollar/services/reset.dart';
 import 'package:provider/provider.dart';
 import '../login/login_page.dart';
-import '../model/Poll/database/delete_all.dart';
-import '../model/user/database/delete_user_db.dart';
 import '../polls/create_poll_page.dart';
 import '../polls_theme.dart';
+import '../services/animations/main_animations.dart';
 import '../services/auth.dart';
-import '../services/location/location.dart';
 
 import '../maps.dart';
 import 'feed_page.dart';
@@ -36,14 +32,18 @@ class NavigationPageState extends State<NavigationPage> {
   bool displayAllPolls = true;
   int tabSelected = 0; // initially tab selected is poll feed
   bool refresh = false;
+  late ConfettiController _controllerTopCenter;
 
   @override
   initState() {
     super.initState();
+    _controllerTopCenter =
+        ConfettiController(duration: const Duration(seconds: 3));
   }
 
   @override
   void dispose() {
+    _controllerTopCenter.dispose();
     super.dispose();
   }
 
@@ -97,7 +97,8 @@ class NavigationPageState extends State<NavigationPage> {
                                     feedProvider: feedProvider,
                                     fromFeed: true,
                                   ),
-                                  settings: RouteSettings(arguments: runtimeType.toString()),
+                                  settings: RouteSettings(
+                                      arguments: runtimeType.toString()),
                                 ),
                               );
                             }
@@ -131,7 +132,13 @@ class NavigationPageState extends State<NavigationPage> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => CreatePollPage(
-                                      feedProvider: feedProvider),
+                                    feedProvider: feedProvider,
+                                    onPollCreated: () {
+                                      print("playConfetti");
+                                      _controllerTopCenter.play();
+                                      print("confetti done");
+                                    },
+                                  ),
                                 ),
                               );
                             }),
@@ -178,19 +185,47 @@ class NavigationPageState extends State<NavigationPage> {
                         ),
                       ],
                     ),
-                    body: IndexedStack(
-                      index: tabSelected,
+                    body: Stack(
                       children: [
-                        FeedPage(
-                          feedProvider: Provider.of<MainFeedProvider>(context,
-                              listen: false),
+                        IndexedStack(
+                          index: tabSelected,
+                          children: [
+                            FeedPage(
+                              feedProvider: Provider.of<MainFeedProvider>(
+                                  context,
+                                  listen: false),
+                            ),
+                            GlobalFeedPage(
+                              globalFeedProvider:
+                                  Provider.of<GlobalFeedProvider>(context,
+                                      listen: false),
+                            ), // This should be Global Feed
+                            const ProfilePage(),
+                          ],
                         ),
-                        GlobalFeedPage(
-                          globalFeedProvider: Provider.of<GlobalFeedProvider>(
-                              context,
-                              listen: false),
-                        ), // This should be Global Feed
-                        const ProfilePage(),
+                        //TOP CENTER - shoot down
+                        Align(
+                          alignment: const Alignment(0.0, -0.65),
+                          child: ConfettiWidget(
+                            confettiController: _controllerTopCenter,
+                            blastDirectionality: BlastDirectionality
+                                .explosive, // don't specify a direction, blast randomly
+                            shouldLoop:
+                                false, // start again as soon as the animation is finished
+                            colors: const [
+                              Colors.green,
+                              Colors.blue,
+                              Colors.pink,
+                              Colors.orange,
+                              Colors.purple
+                            ], // manually specify the colors to be used
+                            numberOfParticles: 20,
+                            emissionFrequency: 0,
+                            gravity: .1,
+                            createParticlePath:
+                                drawStar, // define a custom shape/path.
+                          ),
+                        ),
                       ],
                     ),
                   ),

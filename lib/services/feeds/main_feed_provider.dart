@@ -73,6 +73,7 @@ class MainFeedProvider extends FeedProvider {
   @override
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
+    isLoading = true;
 
     
     _getCurrentLocation().then((locationData) {
