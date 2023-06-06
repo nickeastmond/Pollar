@@ -32,8 +32,6 @@ class GlobalFeedProvider extends FeedProvider {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     final snapshot =
         await FirebaseFirestore.instance.collection('Poll').
-        orderBy("votes",descending: true).
-        orderBy("numComments",descending: true).
         limit(limit).get();
     _items = [];
 
@@ -48,6 +46,8 @@ class GlobalFeedProvider extends FeedProvider {
       _items.add(obj); 
     }
     _items = _items.toList();
+        _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
+
 
     print("notifyling listerners");
     isLoading = false;
