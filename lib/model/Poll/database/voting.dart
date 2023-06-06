@@ -39,15 +39,15 @@ Future<bool> pollStatus(String userId, String pollId, Poll currentPoll) async {
   if (locationGranted == true &&
       canVote &&
       (inRange || currentPoll.radius == 999)) {
-    debugPrint("Can Vote");
+    //debugPrint("Can Vote");
     return true;
   } else {
     if (locationGranted == false) {
-      debugPrint("Permissions not Granted");
+      //debugPrint("Permissions not Granted");
     } else if (canVote == false) {
-      debugPrint("Already Voted");
+      //debugPrint("Already Voted");
     } else if (inRange == false) {
-      debugPrint("Out of Range");
+      //debugPrint("Out of Range");
     }
     return false;
   }

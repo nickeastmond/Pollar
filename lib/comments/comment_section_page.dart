@@ -4,8 +4,7 @@ import 'package:pollar/comments/comment_card.dart';
 import 'package:pollar/model/Comment/comment_model.dart';
 import 'package:pollar/model/constans.dart';
 import 'package:pollar/model/user/pollar_user_model.dart';
-import 'package:pollar/navigation/feed_page.dart';
-import 'package:pollar/services/feeds/main_feed_provider.dart';
+
 import 'package:uuid/uuid.dart';
 
 import '../model/Poll/poll_model.dart';
@@ -95,41 +94,43 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                         padding: const EdgeInsets.all(20.0),
                         child: Stack(
                           children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width - 90,
-                              child: TextField(
-                                keyboardType: TextInputType.text,
-                                textInputAction: TextInputAction.done,
-                                controller: commentTextEditorController,
-                                minLines: 1,
-                                maxLines: 10,
-                                textAlignVertical: TextAlignVertical.top,
-                                decoration: InputDecoration(
-                                  fillColor: MediaQuery.of(context)
-                                              .platformBrightness ==
-                                          Brightness.light
-                                      ? Colors.grey.shade200
-                                      : Colors.grey.shade900,
-                                  hintStyle: TextStyle(
-                                    color: MediaQuery.of(context)
+                            FocusScope(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width - 90,
+                                child: TextField(
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.done,
+                                  controller: commentTextEditorController,
+                                  minLines: 1,
+                                  maxLines: 10,
+                                  textAlignVertical: TextAlignVertical.top,
+                                  decoration: InputDecoration(
+                                    fillColor: MediaQuery.of(context)
                                                 .platformBrightness ==
                                             Brightness.light
-                                        ? Colors.black.withAlpha(75)
-                                        : Colors.grey.shade800,
+                                        ? Colors.grey.shade200
+                                        : Colors.grey.shade900,
+                                    hintStyle: TextStyle(
+                                      color: MediaQuery.of(context)
+                                                  .platformBrightness ==
+                                              Brightness.light
+                                          ? Colors.black.withAlpha(75)
+                                          : Colors.grey.shade800,
+                                    ),
+                                    hintText: "Add a Comment",
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0)),
+                                    alignLabelWithHint: true,
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.never,
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        borderSide: BorderSide.none),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 16),
+                                    filled: true,
                                   ),
-                                  hintText: "Add a Comment",
-                                  border: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(20.0)),
-                                  alignLabelWithHint: true,
-                                  floatingLabelBehavior:
-                                      FloatingLabelBehavior.never,
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      borderSide: BorderSide.none),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 16),
-                                  filled: true,
                                 ),
                               ),
                             ),
@@ -160,6 +161,7 @@ class _CommentSectionPageState extends State<CommentSectionPage> {
                                   if (!success) {
                                     debugPrint("Error creating comment");
                                   }
+                                  FocusScope.of(context).unfocus();
                                   await widget.feedProvider.fetchInitial(100);
                                   setState(() {
                                     refresh = !refresh;

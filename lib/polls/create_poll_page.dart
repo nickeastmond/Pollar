@@ -22,9 +22,11 @@ import '../polls_theme.dart';
 import 'bar_graph.dart';
 
 class CreatePollPage extends StatefulWidget {
-  const CreatePollPage({Key? key, required this.feedProvider})
+  const CreatePollPage({Key? key, required this.feedProvider,    required this.onPollCreated,
+})
       : super(key: key);
   final MainFeedProvider feedProvider;
+  final Function() onPollCreated;
 
   @override
   State<CreatePollPage> createState() => CreatePollPageState();
@@ -134,7 +136,8 @@ class CreatePollPageState extends State<CreatePollPage> {
                       );
 
                       if (!successMap) {
-                        return;
+                        // ignore: void_checks
+                        return Future.value(false);
                       }
                       showLoadingScreen(context);
 
@@ -179,10 +182,14 @@ class CreatePollPageState extends State<CreatePollPage> {
                       bool success = await addPollToFirestore(p);
                       if (context.mounted && success) {
                         addPoints(Constants.CREATE_POLL_POINTS);
+                        widget.onPollCreated(); // Trigger the callback
+
                         
                         Navigator.pop(context);
                         Navigator.pop(context);
                         await widget.feedProvider.fetchInitial(100);
+                        return Future.value(true);
+
 
 
                         //This seemed to work not having the UI in feed have a seizure
