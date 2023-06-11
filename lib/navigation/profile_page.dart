@@ -69,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   initState() {
-    updateMyEmoji('');
+    updateMyEmoji('');         
     updateMyEmojiBgColor(-2);
     updatePoints(0);
     fetchAssets();
@@ -136,6 +136,8 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
+  // Fetches list of unlocked profile customization assets from Firebase
+  // into unlockedAssets
   void fetchAssets() async {
     if (mounted) {
       List<dynamic> temp = await getUnlockedAssets();
@@ -146,6 +148,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
+  // Fetches user's display emoji from shared preferences into userEmoji
   void updateMyEmoji(String emoji) async {
     final prefs = await SharedPreferences.getInstance();
     sprefEmoji = prefs.getString('emoji') ?? "null";
@@ -153,6 +156,7 @@ class _ProfilePageState extends State<ProfilePage>
     // new user
     if (sprefEmoji == 'null') {
       prefs.setString('emoji', defaultEmoji);
+
       // existing user
     } else if (emoji != '') {
       setEmoji(emoji);
@@ -164,13 +168,18 @@ class _ProfilePageState extends State<ProfilePage>
     });
   }
 
-  // -2 will be used as input if we just want to update the color and nothing else
+  // Fetches user's background profile color from shared
+  // preferences into userEmojiBgColorVal
+  // --- Notes ---
+  // -1 wil be used to represent a new user
+  // -2 will be used to update the color and nothing else
   void updateMyEmojiBgColor(int colorVal) async {
     final prefs = await SharedPreferences.getInstance();
     sprefEmojiBgColorVal = prefs.getInt('emojiBgColorVal') ?? -1;
     // new user
     if (sprefEmojiBgColorVal == -1) {
       prefs.setInt('emojiBgColorVal', defaultEmojiBgColor.value);
+
       // existing user
     } else if (colorVal > -1) {
       setEmojiBgColor(colorVal);
@@ -182,12 +191,15 @@ class _ProfilePageState extends State<ProfilePage>
     });
   }
 
+  // Fetches current amount of user's points from shared
+  // preferences into points
   void updatePoints(int num) async {
     final prefs = await SharedPreferences.getInstance();
     sprefPoints = prefs.getInt('points') ?? -1;
     // new user
     if (sprefPoints == -1) {
       prefs.setInt('points', 0);
+
       // existing user
     } else if (num > 0) {
       addPoints(num);
@@ -199,16 +211,23 @@ class _ProfilePageState extends State<ProfilePage>
     });
   }
 
+  // Use this to immediately reflect real-time changes 
+  // to user's points (especially if changes were 
+  // made by another page)
   int setStateFromAnotherPagePoints() {
     updatePoints(0);
     return points!;
   }
 
+  // Use this to immediately reflect real-time changes 
+  // to user's display emoji
   String setStateFromThisPageEmoji() {
     updateMyEmoji('');
     return userEmoji!;
   }
 
+  // Prompts user for confirmation before proceeding with
+  // emoji-customiztion purchase transaction
   void confirmationAndPurchase(String emoji) {
     showDialog(
         context: context,
@@ -256,6 +275,11 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
 
+  // A button that shows an emoji available to
+  // use as user's display emoji. If it is not
+  // in the user's list of unlockedAssets, it will
+  // show the emoji with a "locked/disabled" visual,
+  // otherwise it will show as a normal emoji
   Widget emojiOption(String emoji) {
     return Container(
       child: unlockedAssets.contains(emoji)
@@ -478,104 +502,8 @@ class _ProfilePageState extends State<ProfilePage>
                                               ),
                                             ),
                                           ),
+                                          
                                           // Change emoji functionality
-                                          // TextButton(
-                                          //   child: Text(
-                                          //       dropdownState,
-                                          //       style: const TextStyle(
-                                          //         color: Colors.white,
-                                          //         fontSize: 16,
-                                          //       )),
-                                          //   onPressed: () {
-                                          //     setState(() {
-                                          //       if (emojiBoxHeight! > 0) {
-                                          //         emojiBoxHeight = 0;
-                                          //         dropdownState = "Change Profile Emoji  ▲";
-                                          //       } else {
-                                          //         emojiBoxHeight = 140;
-                                          //         dropdownState = "Change Profile Emoji  ▼";
-                                          //       }
-                                          //     });
-                                          //   },
-                                          // ),
-
-                                          // testing use only
-                                          // TextButton(
-                                          //   onPressed: () {
-                                          //     addPoints(10);
-                                          //     updatePoints(10);
-                                          //   },
-                                          //   child: const Text(
-                                          //     'FREE 10 POINTS'
-                                          //   ),
-                                          // ),
-
-                                          // poll history
-                                          // TextButton(
-                                          //   child: const Text(
-                                          //     "View Polls History",
-                                          //     style: TextStyle(
-                                          //       color: Colors.white,
-                                          //       fontSize: 17,
-                                          //     ),
-                                          //   ),
-                                          //   onPressed: () {
-                                          //     Navigator.of(context).push(
-                                          //         MaterialPageRoute(
-                                          //             builder: (context) =>
-                                          //                 const PollHistoryPage()));
-                                          //   },
-                                          // ),
-
-                                          //const SizedBox(height: 15),
-
-                                          //change password button
-                                          // ISSUE: 1st pass reset email gets sent to spam, need to connect email to custom domain
-                                          // TextButton(
-                                          //   child: Text(
-                                          //     "Reset Password",
-                                          //     style: TextStyle(
-                                          //       color: theme.indicatorColor,
-                                          //       fontSize: 17,
-                                          //     ),
-                                          //   ),
-                                          //   onPressed: () async {
-                                          //     PollarAuth.resetPassword();
-                                          //     var passResetSnackBar =
-                                          //         const SnackBar(
-                                          //       duration: Duration(seconds: 3),
-                                          //       backgroundColor: Colors.red,
-                                          //       content: Text(
-                                          //         'Password reset link sent to email',
-                                          //         textAlign: TextAlign.center,
-                                          //       ),
-                                          //     );
-                                          //     if (context.mounted) {
-                                          //       ScaffoldMessenger.of(context)
-                                          //           .showSnackBar(
-                                          //               passResetSnackBar);
-                                          //     }
-                                          //   },
-                                          // ),
-                                          //const SizedBox(height: 15),
-
-                                          // sign out button
-                                          // TextButton(
-                                          //   child: Text("Sign out",
-                                          //       style: TextStyle(
-                                          //         color: theme.indicatorColor,
-                                          //         fontSize: 17,
-                                          //       )),
-                                          //   onPressed: () async {
-                                          //     PollarAuth.signOut();
-                                          //     Navigator.of(context)
-                                          //         .pushAndRemoveUntil(
-                                          //             MaterialPageRoute(
-                                          //                 builder: (context) =>
-                                          //                     const LoginPage()),
-                                          //             (route) => false);
-                                          //   },
-                                          // ),
                                           const SizedBox(height: 2.5),
                                           AnimatedContainer(
                                             height:

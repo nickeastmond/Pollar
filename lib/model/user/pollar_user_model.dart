@@ -82,12 +82,13 @@ class PollarUser {
 
 
 
-
+// Fetches current user display emoji from Firebase
 Future<String> getEmoji() async  {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
   return user.emoji;
 }
 
+// Sets new emoji into Firebase
 Future<bool> setEmoji(String emoji) async {
   try {
   
@@ -103,6 +104,7 @@ Future<bool> setEmoji(String emoji) async {
   }
 }
 
+// Sets value of current emojiBgColor into Firebase 
 Future<bool> setEmojiBgColor(int color) async {
   try {
   
@@ -118,11 +120,13 @@ Future<bool> setEmojiBgColor(int color) async {
   }  
 }
 
+// Fetches points from Firebase
 Future<int> getPoints() async {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
   return user.points; 
 }
 
+// Increments "num" points into current points in Firebase
 Future<bool> addPoints(int num) async {
   final prefs = await SharedPreferences.getInstance();
 
@@ -149,6 +153,7 @@ Future<bool> addPoints(int num) async {
   }
 }
 
+// Fetches list of "unlockedAssets" (emoji customization for now) from Firebase
 Future<List<dynamic>> getUnlockedAssets() async {
   PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
 
@@ -163,8 +168,10 @@ Stream<PollarUser> subscribePollarUser(String uid) async* {
   }
 }
 
-// Note: if retrieving emoji is acting up (gives user the previous user's selected emoji), it is probably
-//       because the profile page built before the line could complete
+// Fetches profile page data from firebase into shared preferences
+// --- Note ---
+// If retrieving emoji is acting up (gives user the previous user's selected emoji), it is probably
+// because the profile page built before the line could complete
 Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('emoji', await getEmoji()); // retrieve set emoji
@@ -173,23 +180,25 @@ Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
 
 }
 
+// Decrements points and adds "bought" emoji into user's "unlockedAssets"
 Future<bool> buyEmoji(int cost, String emoji) async {
   final prefs = await SharedPreferences.getInstance();
   try {
   
+  // Adds emoji into unlockedAssets (Firebase)
   await FirebaseFirestore.instance
       .collection('User')
       .doc(PollarAuth.getUid()!)
       .set({"unlocked": FieldValue.arrayUnion([emoji])}, SetOptions(merge: true));
 
 
+    // setting new value of points for display
     try {
       await FirebaseFirestore.instance
         .collection('User')
         .doc(PollarAuth.getUid()!)
         .set({"points": sprefPoints! - cost}, SetOptions(merge: true));
 
-        // setting new value of points for display
         prefs.setInt('points', sprefPoints! - cost);
         sprefPoints = prefs.getInt('points')!;
         points = sprefPoints;
