@@ -34,89 +34,84 @@ class LoginPageState extends State<LoginPage>
   late AnimationController _controller;
   late Animation<Alignment> _topAlignmentAnimation;
   late Animation<Alignment> _bottomAlignmentAnimation;
-    late Timer _timer;
-
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
 
-    if (mounted)
-    {
+    if (mounted) {
       updateSinValue();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 8));
-    _topAlignmentAnimation = TweenSequence<Alignment>(
-      [
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.topLeft, end: Alignment.topRight),
-          weight: 0.25,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.topRight, end: Alignment.bottomRight),
-          weight: 1,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.bottomRight, end: Alignment.bottomLeft),
-          weight: 0.25,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.bottomLeft, end: Alignment.topLeft),
-          weight: 1,
-        ),
-      ],
-    ).animate(_controller);
+      _controller = AnimationController(
+          vsync: this, duration: const Duration(seconds: 8));
+      _topAlignmentAnimation = TweenSequence<Alignment>(
+        [
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.topLeft, end: Alignment.topRight),
+            weight: 0.25,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.topRight, end: Alignment.bottomRight),
+            weight: 1,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.bottomRight, end: Alignment.bottomLeft),
+            weight: 0.25,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.bottomLeft, end: Alignment.topLeft),
+            weight: 1,
+          ),
+        ],
+      ).animate(_controller);
 
-    _bottomAlignmentAnimation = TweenSequence<Alignment>(
-      [
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.bottomRight, end: Alignment.bottomLeft),
-          weight: 0.25,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.bottomLeft, end: Alignment.topLeft),
-          weight: 1,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.topLeft, end: Alignment.topRight),
-          weight: 0.25,
-        ),
-        TweenSequenceItem(
-          tween: Tween<Alignment>(
-              begin: Alignment.topRight, end: Alignment.bottomRight),
-          weight: 1,
-        ),
-      ],
-    ).animate(_controller);
+      _bottomAlignmentAnimation = TweenSequence<Alignment>(
+        [
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.bottomRight, end: Alignment.bottomLeft),
+            weight: 0.25,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.bottomLeft, end: Alignment.topLeft),
+            weight: 1,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.topLeft, end: Alignment.topRight),
+            weight: 0.25,
+          ),
+          TweenSequenceItem(
+            tween: Tween<Alignment>(
+                begin: Alignment.topRight, end: Alignment.bottomRight),
+            weight: 1,
+          ),
+        ],
+      ).animate(_controller);
 
-    _controller.repeat();
+      _controller.repeat();
     }
-    
   }
 
   @override
-  void dispose()
-  {
+  void dispose() {
     _timer.cancel(); // Cancel the timer
     _controller.dispose();
     super.dispose();
   }
 
   void updateSinValue() {
-   if (mounted) {
+    if (mounted) {
       _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
         sinVal = (sin(DateTime.now().millisecondsSinceEpoch / 500) * 100) ~/ 15;
         setState(() {});
       });
     }
-    
   }
 
   @override

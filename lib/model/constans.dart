@@ -7,5 +7,4 @@ class Constants {
   static const COMMENT_POINTS = 1;
   // ignore: constant_identifier_names
   static const RADIUS = 5;
-
 }

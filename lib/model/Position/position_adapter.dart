@@ -23,8 +23,7 @@ class PositionAdapter {
   }
 
   //GET POSITION FROM SHARED PREFS, WAY FASTER THAN USING GEO.
-  static Future<Position?> getFromSharedPreferences(
-      String key) async {
+  static Future<Position?> getFromSharedPreferences(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? value = prefs.getString(key);
     if (value != null) {
@@ -35,9 +34,8 @@ class PositionAdapter {
     return slowAccessLocation;
   }
 
-   //GET POSITION FROM SHARED PREFS, WAY FASTER THAN USING GEO.
-  static Future<bool?> getLocationStatus(
-      String key) async {
+  //GET POSITION FROM SHARED PREFS, WAY FASTER THAN USING GEO.
+  static Future<bool?> getLocationStatus(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final bool? value = prefs.getBool(key);
     return value;
@@ -47,14 +45,11 @@ class PositionAdapter {
       String key, Position position) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(key, encode(position));
-
   }
 
   static Future<bool> savePermissionToSharedPreferences(
       String key, bool status) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setBool(key, status);
-
   }
-
 }

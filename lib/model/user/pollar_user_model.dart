@@ -42,7 +42,6 @@ class PollarUser {
   }
 
   factory PollarUser.fromData(String id, Map<String, dynamic> data) {
-    
     return PollarUser(
       id: id,
       emailAddress: data["email"],
@@ -60,7 +59,7 @@ class PollarUser {
       emailAddress: emailAddress,
       emoji: defaultEmoji,
       emojiBgColor: defaultEmojiBgColor,
-      innerColor: Color( defaultInnerColor),
+      innerColor: Color(defaultInnerColor),
       outerColor: Color(defaultOuterColor),
       points: 0,
       unlocked: defaultUnlocked,
@@ -68,62 +67,56 @@ class PollarUser {
   }
 
   Map<String, dynamic> getAll() {
-    return <String, dynamic> {
-        "emoji": emoji,
-        "email": emailAddress,
-        "innerColor": innerColor.value,
-        "outterColor": outerColor.value,
-        "points": points,
-        "unlocked": unlocked,
-        "emojiBgColor": emojiBgColor.value
+    return <String, dynamic>{
+      "emoji": emoji,
+      "email": emailAddress,
+      "innerColor": innerColor.value,
+      "outterColor": outerColor.value,
+      "points": points,
+      "unlocked": unlocked,
+      "emojiBgColor": emojiBgColor.value
     };
   }
 }
 
-
-
 // Fetches current user display emoji from Firebase
-Future<String> getEmoji() async  {
-  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+Future<String> getEmoji() async {
+  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
   return user.emoji;
 }
 
 // Sets new emoji into Firebase
 Future<bool> setEmoji(String emoji) async {
   try {
-  
-  await FirebaseFirestore.instance
-      .collection('User')
-      .doc(PollarAuth.getUid()!)
-      .set({"emoji": emoji}, SetOptions(merge: true));
-      return true;
-  
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(PollarAuth.getUid()!)
+        .set({"emoji": emoji}, SetOptions(merge: true));
+    return true;
   } catch (e) {
     debugPrint("failed setting user emoji");
     return false;
   }
 }
 
-// Sets value of current emojiBgColor into Firebase 
+// Sets value of current emojiBgColor into Firebase
 Future<bool> setEmojiBgColor(int color) async {
   try {
-  
-  await FirebaseFirestore.instance
-      .collection('User')
-      .doc(PollarAuth.getUid()!)
-      .set({"emojiBgColor": color}, SetOptions(merge: true));
-      return true;
-  
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(PollarAuth.getUid()!)
+        .set({"emojiBgColor": color}, SetOptions(merge: true));
+    return true;
   } catch (e) {
     debugPrint("failed setting user emoji bg color");
     return false;
-  }  
+  }
 }
 
 // Fetches points from Firebase
 Future<int> getPoints() async {
-  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
-  return user.points; 
+  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  return user.points;
 }
 
 // Increments "num" points into current points in Firebase
@@ -131,21 +124,18 @@ Future<bool> addPoints(int num) async {
   final prefs = await SharedPreferences.getInstance();
 
   // update shared prefs
-  prefs.setInt('points',
-      sprefPoints! + num);
+  prefs.setInt('points', sprefPoints! + num);
   sprefPoints = prefs.getInt('points')!;
   points = sprefPoints;
   debugPrint('gave user $num points');
 
   try {
-  
     // update for firebase
     await FirebaseFirestore.instance
-      .collection('User')
-      .doc(PollarAuth.getUid()!)
-      .set({"points": points}, SetOptions(merge: true));
+        .collection('User')
+        .doc(PollarAuth.getUid()!)
+        .set({"points": points}, SetOptions(merge: true));
     return true;
-  
   } catch (e) {
     debugPrint("failed to give user points");
     print(e);
@@ -155,7 +145,7 @@ Future<bool> addPoints(int num) async {
 
 // Fetches list of "unlockedAssets" (emoji customization for now) from Firebase
 Future<List<dynamic>> getUnlockedAssets() async {
-  PollarUser user =  await getUserById(FirebaseAuth.instance.currentUser!.uid);
+  PollarUser user = await getUserById(FirebaseAuth.instance.currentUser!.uid);
 
   return user.unlocked;
 }
@@ -176,43 +166,41 @@ Future<void> fetchUserInfoFromFirebaseToSharedPrefs() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('emoji', await getEmoji()); // retrieve set emoji
   prefs.setInt('points', await getPoints()); // retrieve points
-  print('fetching from db: points: ${await getPoints()},  emoji:${await getEmoji()}');
-
+  print(
+      'fetching from db: points: ${await getPoints()},  emoji:${await getEmoji()}');
 }
 
 // Decrements points and adds "bought" emoji into user's "unlockedAssets"
 Future<bool> buyEmoji(int cost, String emoji) async {
   final prefs = await SharedPreferences.getInstance();
   try {
-  
-  // Adds emoji into unlockedAssets (Firebase)
-  await FirebaseFirestore.instance
-      .collection('User')
-      .doc(PollarAuth.getUid()!)
-      .set({"unlocked": FieldValue.arrayUnion([emoji])}, SetOptions(merge: true));
-
+    // Adds emoji into unlockedAssets (Firebase)
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(PollarAuth.getUid()!)
+        .set({
+      "unlocked": FieldValue.arrayUnion([emoji])
+    }, SetOptions(merge: true));
 
     // setting new value of points for display
     try {
       await FirebaseFirestore.instance
-        .collection('User')
-        .doc(PollarAuth.getUid()!)
-        .set({"points": sprefPoints! - cost}, SetOptions(merge: true));
+          .collection('User')
+          .doc(PollarAuth.getUid()!)
+          .set({"points": sprefPoints! - cost}, SetOptions(merge: true));
 
-        prefs.setInt('points', sprefPoints! - cost);
-        sprefPoints = prefs.getInt('points')!;
-        points = sprefPoints;
+      prefs.setInt('points', sprefPoints! - cost);
+      sprefPoints = prefs.getInt('points')!;
+      points = sprefPoints;
     } catch (e) {
       debugPrint("failed deducting points for exchange");
       return false;
     }
 
-      return true;
-  
+    return true;
   } catch (e) {
     debugPrint("failed buying emoji");
     print(e);
     return false;
   }
 }
-

@@ -210,45 +210,45 @@ class CreateMapPageState extends State<CreateMapPage> {
                         buttonText:
                             widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
-                          if (mounted)
-                         {
-                          setState(() async {
-                            debugPrint("showing loading screen");
-                            showLoadingScreen(context);
-                            try {
-                              if (widget.fromFeed) {
-                                await storeMapsData(
-                                    finalValue,
-                                    pickedData.latLong.longitude,
-                                    pickedData.latLong.latitude);
-                                await widget.feedProvider.fetchInitial(100);
-                                if (mounted) {
-                                  Navigator.pop(context, true);
+                          if (mounted) {
+                            setState(() async {
+                              debugPrint("showing loading screen");
+                              showLoadingScreen(context);
+                              try {
+                                if (widget.fromFeed) {
+                                  await storeMapsData(
+                                      finalValue,
+                                      pickedData.latLong.longitude,
+                                      pickedData.latLong.latitude);
+                                  await widget.feedProvider.fetchInitial(100);
+                                  if (mounted) {
+                                    Navigator.pop(context, true);
+                                  }
+                                } else {
+                                  await storeMapsData(
+                                      finalValue,
+                                      pickedData.latLong.longitude,
+                                      pickedData.latLong.latitude);
+                                  if (mounted) {
+                                    Navigator.pop(context, true);
+                                  }
                                 }
-                              } else {
-                                await storeMapsData(
-                                    finalValue,
-                                    pickedData.latLong.longitude,
-                                    pickedData.latLong.latitude);
-                                if (mounted) {
-                                  Navigator.pop(context, true);
-                                }
+                              } catch (e) {
+                                var snackBar = SnackBar(
+                                  duration: const Duration(seconds: 3),
+                                  backgroundColor: Colors.red,
+                                  content: Text(
+                                    e.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
                               }
-                            } catch (e) {
-                              var snackBar = SnackBar(
-                                duration: const Duration(seconds: 3),
-                                backgroundColor: Colors.red,
-                                content: Text(
-                                  e.toString(),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                            if (mounted) Navigator.pop(context, true);
-                          });}
+                              if (mounted) Navigator.pop(context, true);
+                            });
+                          }
                         }),
                   )
                 ])));

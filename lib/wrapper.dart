@@ -18,46 +18,37 @@ class _WrapperState extends State<Wrapper> {
   bool allowEntry = false;
 
   @override
-  void initState() 
-  {
+  void initState() {
     super.initState();
-    try
-    {
-      getUserById(FirebaseAuth.instance.currentUser!.uid).then((PollarUser? user)
-    {
-      print("User is: ${user}");
-      if (user != null)
-      {
-
-        if (mounted)
-        {
-          setState(() {
-            allowEntry = true;
-          });
+    try {
+      getUserById(FirebaseAuth.instance.currentUser!.uid)
+          .then((PollarUser? user) {
+        print("User is: ${user}");
+        if (user != null) {
+          if (mounted) {
+            setState(() {
+              allowEntry = true;
+            });
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              allowEntry = false;
+            });
+          }
         }
-      }
-      else 
-      {
-         if (mounted)
-        {
-          setState(() {
-            allowEntry = false;
-          });
-        }
-      }
-    });
-    }
-    catch(e)
-    {
+      });
+    } catch (e) {
       allowEntry = false;
     }
-    
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges().startWith(FirebaseAuth.instance.currentUser),
+      stream: FirebaseAuth.instance
+          .authStateChanges()
+          .startWith(FirebaseAuth.instance.currentUser),
       builder: (context, snapshot) {
         debugPrint("Is user signed in?: ${snapshot.hasData}");
         if (snapshot.connectionState == ConnectionState.waiting) {

@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -8,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
- Future<bool> checkPermission() async {
+Future<bool> checkPermission() async {
   final status = await Permission.locationWhenInUse.status;
   if (status.isGranted) {
     // Permission is already granted
@@ -18,8 +16,7 @@ import 'firebase_options.dart';
     bool granted = await requestPermission();
     if (granted) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -37,8 +34,6 @@ Future<bool> requestPermission() async {
   }
 }
 
-
-
 void main() async {
   //DO NOT EDIT
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,12 +44,12 @@ void main() async {
   preferences.remove('Radius');
   preferences.remove('virtualLocation');
   preferences.remove('physicalLocation');
-  bool locationGranted =  await checkPermission();
-  
+  bool locationGranted = await checkPermission();
+
   if (!locationGranted) {
     SystemNavigator.pop();
   }
-  
+
   runApp(const PollsApp());
 }
 
@@ -63,7 +58,7 @@ class PollsApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Pollar',
       home: Wrapper(),

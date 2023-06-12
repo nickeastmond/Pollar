@@ -31,7 +31,8 @@ class _CommentCardState extends State<CommentCard> {
     super.initState();
   }
 
-  Future<void> deleteCommentWarning(BuildContext context, FeedProvider feedProvider) {
+  Future<void> deleteCommentWarning(
+      BuildContext context, FeedProvider feedProvider) {
     return showCupertinoModalPopup<void>(
       context: context,
       barrierColor: Colors.grey.shade900.withOpacity(0.7),
@@ -53,10 +54,9 @@ class _CommentCardState extends State<CommentCard> {
               bool canDelete = false;
               if (widget.commentFeedObj.comment.userId == id) {
                 canDelete = true;
-                bool success = await deleteComment(widget.commentFeedObj.commentId);
-                              Navigator.pop(context);
-
-               
+                bool success =
+                    await deleteComment(widget.commentFeedObj.commentId);
+                Navigator.pop(context);
               }
               Navigator.pop(context);
 
@@ -110,7 +110,10 @@ class _CommentCardState extends State<CommentCard> {
                     child: MainProfileCircleWidget(
                       emoji: widget.pollObj.pollarUser.emoji,
                       fillColor: widget.pollObj.pollarUser.emojiBgColor,
-                      borderColor: MediaQuery.of(context).platformBrightness == Brightness.light? Colors.grey.shade200: Colors.grey.shade800,
+                      borderColor: MediaQuery.of(context).platformBrightness ==
+                              Brightness.light
+                          ? Colors.grey.shade200
+                          : Colors.grey.shade800,
                       size: 35,
                       width: 2.5,
                       emojiSize: 17.5,
@@ -155,9 +158,9 @@ class _CommentCardState extends State<CommentCard> {
                   const Spacer(),
                   PollsTheme(builder: (context, theme) {
                     return GestureDetector(
-                        onTap: ()  {
-                          deleteCommentWarning(context,widget.feedProvider).then((_)=>getComments(widget.pollObj.pollId));
-                         
+                        onTap: () {
+                          deleteCommentWarning(context, widget.feedProvider)
+                              .then((_) => getComments(widget.pollObj.pollId));
                         },
                         child: Icon(
                           Icons.more_horiz,
@@ -177,4 +180,3 @@ class _CommentCardState extends State<CommentCard> {
     });
   }
 }
-

@@ -94,8 +94,7 @@ class SignUpPageState extends State<SignUpPage>
   }
 
   @override
-  void dispose()
-  {
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }

@@ -15,7 +15,6 @@ class LocationData {
   final LatLng latLng;
   final List<Placemark> placemarks;
   final int radius;
-  
 
   LocationData(
       {required this.latLng, required this.placemarks, required this.radius});
@@ -23,10 +22,9 @@ class LocationData {
 
 class MainFeedProvider extends FeedProvider {
   List<PollFeedObject> _items = []; // Implement items in the subclass
-   LatLng _userLocation = LatLng(0, 0);
+  LatLng _userLocation = LatLng(0, 0);
   final MapController mapController = MapController();
   bool isLoading = false;
-
 
   LocationData? _locationData; // Store the location data here
   LocationData? get locationData => _locationData; // Define the getter
@@ -39,7 +37,8 @@ class MainFeedProvider extends FeedProvider {
   Future<LocationData> _getCurrentLocation() async {
     debugPrint("executing get location");
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
+    final position =
+        await PositionAdapter.getFromSharedPreferences("virtualLocation");
     _userLocation = LatLng(position!.latitude, position.longitude);
     mapController.move(_userLocation, 13);
     List<Placemark> placemark = await placemarkLocation(_userLocation);
@@ -61,8 +60,7 @@ class MainFeedProvider extends FeedProvider {
 
   @override
   List<PollFeedObject> get items => _items;
-  Future<bool> geoPointsDistance(
-      Position p1, Position p2, double? r1) async {
+  Future<bool> geoPointsDistance(Position p1, Position p2, double? r1) async {
     double metersToMilesFactor = 0.000621371;
     // Calculate the distance between the two points
     double distance = Geolocator.distanceBetween(
@@ -70,6 +68,7 @@ class MainFeedProvider extends FeedProvider {
     // Check if the distance is less than or equal to the radius
     return (distance * metersToMilesFactor) <= (r1 ?? 5);
   }
+
   @override
   Future<void> fetchInitial(int limit) async {
     debugPrint("fetchin initial");
@@ -81,7 +80,8 @@ class MainFeedProvider extends FeedProvider {
 
     // Define the user's current location
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final position = await PositionAdapter.getFromSharedPreferences("virtualLocation");
+    final position =
+        await PositionAdapter.getFromSharedPreferences("virtualLocation");
     final double userLat = position!.latitude;
     final double userLong = position.longitude;
     final double? userRad = prefs.getDouble('Radius'); // MILES
@@ -95,7 +95,7 @@ class MainFeedProvider extends FeedProvider {
         heading: 0,
         speed: 0,
         speedAccuracy: 0);
-        
+
     final snapshot =
         await FirebaseFirestore.instance.collection('Poll').limit(limit).get();
     _items = [];
@@ -103,14 +103,15 @@ class MainFeedProvider extends FeedProvider {
     //TODO: do this in small batches of 4-5 for how many r displayed,
     // TO SLOW RN - darin
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
+    debugPrint("Start");
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
-      
-    final userId = doc.data()["userId"];
-    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-        await FirebaseFirestore.instance.collection('User').doc(userId).get();
-      PollarUser user = PollarUser.fromDoc(userSnapshot); 
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );
+
+      final userId = doc.data()["userId"];
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      PollarUser user = PollarUser.fromDoc(userSnapshot);
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id, user);
       GeoPoint locationData = doc.data()['locationData'];
       final otherLocation = Position(
           latitude: locationData.latitude,
@@ -121,23 +122,22 @@ class MainFeedProvider extends FeedProvider {
           heading: 0,
           speed: 0,
           speedAccuracy: 0);
-       
-      final bool overlap = await geoPointsDistance(
-          currentLocation, otherLocation, userRad);
+
+      final bool overlap =
+          await geoPointsDistance(currentLocation, otherLocation, userRad);
       // Check if the circles overlap
       if (overlap) {
         _items.add(obj);
       }
     }
+       
+     debugPrint("end");
 
     _items = _items.toList();
 
     _items.sort((a, b) => b.poll.timestamp.compareTo(a.poll.timestamp));
     print("notifyling listerners");
     notifyListeners();
-    isLoading  = false;
-    
+    isLoading = false;
   }
-
-  
 }

@@ -69,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   initState() {
-    updateMyEmoji('');         
+    updateMyEmoji('');
     updateMyEmojiBgColor(-2);
     updatePoints(0);
     fetchAssets();
@@ -211,15 +211,15 @@ class _ProfilePageState extends State<ProfilePage>
     });
   }
 
-  // Use this to immediately reflect real-time changes 
-  // to user's points (especially if changes were 
+  // Use this to immediately reflect real-time changes
+  // to user's points (especially if changes were
   // made by another page)
   int setStateFromAnotherPagePoints() {
     updatePoints(0);
     return points!;
   }
 
-  // Use this to immediately reflect real-time changes 
+  // Use this to immediately reflect real-time changes
   // to user's display emoji
   String setStateFromThisPageEmoji() {
     updateMyEmoji('');
@@ -502,7 +502,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               ),
                                             ),
                                           ),
-                                          
+
                                           // Change emoji functionality
                                           const SizedBox(height: 2.5),
                                           AnimatedContainer(
