@@ -210,6 +210,8 @@ class CreateMapPageState extends State<CreateMapPage> {
                         buttonText:
                             widget.fromFeed ? 'Set Feed Location' : 'Post',
                         onPicked: (pickedData) {
+                          if (mounted)
+                         {
                           setState(() async {
                             debugPrint("showing loading screen");
                             showLoadingScreen(context);
@@ -246,7 +248,7 @@ class CreateMapPageState extends State<CreateMapPage> {
                                   .showSnackBar(snackBar);
                             }
                             if (mounted) Navigator.pop(context, true);
-                          });
+                          });}
                         }),
                   )
                 ])));
