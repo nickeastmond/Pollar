@@ -61,6 +61,7 @@ dependencies:
   cloud_functions: ^4.3.2
   algolia: ^1.1.2
   confetti: ^0.7.0
+  mockito: ^5.4.2
 
 dev_dependencies:
   flutter_test:
