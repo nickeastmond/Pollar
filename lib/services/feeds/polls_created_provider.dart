@@ -6,35 +6,34 @@ import '../../model/Poll/poll_model.dart';
 import '../../model/user/pollar_user_model.dart';
 import 'feed_provider.dart';
 
-
-
 class PollsCreatedProvider extends FeedProvider {
   List<PollFeedObject> _items = []; // Implement items in the subclass
   bool isLoading = false;
 
-
-
   @override
   List<PollFeedObject> get items => _items;
- 
+
   @override
   Future<void> fetchInitial(int limit) async {
     isLoading = true;
     debugPrint("fetchin initial");
     String uid = FirebaseAuth.instance.currentUser!.uid;
-    final snapshot =
-        await FirebaseFirestore.instance.collection('Poll').where("userId",isEqualTo:uid ).limit(limit).get();
+    final snapshot = await FirebaseFirestore.instance
+        .collection('Poll')
+        .where("userId", isEqualTo: uid)
+        .limit(limit)
+        .get();
     _items = [];
 
     // Iterate over the documents in the snapshot and check if their circles overlap with the user's circle
     for (QueryDocumentSnapshot<Map<String, dynamic>> doc in snapshot.docs) {
       // Get the document's geopoint and radius
       final userId = doc.data()["userId"];
-    final userSnapshot =
-        await FirebaseFirestore.instance.collection('User').doc(userId).get();
-      PollarUser user = PollarUser.fromDoc(userSnapshot); 
-      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id ,user );         
-      _items.add(obj); 
+      final userSnapshot =
+          await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      PollarUser user = PollarUser.fromDoc(userSnapshot);
+      PollFeedObject obj = PollFeedObject(Poll.fromDoc(doc), doc.id, user);
+      _items.add(obj);
     }
     _items = _items.toList();
 
@@ -42,8 +41,5 @@ class PollsCreatedProvider extends FeedProvider {
     print("notifyling listerners");
     isLoading = false;
     notifyListeners();
-    
   }
-
-  
 }

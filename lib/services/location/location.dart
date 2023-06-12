@@ -10,7 +10,9 @@ import '../../model/Position/position_adapter.dart';
 
 Future<bool> getLocation() async {
   LocationPermission permission;
-  Platform.isAndroid ? permission = await Geolocator.checkPermission() : permission = await Geolocator.requestPermission();
+  Platform.isAndroid
+      ? permission = await Geolocator.checkPermission()
+      : permission = await Geolocator.requestPermission();
   print("PERMISSION IS: $permission");
   if (permission == LocationPermission.denied ||
       permission == LocationPermission.deniedForever) {
@@ -30,7 +32,8 @@ Future<bool> getLocation() async {
     PositionAdapter.savePermissionToSharedPreferences("locationGranted", false);
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble("Radius", 5.0);
-    print("Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
+    print(
+        "Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
     shouldRequestLocation = true;
     return false;
   }
@@ -55,32 +58,28 @@ Future<bool> getLocation() async {
 
   final prefs = await SharedPreferences.getInstance();
   prefs.setDouble("Radius", 5.0);
-  print("Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
+  print(
+      "Geolocation is: ${prefs.getString("virtualLocation") ?? "THERE IS NO CURRENT LOCATION!!"}");
   return true;
 }
 
-
-
 Future<bool> checkLocationEnabled(BuildContext context) async {
   bool locationEnabled = await getLocation();
-    print("checking location" );
-  if (!locationEnabled && context.mounted ) {
+  print("checking location");
+  if (!locationEnabled && context.mounted) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Enable Location Services"),
-          content: const Text("Please enable location services to use this app."),
+          content:
+              const Text("Please enable location services to use this app."),
           actions: [
             TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-              
-                Navigator.pop(context); // Close the dialog
-              
-            }
-              
-            ),
+                child: const Text("Cancel"),
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                }),
             TextButton(
               child: const Text("Settings"),
               onPressed: () async {
@@ -93,6 +92,6 @@ Future<bool> checkLocationEnabled(BuildContext context) async {
       },
     );
   }
-  
+
   return locationEnabled;
 }
