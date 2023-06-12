@@ -63,6 +63,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
     super.initState();
   }
 
+  // Returns a bool that represents if a user is eligible to vote on the poll or not
   Future<bool> eligibleVote() async {
     bool status = await pollStatus(FirebaseAuth.instance.currentUser!.uid,
         widget.pollFeedObj.pollId, widget.pollFeedObj.poll);
@@ -74,6 +75,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
     return status;
   }
 
+  // Returns a bool that represents whether if a user is in the poll's range or not
   Future<bool> inRange() async {
     final pollLocation = Position(
         latitude: widget.pollFeedObj.poll.locationData.latitude,
@@ -101,6 +103,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
     }
   }
 
+  // Loading screen
   void showLoadingScreen(BuildContext context) {
     showDialog(
       context: context,
@@ -123,6 +126,7 @@ class ExpandedPollPageState extends State<ExpandedPollPage> {
     );
   }
 
+  // Refresh function for the page
   Future<void> _onRefresh() async {
     // Simulate a delay while loading new data
     bool hasVoted = await hasUserVoted(
